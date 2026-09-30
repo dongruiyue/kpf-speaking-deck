@@ -1,0 +1,9 @@
+# 版权红线：含剑桥出版物原文/图片/录音，不进公开仓库（见 references/publishing.md）
+golden/
+out/
+lessons/
+
+# 本地产物
+.DS_Store
+__pycache__/
+*.pyc

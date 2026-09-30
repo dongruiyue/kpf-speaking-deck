@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__LESSON_TITLE__</title>
+<style>
+:root{
+  --console-w:352px;
+  --ref-w:340px;
+  --paper:#FAF9F5; --card:#FFFFFF; --line:#E8E4DA;
+  --ink:#2E2E2C; --dim:#6B6760; --terra-ink:#B4472C;
+  --teal:#2C786C; --terra:#D96C4F; --mustard:#E0A82E;
+  --green:#6BCB77; --coral:#FF8A5C;
+  --teal-soft:#E4EFEC; --terra-soft:#F9E8E2; --mustard-soft:#FBF2DC;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:none;}
+body{background:var(--paper);color:var(--ink);min-height:100vh;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;transition:transform .12s ease-out;}
+button:active{transform:scale(.95)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+header{display:flex;align-items:center;gap:14px;padding:8px 20px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50;flex-wrap:wrap;}
+header h1{font-size:17px;font-weight:800;}
+header .sub{font-size:11.5px;color:var(--dim);margin-top:1px;}
+.score-mini{display:flex;align-items:center;gap:8px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:5px 12px;font-weight:800;font-size:15px;margin-left:auto;}
+.score-mini .dotA,.score-mini .dotB{width:12px;height:12px;border-radius:4px;display:inline-block;}
+.dotA{background:var(--teal);} .dotB{background:var(--terra);}
+.score-mini b{font-size:18px;min-width:22px;text-align:center;font-variant-numeric:tabular-nums;}
+.hdr-right{display:flex;gap:8px;}
+.icon-btn{width:40px;height:40px;border-radius:11px;background:var(--paper);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;color:var(--teal);}
+.icon-btn:hover{background:var(--teal-soft);}
+.icon-btn svg{width:24px;height:24px;}
+#miniTimer{position:absolute;bottom:1px;right:5px;font-size:11px;color:var(--terra-ink);font-variant-numeric:tabular-nums;display:none;font-weight:800;}
+#miniTimer.on{display:block;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{50%{opacity:.35}}
+
+.steps{display:flex;gap:8px;padding:8px 20px;overflow-x:auto;}
+.step{flex:1;min-width:120px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:6px 10px;font-size:12.5px;color:var(--dim);text-align:left;display:flex;align-items:center;gap:7px;}
+.step .n{width:22px;height:22px;border-radius:50%;background:var(--paper);border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;flex-shrink:0;}
+.step.cur{border-color:var(--teal);color:var(--ink);}
+.step.cur .n{background:var(--teal);color:#fff;border-color:var(--teal);}
+.step.done .n{background:var(--green);color:#fff;border-color:var(--green);}
+.step.bonus{background:var(--mustard-soft);}
+
+main{padding:6px 22px 34px;max-width:min(1780px,98vw);margin:0 auto;}
+body.presenting main,body.ref-open main{padding-bottom:64px;}
+/* 演讲者控制台 / 参考抽屉都是真正的栏，各自占位，绝不覆盖左侧内容 */
+body.presenting,body.ref-open{display:grid;grid-template-rows:auto auto 1fr;align-items:start;}
+body.presenting{grid-template-columns:1fr var(--console-w);}
+body.ref-open{grid-template-columns:1fr var(--ref-w);}
+body.presenting.ref-open{grid-template-columns:1fr var(--ref-w) var(--console-w);}
+body.presenting header,body.ref-open header{grid-column:1;grid-row:1;}
+body.presenting .steps,body.ref-open .steps{grid-column:1;grid-row:2;}
+body.presenting main,body.ref-open main{grid-column:1;grid-row:3;margin-right:0;max-width:none;width:100%;}
+.screen{display:none;}
+.screen.on{display:block;animation:fade .25s ease-out;}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+
+.dash-title{font-size:24px;font-weight:800;margin:12px 0 3px;}
+.dash-sub{color:var(--dim);margin-bottom:12px;font-size:13.5px;line-height:1.6;}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;}
+.menu-card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:16px;text-align:left;min-height:104px;display:flex;flex-direction:column;gap:6px;position:relative;}
+.menu-card:hover{border-color:var(--teal);transform:translateY(-3px);box-shadow:0 8px 20px rgba(44,120,108,.1);}
+.menu-card .ic{width:46px;height:46px;color:var(--teal);display:inline-block;}
+.menu-card .ic svg{width:100%;height:100%;}
+.menu-card .t{font-size:21px;font-weight:800;}
+.menu-card .d{font-size:14px;color:var(--dim);line-height:1.5;}
+.menu-card .time{margin-top:auto;font-size:12px;color:var(--terra);font-weight:700;}
+.menu-card .tier{position:absolute;top:18px;right:18px;font-size:12px;font-weight:800;border-radius:10px;padding:4px 10px;}
+.tier.core{background:var(--teal-soft);color:var(--teal);}
+.tier.warm{background:#E9EEF0;color:#5c6b70;}
+.tier.bonus{background:var(--mustard-soft);color:#7a5b10;}
+.menu-card.champ{background:var(--mustard-soft);border-color:var(--mustard);}
+.menu-card.champ .ic{color:var(--mustard);}
+
+.topline{display:flex;align-items:center;gap:12px;margin:9px 0 9px;flex-wrap:wrap;}
+.back-btn{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:8px 14px;font-size:14px;color:var(--dim);}
+.back-btn:hover{color:var(--ink);}
+.topline h2{font-size:22px;font-weight:800;}
+.teacher-tip{width:100%;background:var(--teal-soft);border:1.5px solid #cfe3de;border-radius:14px;text-align:left;}
+.teacher-tip summary{cursor:pointer;color:var(--teal);font-size:14px;font-weight:800;padding:9px 14px;list-style:none;}
+.teacher-tip summary::before{content:"教学提示（学生不可见）· 点击展开";}
+.teacher-tip[open] summary::before{content:"教学提示 · 点击收起";}
+.teacher-tip .tip-body{padding:0 16px 11px;font-size:13px;line-height:1.75;color:#3c5a53;}
+.teacher-tip .tip-body b{color:var(--teal);}
+
+.stage{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:clamp(9px,1.1vw,14px);text-align:center;min-height:clamp(150px,20vh,240px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+.mega-btn{border-radius:14px;padding:12px 26px;font-size:clamp(16px,1.6vw,22px);font-weight:800;color:#fff;background:var(--teal);min-height:52px;box-shadow:0 4px 14px rgba(44,120,108,.25);display:inline-flex;align-items:center;gap:8px;flex-shrink:0;}
+.mega-btn.terra{background:var(--terra);box-shadow:0 4px 14px rgba(217,108,79,.25);}
+.mega-btn.mustard{background:var(--mustard);color:var(--ink);box-shadow:0 4px 14px rgba(224,168,46,.3);}
+.mega-btn svg{width:20px;height:20px;}
+.ghost-btn{background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:9px 16px;font-size:14px;min-height:40px;display:inline-flex;align-items:center;gap:7px;flex-shrink:0;}
+.ghost-btn:hover{border-color:var(--teal);color:var(--teal);}
+.ghost-btn svg{width:17px;height:17px;}
+.big-sub{font-size:clamp(13px,1.25vw,16px);color:var(--dim);}
+.sentence{background:var(--mustard-soft);border:2px dashed var(--mustard);border-radius:14px;padding:9px 15px;font-size:clamp(14px,1.35vw,17px);color:#7a5b10;max-width:900px;line-height:1.45;}
+.rule-line{font-size:clamp(12.5px,1.1vw,14px);color:var(--dim);font-weight:700;}
+.badge{display:inline-block;font-size:clamp(15px,2vw,19px);padding:6px 18px;border-radius:20px;font-weight:800;}
+.badge.like{background:#E3F4E8;color:#3a8a4d;}
+.badge.dislike{background:var(--terra-soft);color:var(--terra-ink);}
+.next-row{width:100%;display:flex;justify-content:flex-end;align-items:center;margin-top:auto;padding-top:4px;flex-wrap:wrap;gap:10px;}
+
+.score-team{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.score-team button{border-radius:14px;padding:8px 16px;font-size:clamp(13.5px,1.25vw,16px);font-weight:900;border:1.5px solid;min-height:40px;}
+.score-team button.a{color:var(--teal);border-color:var(--teal);background:var(--card);}
+.score-team button.a:hover{background:var(--teal-soft);}
+.score-team button.b{color:var(--terra-ink);border-color:var(--terra-ink);background:var(--card);}
+.score-team button.b:hover{background:var(--terra-soft);}
+.turn-label{font-size:clamp(15px,1.5vw,19px);font-weight:900;}
+
+.champ-score{display:flex;gap:22px;align-items:center;width:100%;max-width:760px;}
+.champ-score .side{flex:1;background:var(--paper);border:3px solid;border-radius:20px;padding:24px;}
+.champ-score .side.a{border-color:var(--teal);}
+.champ-score .side.b{border-color:var(--terra);}
+.champ-score .cs{font-size:clamp(56px,9vw,96px);font-weight:900;font-variant-numeric:tabular-nums;}
+.champ-score .side.a .cs{color:var(--teal);}
+.champ-score .side.b .cs{color:var(--terra);}
+.champ-score .cn{font-size:clamp(19px,2.6vw,26px);font-weight:900;}
+.score-table{width:100%;max-width:660px;border-collapse:collapse;font-size:clamp(15px,2.2vw,22px);}
+.score-table th,.score-table td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:center;}
+.score-table th{color:var(--dim);font-weight:800;}
+.score-table td.step{text-align:left;font-weight:700;}
+.score-table .a{color:var(--teal);font-weight:900;}
+.score-table .b{color:var(--terra-ink);font-weight:900;}
+.win-banner{font-size:clamp(26px,4.5vw,44px);font-weight:900;color:var(--teal);}
+.vs{font-size:clamp(20px,3vw,30px);font-weight:900;color:var(--dim);}
+
+#timerOverlay{position:fixed;inset:0;background:rgba(250,249,245,.94);display:none;align-items:center;justify-content:center;z-index:100;}
+.timer-card{background:var(--card);border:2px solid var(--teal);border-radius:28px;padding:36px 44px;display:flex;flex-direction:column;align-items:center;gap:20px;box-shadow:0 20px 60px rgba(44,120,108,.22);max-width:92vw;}
+.timer-num{font-size:clamp(84px,16vw,170px);font-weight:900;font-variant-numeric:tabular-nums;color:var(--teal);}
+.timer-num.warn{color:var(--coral);animation:pulse .5s infinite;}
+.presets{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.presets button{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:13px 20px;font-size:16px;}
+.presets button:hover{border-color:var(--teal);}
+.timer-ctrl{display:flex;gap:12px;}
+.timer-ctrl button{border-radius:14px;padding:15px 32px;font-size:18px;font-weight:800;min-height:58px;}
+#tClose{position:absolute;top:20px;right:26px;font-size:34px;color:var(--dim);}
+#tEnd{display:none;flex-direction:column;align-items:center;gap:20px;}
+
+#console{position:fixed;top:0;right:0;bottom:0;width:var(--console-w);background:var(--card);border-left:1.5px solid var(--line);z-index:80;display:none;flex-direction:column;padding:18px;gap:14px;overflow-y:auto;}
+body.presenting #console{display:flex;grid-column:2;grid-row:1/4;position:static;height:100vh;width:100%;}
+#console .c-title{font-size:13px;color:var(--dim);font-weight:800;letter-spacing:1px;}
+#console .c-screen{font-size:21px;font-weight:900;}
+#console .c-box{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:14px;font-size:14px;line-height:1.8;}
+#console .c-box b{color:var(--teal);}
+#console .talk-line{margin:10px 0 12px;}
+#console .talk-en{display:block;font-size:15px;font-weight:800;color:var(--ink);line-height:1.5;}
+#console .talk-cn{display:block;font-size:12px;color:var(--dim);margin-top:3px;}
+#console .c-nav{display:flex;gap:8px;}
+#console .c-nav button{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:15px;font-weight:800;background:var(--card);min-height:48px;}
+#console .c-nav button:hover{border-color:var(--teal);color:var(--teal);}
+#console .c-status{border-radius:12px;padding:10px 14px;font-size:14px;font-weight:800;text-align:center;}
+#console .c-status.ok{background:#E3F4E8;color:#3a8a4d;}
+#console .c-status.bad{background:var(--terra-soft);color:var(--terra);}
+#console .c-status.wait{background:var(--mustard-soft);color:#7a5b10;}
+#consoleExit{background:var(--ink);color:#fff;border-radius:12px;padding:14px;font-size:16px;font-weight:800;}
+
+/* ---------- 常驻句架栏 ---------- */
+#frameBar{position:fixed;left:0;right:0;bottom:0;z-index:65;background:var(--card);border-top:2px solid var(--teal);display:flex;align-items:center;gap:18px;padding:10px 22px;flex-wrap:wrap;justify-content:center;}
+#frameBar .fb-item{font-size:clamp(14px,1.9vw,19px);font-weight:800;color:var(--teal);white-space:nowrap;}
+#frameBar .fb-cn{font-size:12px;color:var(--dim);font-weight:700;}
+body.presenting #frameBar,body.ref-open #frameBar{padding:7px 14px;gap:12px;flex-wrap:nowrap;overflow:hidden;}
+body.presenting #frameBar .fb-item,body.ref-open #frameBar .fb-item{font-size:13px;}
+body.presenting #frameBar .fb-cn,body.ref-open #frameBar .fb-cn{display:none;}
+body.presenting #frameBar{right:var(--console-w);}
+
+#refBtn{color:var(--teal);}
+#refDrawer{display:none;flex-direction:column;background:var(--card);border-left:1.5px solid var(--line);overflow:hidden;}
+#refDrawer.on{display:flex;grid-column:2;grid-row:1/4;position:static;height:100vh;width:100%;border-radius:0;box-shadow:none;border-left:1.5px solid var(--line);border-right:none;}
+body.presenting.ref-open #refDrawer{grid-column:2;}
+body.presenting.ref-open #console{grid-column:3;}
+body.presenting.ref-open #frameBar{right:calc(var(--ref-w) + var(--console-w));}
+body.ref-open:not(.presenting) #frameBar{right:var(--ref-w);}
+#refDrawer .rd-head{display:flex;gap:8px;padding:12px 14px;border-bottom:1.5px solid var(--line);align-items:center;}
+#refDrawer .rd-head button.tab{border-radius:12px;padding:10px 18px;font-size:15px;font-weight:800;background:var(--paper);border:1.5px solid var(--line);color:var(--dim);}
+#refDrawer .rd-head button.tab.cur{background:var(--teal);color:#fff;border-color:var(--teal);}
+#refDrawer .rd-close{margin-left:auto;font-size:22px;color:var(--dim);padding:4px 10px;}
+#refDrawer .rd-body{overflow-y:auto;padding:14px 18px;font-size:15px;line-height:1.8;text-align:left;}
+#refDrawer .rd-body h4{color:var(--teal);font-size:15px;margin:10px 0 4px;}
+#refDrawer .rd-body h4:first-child{margin-top:0;}
+#refDrawer .rd-body .place-head{display:flex;align-items:center;gap:8px;color:var(--teal);font-weight:900;font-size:16px;margin:12px 0 4px;}
+#refDrawer .rd-body .place-head .pic{display:inline-block;width:40px;height:40px;border-radius:8px;overflow:hidden;}
+#refDrawer .rd-body .mapbox{margin-top:14px;}
+#refDrawer .rd-body .mapbox img{width:100%;border-radius:12px;border:1.5px solid var(--line);}
+#refDrawer .rd-body .credit{font-size:12px;color:var(--dim);margin-top:10px;}
+#refDrawer .rd-body .place-head .pic svg{width:100%;height:100%;}
+#refDrawer .rd-body ul{margin-left:20px;}
+#refDrawer .rd-body li{margin-bottom:2px;}
+#refDrawer .rd-body .pos{color:#3a8a4d;}
+#refDrawer .rd-body .neg{color:var(--terra);}
+#refDrawer .rd-body b{color:var(--teal);}
+.reason-dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:middle;}
+.reason-dot.d-like{background:var(--green);}
+.reason-dot.d-dislike{background:var(--coral);}
+
+#audBadge{position:fixed;bottom:66px;left:14px;background:var(--ink);color:#fff;border-radius:10px;padding:6px 14px;font-size:12px;opacity:.6;display:none;z-index:60;}
+body.audience #audBadge{display:block;}
+body.audience .teacher-only{display:none!important;}
+body.audience .rule-line{display:none;}
+body.audience #frameBar .fb-cn{display:none;}
+body.audience main{padding:6px clamp(20px,2.2vw,72px) 80px;max-width:none;width:100%;}
+/* 投影要占满整屏：字号跟着屏宽放大，别让内容挤在中间一条 */
+body.audience .topline h2{font-size:clamp(24px,2.3vw,44px);}
+body.audience .kv{font-size:clamp(14px,1.3vw,28px);}
+body.audience .recipe{padding:clamp(14px,1.5vw,26px) clamp(20px,2.2vw,44px);}
+body.audience .recipe-badge{width:clamp(78px,6.4vw,124px);height:clamp(78px,6.4vw,124px);font-size:clamp(28px,2.6vw,48px);}
+body.audience .recipe-list li{font-size:clamp(19px,2vw,40px);}
+body.audience .badge.like{font-size:clamp(14px,1.35vw,26px);}
+body.audience .rule-line{font-size:clamp(15px,1.35vw,26px);}
+body.audience .dash-title{font-size:clamp(28px,2.3vw,44px);}
+body.audience .menu{grid-template-columns:repeat(auto-fit,minmax(clamp(260px,22vw,420px),1fr));}
+body.audience .menu-card{min-height:clamp(130px,16vh,250px);}
+body.audience .menu-card .ic{width:clamp(46px,3.2vw,70px);height:clamp(46px,3.2vw,70px);}
+body.audience .menu-card .t{font-size:clamp(20px,1.5vw,32px);}
+body.audience .menu-card .d{font-size:clamp(14px,1.15vw,22px);}
+body.audience .menu-card .time{font-size:clamp(12px,1vw,19px);}
+/* 观众屏：计时器收成右上角倒计时条，不遮挡任务内容 */
+body.audience #timerOverlay{background:transparent;align-items:flex-start;justify-content:flex-end;pointer-events:none!important;}
+body.audience .timer-card{position:fixed;top:76px;right:20px;padding:12px 20px;gap:6px;border-width:3px;}
+body.audience .timer-card .presets,body.audience #tCtrl,body.audience #tClose{display:none;}
+body.audience .timer-num{font-size:clamp(44px,6.5vw,76px);}
+body.audience #tEnd .mega-btn{display:none;}
+body.audience #tEnd .win-banner{font-size:clamp(20px,3vw,30px);}
+body.audience button,body.audience input,body.audience textarea,body.audience label,body.audience summary{pointer-events:none!important;}
+#byeOverlay{position:fixed;inset:0;background:rgba(46,46,44,.9);color:#fff;display:none;align-items:center;justify-content:center;font-size:32px;font-weight:900;z-index:300;}
+body.bye #byeOverlay{display:flex;}
+
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:200;display:none;}
+.hint{color:var(--dim);font-size:14px;}
+
+/* ---------- 讲解 / 练习 双视图（每个 Part 先讲后练） ---------- */
+.mod-tabs{display:flex;gap:9px;margin:0 0 9px;flex-wrap:wrap;}
+.mod-tab{border-radius:12px;padding:9px 18px;font-size:clamp(14px,1.25vw,16px);font-weight:800;border:1.5px solid var(--line);background:var(--card);color:var(--dim);min-height:42px;}
+.mod-tab.cur{background:var(--teal);color:#fff;border-color:var(--teal);}
+.mod-view{display:none;}
+.mod-view.on{display:block;animation:fade .2s ease-out;}
+.teach-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:9px;flex-wrap:wrap;width:100%;}
+/* ---------- 编号操作卡：整行横条，一眼就能当「照着做」的清单 ---------- */
+.recipe{display:flex;align-items:center;gap:clamp(11px,1.1vw,18px);width:100%;background:var(--mustard-soft);border:2px dashed var(--mustard);border-radius:18px;padding:clamp(8px,.85vw,12px) clamp(12px,1.2vw,20px);margin-bottom:9px;text-align:left;}
+.recipe-badge{flex-shrink:0;width:clamp(54px,4.4vw,76px);height:clamp(54px,4.4vw,76px);border-radius:50%;background:var(--mustard);color:#fff;display:flex;align-items:center;justify-content:center;font-size:clamp(19px,1.7vw,27px);font-weight:900;letter-spacing:.5px;box-shadow:0 4px 14px rgba(224,168,46,.35);}
+.recipe-list{list-style:decimal;margin-left:clamp(18px,1.5vw,26px);display:flex;flex-direction:column;gap:clamp(2px,.35vw,5px);}
+.recipe-list li{font-size:clamp(15px,1.4vw,21px);font-weight:800;color:#6d5010;line-height:1.35;}
+.recipe-list li::marker{color:var(--mustard);font-weight:900;}
+.recipe-list li b{color:var(--terra-ink);}
+.recipe-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:3px;}
+.recipe-row .recipe{padding:clamp(8px,.85vw,12px) clamp(11px,1vw,15px);}
+.recipe-row .recipe-list li{font-size:clamp(14px,1.2vw,17px);}
+.recipe-row .recipe-badge{width:clamp(48px,3.6vw,62px);height:clamp(48px,3.6vw,62px);font-size:clamp(17px,1.35vw,22px);}
+/* 观众屏只显示「现在在讲解还是练习」的状态条，不是按钮 */
+body.audience .mod-tabs{justify-content:center;}
+body.audience .mod-tab:not(.cur){display:none!important;}
+body.audience .mod-tab.cur{background:var(--paper);color:var(--teal);border-color:var(--line);box-shadow:none;cursor:default;}
+.kv{display:flex;align-items:baseline;gap:8px;padding:3.5px 0;border-bottom:1px solid var(--line);font-size:clamp(11.5px,1.02vw,12.5px);line-height:1.36;}
+.kv:last-child{border-bottom:none;}
+.kv-k{font-weight:900;color:var(--teal);white-space:nowrap;}
+.kv-v{flex:1;}
+.kv-t{color:var(--dim);font-size:.88em;white-space:nowrap;}
+
+/* ================= Speaking Part 2 练习模块 ================= */
+/* 题目条：照片上方那句问题 */
+.q-bar{width:100%;max-width:1000px;background:var(--mustard-soft);border:2px dashed var(--mustard);border-radius:14px;padding:7px 13px;font-size:clamp(13px,1.3vw,16px);font-weight:800;color:#7a5b10;line-height:1.35;}
+.q-bar .q-tag{display:block;font-size:10px;letter-spacing:1px;color:var(--terra-ink);font-weight:900;margin-bottom:1px;text-transform:uppercase;}
+.q-bar.dim{background:var(--paper);border-style:solid;border-color:var(--line);color:var(--dim);font-weight:700;}
+
+/* 照片：两张并排 / 单张 */
+.photo-pair{display:flex;gap:14px;justify-content:center;align-items:flex-start;width:100%;}
+.photo-pair .ph{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:4px;align-items:center;}
+.photo-pair.sm{gap:18px;}
+.photo-pair.sm .ph{flex:0 1 auto;max-width:min(196px,21vw);}
+.photo-pair img{width:100%;border-radius:14px;border:1.5px solid var(--line);display:block;}
+.photo-pair .ph-tag{font-size:clamp(11px,1vw,12.5px);font-weight:800;color:var(--dim);}
+
+/* 句型卡：p1 抽题快答的加一句卡 */
+
+/* 真题演练（p2 练习页） */
+.task-row{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;width:100%;}
+.task-btn{border-radius:12px;padding:8px 14px;font-size:clamp(12.5px,1.15vw,14px);font-weight:800;border:1.5px solid var(--line);background:var(--card);color:var(--dim);min-height:36px;}
+.task-btn:hover{border-color:var(--teal);color:var(--teal);}
+.task-btn.cur{background:var(--teal);color:#fff;border-color:var(--teal);}
+.check-item{border-radius:12px;padding:9px 14px;font-size:clamp(12.5px,1.15vw,14px);font-weight:800;border:1.5px solid var(--line);background:var(--card);color:var(--dim);min-height:38px;}
+.check-item:hover{border-color:var(--teal);color:var(--teal);}
+.check-item.on{background:#E3F4E8;border-color:var(--green);color:#2f7a41;}
+.check-item.on::before{content:"✓ ";font-weight:900;}
+
+/* 撤销按钮（每个练习底部） */
+.score-add{display:flex;align-items:center;gap:8px;margin-right:auto;font-size:12.5px;color:var(--dim);font-weight:800;flex-wrap:wrap;}
+.score-add button{border:1.5px solid var(--line);border-radius:11px;padding:8px 12px;font-size:12.5px;font-weight:800;background:var(--card);min-height:36px;}
+.score-add button:hover{border-color:var(--terra);color:var(--terra-ink);}
+
+/* 演讲者模式左侧那块和投影是同一份内容，用同一套大字号；否则按 0.8 缩放后老师自己屏幕上只剩 10px，看不清。
+   代价是内容变高，所以下面的缩放下限放宽到 0.55（见 fitLeft）。 */
+body.presenting .dash-title{font-size:clamp(28px,2.3vw,44px);}
+body.presenting .kv{font-size:clamp(14px,1.3vw,28px);}
+body.presenting .recipe-list li{font-size:clamp(19px,2vw,40px);}
+/* 观众屏：练习模块跟着屏宽放大 */
+body.audience .q-bar{max-width:none;font-size:clamp(17px,1.7vw,34px);}
+body.audience .photo-pair.sm .ph{max-width:min(400px,30vw);}
+body.audience .photo-pair.sm{gap:26px;}
+body.audience .task-btn,body.audience .check-item{font-size:clamp(15px,1.4vw,26px);min-height:clamp(58px,7vh,96px);}
+body.audience .turn-label{font-size:clamp(21px,2.1vw,40px);}
+
+/* ================= 讲解分页讲义（一个 Part = 一个模块，模块里翻页讲） =================
+   一页只放一块内容，字号大、行距松，投影上一眼看完；底部翻页，翻页同步到观众屏。 */
+.lesson-deck{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:clamp(10px,1.1vw,20px);text-align:left;display:flex;flex-direction:column;gap:10px;}
+.deck-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1.5px solid var(--line);padding-bottom:8px;}
+.deck-title{font-size:clamp(19px,1.95vw,34px);font-weight:900;color:var(--teal);line-height:1.2;}
+.deck-no{display:inline-flex;align-items:center;justify-content:center;width:1.6em;height:1.6em;border-radius:50%;background:var(--teal);color:#fff;font-size:.7em;font-weight:900;margin-right:.4em;vertical-align:middle;}
+.deck-top .deck-ind{margin-left:auto;font-size:clamp(15px,1.45vw,26px);font-weight:900;color:var(--dim);font-variant-numeric:tabular-nums;}
+.deck-body{min-height:clamp(180px,22vh,360px);}
+.deck-page{display:none;}
+.deck-page.on{display:block;}
+.deck-foot{display:flex;align-items:center;gap:clamp(10px,1.4vw,26px);justify-content:center;border-top:1.5px dashed var(--line);padding-top:10px;}
+.deck-nav{font-size:clamp(15px,1.5vw,25px);font-weight:900;padding:10px 26px;min-height:clamp(48px,5.5vh,72px);border-width:2px;border-radius:14px;}
+.deck-nav[disabled]{opacity:.32;cursor:default;}
+.deck-ind-b{font-size:clamp(16px,1.55vw,27px);font-weight:900;color:var(--teal);font-variant-numeric:tabular-nums;min-width:3.6em;text-align:center;}
+.lesson-deck .dk-h{font-size:clamp(15px,1.4vw,25px);font-weight:900;color:var(--terra-ink);margin:9px 0 5px;line-height:1.3;}
+.lesson-deck .dk-h:first-child{margin-top:0;}
+.lesson-deck .dk-i{font-size:clamp(20px,2.2vw,36px);font-weight:800;line-height:1.34;color:var(--ink);}
+.lesson-deck .dk-i b{color:var(--teal);}
+.lesson-deck .dk-mA{font-size:clamp(19px,1.95vw,32px);font-weight:700;line-height:1.5;color:var(--ink);}
+.lesson-deck .dk-mA b{color:var(--teal);}
+.lesson-deck .dk-do{font-size:clamp(16px,1.5vw,27px);font-weight:800;line-height:1.4;color:var(--ink);}
+.lesson-deck .dk-cn{font-size:clamp(13px,1.15vw,21px);color:var(--dim);font-weight:700;line-height:1.5;}
+.lesson-deck .dk-blk{border-bottom:1.5px dashed var(--line);padding:1px 0 4px;}
+.lesson-deck .dk-blk:last-child{border-bottom:none;}
+.lesson-deck .dk-blk .dk-h{margin-top:0;}
+.deck-steps{display:flex;flex-direction:column;gap:7px;margin:6px 0 2px;}
+.deck-steps .dk-step{display:flex;align-items:flex-start;gap:12px;}
+.deck-steps .dk-n{flex-shrink:0;width:1.75em;height:1.75em;border-radius:50%;background:var(--teal-soft);color:var(--teal);font-weight:900;display:flex;align-items:center;justify-content:center;font-size:clamp(15px,1.4vw,25px);}
+.deck-time{display:flex;gap:8px;flex-wrap:wrap;margin:7px 0 2px;}
+.deck-time span{background:var(--mustard-soft);border:1.5px solid var(--mustard);border-radius:11px;padding:5px 13px;font-size:clamp(14px,1.3vw,24px);font-weight:800;color:#7a5b10;}
+.deck-time span b{color:var(--terra-ink);}
+.deck-keytips{display:flex;flex-direction:column;gap:6px;}
+.deck-keytips .dk-tip{display:flex;gap:12px;align-items:baseline;background:var(--teal-soft);border-radius:13px;padding:7px 14px;}
+.deck-keytips .dk-tn{flex-shrink:0;font-weight:900;color:var(--teal);font-size:clamp(15px,1.4vw,25px);}
+.deck-keytips .dk-te{display:block;font-size:clamp(17px,1.75vw,29px);font-weight:800;line-height:1.32;}
+.deck-keytips .dk-tc{display:block;font-size:clamp(13px,1.1vw,19px);color:var(--dim);font-weight:700;margin-top:2px;}
+.deck-tips-list{list-style:decimal;margin-left:clamp(18px,1.5vw,26px);display:flex;flex-direction:column;gap:6px;}
+.deck-tips-list li{font-size:clamp(16px,1.5vw,27px);font-weight:700;line-height:1.4;}
+.deck-tips-list li b{color:var(--teal);}
+.deck-tips-list li .tip-cn{display:block;font-size:clamp(13px,1.15vw,20px);color:var(--dim);font-weight:700;margin-top:3px;}
+.lesson-deck .deck-quote{background:var(--teal-soft);border-radius:14px;padding:10px 15px;}
+.lesson-deck .deck-anno{background:var(--mustard-soft);border-radius:13px;padding:7px 14px;margin-top:6px;}
+.lesson-deck .deck-anno .dk-ae{font-size:clamp(14px,1.3vw,24px);font-weight:800;color:#7a5b10;line-height:1.35;}
+.lesson-deck .deck-anno .dk-ae i{color:var(--terra-ink);}
+.lesson-deck .deck-anno .dk-ai{font-size:clamp(13px,1.2vw,22px);color:var(--terra-ink);font-weight:800;margin-top:3px;}
+/* 讲义页上的操作卡：投影上要放大 */
+.lesson-deck .recipe-list li{font-size:clamp(17px,1.7vw,28px);}
+body.presenting .lesson-deck .recipe-list li{font-size:clamp(19px,2vw,38px);}
+body.audience .lesson-deck .recipe-list li{font-size:clamp(19px,2vw,40px);}
+body.audience .lesson-deck .recipe-badge{width:clamp(78px,6.4vw,124px);height:clamp(78px,6.4vw,124px);font-size:clamp(28px,2.6vw,48px);}
+
+/* ============ 练习页常驻脚手架：按操作卡三步分组，每一步下面直接挂该步的句型 ============ */
+/* 三步组件里的句架（.stepcard，见文件末尾） */
+.scf-i{font-size:clamp(18px,2vw,32px);font-weight:800;line-height:1.35;color:var(--ink);}
+.scf-i b{color:var(--terra-ink);}
+body.audience .scf-i{font-size:clamp(20px,2.2vw,40px);}
+body.audience .st-row{padding-bottom:clamp(4px,.5vw,7px);}
+/* 练习页的题目也要大字 */
+.q-bar{font-size:clamp(15px,1.55vw,24px);}
+
+/* 观众屏讲义：正文 ≥20px（1920 下正文 40px × 自适应缩放） */
+body.audience .lesson-deck{padding:clamp(14px,1.4vw,28px);}
+body.audience .deck-title{font-size:clamp(23px,2.25vw,46px);}
+body.audience .deck-top .deck-ind{font-size:clamp(18px,1.7vw,32px);}
+body.audience .deck-ind-b{font-size:clamp(18px,1.7vw,32px);}
+body.audience .deck-nav{font-size:clamp(17px,1.6vw,28px);padding:12px 32px;}
+body.audience .lesson-deck .dk-h{font-size:clamp(17px,1.55vw,30px);}
+body.audience .lesson-deck .dk-i{font-size:clamp(22px,2.3vw,40px);}
+body.audience .lesson-deck .dk-mA{font-size:clamp(21px,2.15vw,36px);}
+body.audience .lesson-deck .dk-do{font-size:clamp(19px,1.9vw,34px);}
+body.audience .lesson-deck .dk-cn{font-size:clamp(15px,1.3vw,24px);}
+body.audience .deck-steps .dk-n{font-size:clamp(17px,1.55vw,28px);}
+body.audience .deck-keytips .dk-te{font-size:clamp(19px,1.9vw,34px);}
+body.audience .deck-keytips .dk-tc{font-size:clamp(15px,1.3vw,24px);}
+body.audience .deck-time span{font-size:clamp(18px,1.85vw,34px);}
+body.audience .deck-tips-list li{font-size:clamp(20px,2.2vw,40px);}
+body.audience .deck-tips-list li .tip-cn{font-size:clamp(15px,1.4vw,26px);}
+body.audience .lesson-deck .deck-anno .dk-ae{font-size:clamp(18px,1.8vw,34px);}
+body.audience .lesson-deck .deck-anno .dk-ai{font-size:clamp(15px,1.4vw,25px);}
+/* 讲义在演讲者模式下不再套用旧的「放大字号」：讲义本身已经是大字号，再放大只会把页面撑高，
+   而教师端左栏是等比缩放的 —— 页面越高、整场缩放被压得越低，反而更看不清。 */
+body.presenting .lesson-deck .recipe-list li{font-size:clamp(17px,1.7vw,28px);}
+body.presenting .lesson-deck .kv{font-size:clamp(12px,1.05vw,18px);}
+
+/* ============ 总览第 2 页：四维度 × 5 分 + 中文解释 + 描述符细项（对齐呈现，一维度一块） ============ */
+.lesson-deck .dk-cn b{color:var(--teal);}
+.ov-note{margin:-4px 0 6px;}
+.ov-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px 22px;align-items:start;}
+.ov-two > .deck-quote{margin:0;}
+.ov-dims{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;width:100%;}
+.ov-dim{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:8px 13px;display:flex;flex-direction:column;gap:3px;text-align:left;}
+.ov-dim:first-child{border-color:var(--teal);}
+.ov-name{font-size:clamp(16px,1.5vw,27px);font-weight:900;color:var(--teal);line-height:1.25;}
+.ov-score{display:inline-block;margin-left:9px;background:var(--mustard-soft);border:1.5px solid var(--mustard);color:#7a5b10;border-radius:9px;padding:1px 10px;font-size:clamp(13px,1.15vw,20px);font-weight:900;vertical-align:middle;white-space:nowrap;}
+.ov-cn{font-size:clamp(12.5px,1.1vw,20px);font-weight:800;color:var(--terra-ink);line-height:1.35;}
+.ov-q{font-size:clamp(12.5px,1.1vw,20px);font-weight:700;color:var(--dim);line-height:1.45;}
+.ov-q b{color:var(--teal);}
+.ov-list{list-style:none;display:flex;flex-direction:column;gap:3px;margin-top:2px;}
+.ov-list li{font-size:clamp(12.5px,1.1vw,20px);line-height:1.35;padding-left:16px;position:relative;font-weight:600;}
+.ov-list li::before{content:"·";position:absolute;left:4px;color:var(--teal);font-weight:900;}
+.ov-list li b{color:var(--teal);}
+.ov-foot{margin-top:9px;background:var(--paper);border:1.5px dashed var(--line);border-radius:12px;padding:7px 12px;line-height:1.6;}
+body.audience .ov-dims{gap:12px 20px;}
+body.audience .ov-dim{padding:12px 18px;}
+body.audience .ov-name{font-size:clamp(19px,1.85vw,34px);}
+body.audience .ov-score{font-size:clamp(16px,1.5vw,28px);}
+body.audience .ov-cn{font-size:clamp(15px,1.35vw,26px);}
+body.audience .ov-q{font-size:clamp(15px,1.35vw,26px);}
+body.audience .ov-list li{font-size:clamp(15px,1.4vw,27px);}
+body.audience .ov-foot{font-size:clamp(15px,1.35vw,26px);}
+
+/* ============ 投影高度预算：所有屏幕都要落进同一套自适应缩放里 ============
+   观众屏/演讲者模式只给整场一个缩放值，取的是「所有屏幕里最高的那一屏」。所以想让投影字号整体变大，
+   必须让每一屏都变矮，同时保证投影上的实际字号（计算值 × 缩放）≥22px。下面这几条就是这个平衡点。 */
+body.audience .lesson-deck .recipe-list li{font-size:clamp(19px,2vw,34px);}
+body.audience .lesson-deck .recipe-row .recipe-list li{font-size:clamp(18px,1.75vw,30px);}   /* 总览两张卡并排，字号收一档才不撑高整页 */
+body.audience .deck-tips-list li{font-size:clamp(19px,2vw,34px);}
+body.audience .deck-keytips .dk-te{font-size:clamp(19px,1.8vw,34px);}
+body.audience .lesson-deck .dk-do{font-size:clamp(18px,1.8vw,34px);}
+body.audience .deck-time span{font-size:clamp(17px,1.8vw,34px);}
+body.audience .lesson-deck .kv{font-size:clamp(15px,1.7vw,34px);}
+body.audience .ov-cn{font-size:clamp(15px,1.5vw,30px);}
+body.audience .ov-q{font-size:clamp(16px,1.7vw,34px);}
+body.audience .ov-list li{font-size:clamp(16px,1.7vw,33px);}
+body.audience .lesson-deck .ov-foot{font-size:clamp(16px,1.7vw,32px);}
+body.audience .scf-i{line-height:1.22;}
+body.audience .task-btn,body.audience .check-item{min-height:clamp(50px,5.6vh,74px);}
+/* 观众屏底部留白收到刚好让开常驻句架栏（原来 80px 是重复预留，白白吃掉可用高度） */
+body.audience main{padding-bottom:56px;}
+/* 练习页的两处正文再收一档，让「照片 + 三步脚手架」这一屏完整落在 1080 内 */
+body.audience .recipe-list li{font-size:clamp(19px,2vw,36px);}
+body.audience .q-bar{font-size:clamp(16px,1.55vw,31px);}
+body.audience .stage{gap:6px;}
+/* 行距 / 内边距再收一档：投影上字号不变，只是把每屏的实际高度压进 1080 */
+.lesson-deck .dk-i{line-height:1.30;}
+body.audience .ov-dims{gap:8px 16px;}
+body.audience .ov-dim{padding:9px 15px;}
+body.audience .ov-list{gap:2px;}
+body.audience .ov-list li{line-height:1.28;}
+/* 讲义页上下内边距再收一档（每页都省，页数多、积少成多） */
+body.audience .lesson-deck{padding:clamp(12px,1.2vw,20px);}
+body.audience .deck-top{padding-bottom:5px;}
+body.audience .deck-foot{padding-top:6px;}
+
+/* ============ 练习页：操作卡 + 三步脚手架 + 打勾 合并成一个组件 ============
+   原来「60s 操作卡（三步）」「三步脚手架（同样三步 + 句架）」「三步检查表」是三份重复内容，
+   现在合成一块：标题 = 操作卡原话，内容 = 该步该用的句型，右侧打勾 = 这一步做到了。
+   省下来的高度全部给照片 —— 这个环节的素材就是两张照片，看不清就没法比较。 */
+.stepcard{width:100%;background:var(--mustard-soft);border:2px dashed var(--mustard);border-radius:18px;padding:clamp(8px,.9vw,14px) clamp(12px,1.2vw,20px);display:flex;flex-direction:column;gap:clamp(6px,.7vw,10px);text-align:left;}
+.st-row{display:flex;flex-direction:column;gap:clamp(2px,.3vw,5px);border-bottom:1.5px dashed rgba(224,168,46,.65);padding-bottom:clamp(5px,.6vw,9px);}
+.st-row:last-child{border-bottom:none;padding-bottom:0;}
+.st-head{display:flex;align-items:center;gap:clamp(8px,.9vw,14px);}
+.st-badge{flex-shrink:0;width:clamp(46px,3.6vw,62px);height:clamp(46px,3.6vw,62px);border-radius:50%;background:var(--mustard);color:#fff;display:flex;align-items:center;justify-content:center;font-size:clamp(15px,1.35vw,21px);font-weight:900;letter-spacing:.5px;box-shadow:0 4px 14px rgba(224,168,46,.35);}
+.st-t{font-size:clamp(16px,1.6vw,28px);font-weight:900;color:#6d5010;line-height:1.25;}
+.st-t b{color:var(--terra-ink);}
+.st-cn{font-size:clamp(12px,1.1vw,20px);color:#8a6a1e;font-weight:800;line-height:1.3;}
+.st-frames{display:flex;flex-wrap:wrap;gap:2px 22px;}
+.stepcard .check-item{margin-left:auto;flex-shrink:0;border-width:2px;}
+/* 观众屏：句架字号 ≥22px（实际值还要乘整场自适应缩放） */
+body.audience .stepcard{padding:clamp(9px,.9vw,14px) clamp(14px,1.4vw,24px);gap:clamp(6px,.7vw,10px);}
+body.audience .st-badge{width:clamp(62px,5.2vw,92px);height:clamp(62px,5.2vw,92px);font-size:clamp(21px,1.9vw,32px);}
+body.audience .st-t{font-size:clamp(19px,1.95vw,37px);}
+body.audience .st-cn{font-size:clamp(17px,1.7vw,34px);}
+body.audience .stepcard .check-item{font-size:clamp(17px,1.7vw,32px);min-height:clamp(52px,5.4vh,72px);padding:6px 22px;}
+body.audience .stepcard .scf-i{font-size:clamp(20px,2.2vw,40px);}
+/* 照片是这个环节的核心素材：投影上必须够大（1920 下 ×缩放 ≥420px） */
+body.audience .photo-pair.sm .ph{max-width:min(640px,34vw);}
+body.audience .photo-pair.sm{gap:clamp(20px,2.2vw,44px);}
+body.audience .photo-pair .ph-tag{font-size:clamp(14px,1.25vw,22px);}
+
+
+/* ============ 跨课补充类：PET / KET 用到、FCE 没用到（外壳是唯一类名来源） ============
+   由 scripts/append-extra-classes.py 从 golden/KET（较新，优先）+ golden/PET 的样式表里摘出。
+   这些选择器不匹配 FCE 的任何元素，所以对 FCE 的版式零影响；
+   每节课还可以用 lessons/<name>.css 覆盖它们的取值。 */
+.big-icon{display:inline-block;width:clamp(90px,13vw,140px);height:clamp(90px,13vw,140px);color:var(--teal);flex-shrink:0;}
+.big-icon svg{width:100%;height:100%;}
+.big-word{font-size:clamp(32px,5vw,56px);font-weight:900;letter-spacing:.5px;}
+.scaffold{background:var(--teal-soft);border:1.5px solid #cfe3de;border-radius:16px;padding:14px 26px;font-size:clamp(16px,2.2vw,22px);color:#2c5a50;max-width:900px;line-height:1.6;}
+.scaffold b{color:var(--teal);}
+.flash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;width:100%;}
+.flash-card{aspect-ratio:1.05;border-radius:18px;background:var(--paper);border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;position:relative;transition:transform .15s;}
+.flash-card:hover{transform:translateY(-3px);border-color:var(--teal);}
+.picimg{width:100%;height:100%;object-fit:cover;display:block;border-radius:12px;}
+.flash-card .pic{display:block;width:100%;flex:1;min-height:56px;}
+.flash-card .pic svg{width:100%;height:100%;}
+.flash-card{padding:10px;justify-content:flex-start;gap:8px;}
+.flash-card .name{font-size:clamp(16px,2.2vw,22px);font-weight:800;}
+.flash-card.covered{background:#F0EDE4;}
+.flash-card.covered .name{color:var(--terra);}
+.flash-card.static{cursor:default;}
+.flash-card.static:hover{transform:none;border-color:var(--line);}
+.flash-card.chosen{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-soft);}
+.flash-card .tick{position:absolute;top:8px;right:12px;font-size:22px;font-weight:900;color:var(--teal);}
+.tool-page-tag{font-size:15px;color:var(--dim);font-weight:700;}
+.tool-frames{text-align:left;max-width:820px;width:100%;}
+.tool-frames li{list-style:none;font-size:clamp(19px,2.8vw,30px);line-height:1.7;font-weight:700;padding:9px 0;border-bottom:1.5px dashed var(--line);}
+.tool-frames li:last-child{border-bottom:none;}
+.tool-frames li b{color:var(--teal);}
+.deck-nav .page-ind{font-size:17px;font-weight:800;color:var(--dim);min-width:64px;}
+/* ---------- 教材录音播放器（只给教师端；观众屏不出声、不显示）单行紧凑版 ---------- */
+.audio-box{display:none;align-items:center;gap:12px;width:100%;max-width:820px;background:var(--mustard-soft);border:2px solid var(--mustard);border-radius:18px;padding:12px 16px;flex-wrap:wrap;}
+.audio-box .au-line{display:flex;align-items:center;gap:10px;flex:1 1 200px;min-width:170px;}
+.audio-box .mega-btn{padding:14px 26px;font-size:clamp(16px,2vw,21px);min-height:56px;}
+.audio-box .mega-btn.playing{background:var(--mustard);color:var(--ink);}
+.audio-box .ghost-btn{padding:10px 16px;font-size:clamp(13px,1.6vw,16px);min-height:48px;}
+.audio-box .ghost-btn.on{background:var(--teal);color:#fff;border-color:var(--teal);}
+.audio-bar{flex:1;height:12px;border-radius:7px;background:var(--card);border:1.5px solid var(--mustard);overflow:hidden;min-width:70px;}
+.audio-bar .au-fill{height:100%;width:0;background:var(--teal);border-radius:6px;transition:width .2s linear;}
+.audio-box .au-time{font-size:13px;font-weight:800;color:#7a5b10;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.pair-slots{display:flex;gap:20px;justify-content:center;}
+.pair-slot{width:clamp(140px,18vw,190px);aspect-ratio:1.05;border:3px dashed var(--line);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--dim);font-size:40px;font-weight:900;}
+.pair-slot.filled{border-style:solid;border-color:var(--teal);background:var(--teal-soft);color:var(--ink);font-size:initial;}
+.pair-slot .pic{display:block;width:76%;height:58%;}
+.pair-slot .pic svg{width:100%;height:100%;}
+.pair-slot .nm{font-size:clamp(15px,2vw,19px);font-weight:800;}
+.bingo-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:560px;}
+.bingo-cell{aspect-ratio:1.15;border-radius:16px;background:var(--paper);border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;overflow:hidden;}
+.bingo-cell .pic{display:block;width:100%;height:auto;aspect-ratio:5/4;flex:none;margin-bottom:2px;}
+.bingo-cell .pic svg{width:100%;height:100%;}
+.bingo-cell{padding:8px 8px 6px;gap:1px;justify-content:flex-start;aspect-ratio:auto;min-height:130px;}
+.bingo-cell .nm{font-size:clamp(13px,1.8vw,16px);font-weight:800;}
+.bingo-cell .pol{font-size:clamp(11px,1.5vw,13px);color:var(--dim);font-weight:700;}
+.bingo-cell:not(.claimedA):not(.claimedB):hover{border-color:var(--teal);transform:translateY(-2px);}
+.bingo-cell .mark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(48px,8vw,76px);font-weight:900;pointer-events:none;}
+.bingo-cell.claimedA .mark{color:var(--teal);background:rgba(228,239,236,.9);}
+.bingo-cell.claimedB .mark{color:var(--terra);background:rgba(249,232,226,.9);}
+.bingo-cell.claimedA,.bingo-cell.claimedB{pointer-events:none;}
+.phase-tabs{display:flex;gap:10px;flex-shrink:0;}
+.phase-tabs button{border-radius:14px;padding:12px 22px;font-size:17px;font-weight:800;border:1.5px solid var(--line);background:var(--card);color:var(--dim);}
+.phase-tabs button.cur{background:var(--teal);color:#fff;border-color:var(--teal);}
+.reminder-chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+.reminder-chips span{background:var(--teal-soft);color:var(--teal);border-radius:20px;padding:10px 18px;font-size:clamp(15px,2vw,19px);font-weight:800;}
+.names-box{width:100%;max-width:640px;background:var(--paper);border:1.5px solid var(--line);border-radius:14px;color:var(--ink);padding:14px;font-size:16px;resize:vertical;}
+details.settings{width:100%;max-width:640px;text-align:left;}
+details.settings summary{cursor:pointer;color:var(--dim);font-size:15px;padding:8px;}
+.name-scroll{font-size:clamp(32px,5.5vw,56px);font-weight:900;min-height:76px;color:var(--teal);}
+.question{font-size:clamp(20px,3vw,29px);color:#7a5b10;max-width:900px;line-height:1.5;font-weight:700;}
+.check-panel{width:100%;max-width:720px;text-align:left;background:var(--paper);border:1.5px solid var(--line);border-radius:18px;padding:18px;}
+.check-panel label{display:flex;align-items:center;gap:14px;padding:13px 14px;border-radius:12px;font-size:clamp(15px,2vw,18px);cursor:pointer;margin-bottom:8px;background:var(--card);border:1.5px solid var(--line);}
+.check-panel input{width:26px;height:26px;accent-color:var(--teal);flex-shrink:0;}
+.stars{font-size:clamp(38px,6vw,58px);color:var(--mustard);letter-spacing:6px;text-align:center;}
+/* ---- PET 独有 ---- */
+.chip{border-radius:22px;padding:13px 22px;font-size:clamp(16px,2.4vw,26px);background:var(--card);border:1.5px solid var(--line);min-height:52px;font-weight:700;cursor:pointer;}
+.chip:hover{border-color:var(--teal);}
+.chip.talked{background:var(--mustard-soft);color:#7a5b10;border-color:var(--mustard);}
+.chip.decided{background:var(--teal);color:#fff;border-color:var(--teal);}
+.media-split{display:flex;gap:18px;align-items:center;justify-content:center;width:100%;flex-wrap:nowrap;}
+.media-split > img{flex:0 1 340px;min-width:200px;max-width:340px;border-radius:16px;border:1.5px solid var(--line);display:block;}
+.media-side{flex:1 1 320px;min-width:260px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.media-side .reminder-chips{justify-content:center;}
+body.audience .teach-col h3{font-size:clamp(16px,1.5vw,32px);}
+body.audience .teach-list li{font-size:clamp(15px,1.35vw,30px);}
+body.audience .lang-group .lg-t{font-size:clamp(13px,1.1vw,22px);}
+body.audience .lang-group .lg-i{font-size:clamp(15px,1.45vw,32px);}
+body.audience .lang-group .lg-e{font-size:clamp(12px,1.05vw,21px);}
+body.audience .sample-q{font-size:clamp(14px,1.3vw,28px);}
+body.audience .sample-a{font-size:clamp(14px,1.25vw,27px);}
+body.audience .crit-card .crit-t{font-size:clamp(14px,1.3vw,28px);}
+body.audience .crit-card .crit-cn{font-size:clamp(12px,1vw,20px);}
+body.audience .crit-list li{font-size:clamp(12px,1.15vw,23px);}
+body.audience .crit-foot{font-size:clamp(12px,1.15vw,22px);}
+body.audience .recap-strip span{font-size:clamp(13px,1.3vw,26px);}
+.teach-grid{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:14px;align-items:start;width:100%;}
+.teach-col{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:16px 18px;text-align:left;}
+.teach-col h3{font-size:clamp(15px,1.9vw,19px);color:var(--teal);margin-bottom:10px;line-height:1.3;}
+.teach-list{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.teach-list li{font-size:clamp(14px,1.75vw,18px);line-height:1.55;padding-left:28px;position:relative;font-weight:600;}
+.teach-list li::before{content:attr(data-n);position:absolute;left:0;top:1px;width:21px;height:21px;border-radius:50%;background:var(--teal-soft);color:var(--teal);font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+.teach-list li b{color:var(--teal);}
+.lang-group{border-bottom:1.5px dashed var(--line);padding:9px 0;}
+.lang-group:first-child{padding-top:0;}
+.lang-group:last-child{border-bottom:none;padding-bottom:0;}
+.lang-group .lg-t{font-size:13px;font-weight:900;color:var(--terra-ink);letter-spacing:.3px;}
+.lang-group .lg-i{font-size:clamp(14px,1.8vw,19px);font-weight:700;color:var(--ink);line-height:1.5;margin-top:2px;}
+.lang-group .lg-i b{color:var(--teal);}
+.lang-group .lg-e{font-size:clamp(12px,1.5vw,14px);color:var(--dim);line-height:1.5;margin-top:3px;}
+.sample-q{font-size:clamp(13px,1.7vw,17px);font-weight:800;color:#7a5b10;background:var(--mustard-soft);border-radius:12px;padding:9px 13px;line-height:1.5;}
+.sample-a{font-size:clamp(13px,1.65vw,16px);line-height:1.6;margin-top:7px;color:#3c5a53;background:var(--teal-soft);border-radius:12px;padding:9px 13px;}
+.sample-a b{color:var(--teal);}
+.recap-strip{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:12px;}
+.recap-strip span{background:var(--mustard-soft);color:#7a5b10;border-radius:12px;padding:9px 16px;font-size:clamp(13px,1.7vw,17px);font-weight:800;}
+/* ---------- 总览页：考官四个评分维度细项 ---------- */
+.crit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%;}
+.crit-card{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:13px 16px;text-align:left;}
+.crit-card:first-child{border-color:var(--teal);}
+.crit-card .crit-t{font-size:clamp(13px,1.7vw,17px);font-weight:900;color:var(--teal);line-height:1.25;}
+.crit-card .crit-cn{font-size:clamp(11px,1.35vw,13px);color:var(--terra-ink);font-weight:800;margin:1px 0 8px;}
+.crit-list{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.crit-list li{font-size:clamp(11.5px,1.45vw,14.5px);line-height:1.45;padding-left:13px;position:relative;}
+.crit-list li::before{content:"·";position:absolute;left:3px;color:var(--teal);font-weight:900;}
+.crit-list li b{color:var(--teal);}
+.crit-foot{width:100%;text-align:left;font-size:clamp(11.5px,1.45vw,14px);color:var(--dim);line-height:1.7;background:var(--paper);border:1.5px dashed var(--line);border-radius:14px;padding:10px 16px;}
+.crit-foot b{color:var(--teal);}
+.part-table{width:100%;border-collapse:collapse;font-size:clamp(13px,1.7vw,17px);}
+.part-table th,.part-table td{padding:8px;border-bottom:1px solid var(--line);text-align:left;line-height:1.4;}
+.part-table th{color:var(--dim);font-size:12px;}
+.part-table td b{color:var(--teal);}
+.part-table tr:last-child td{border-bottom:none;}
+/* ============ 跨课补充类 结束 ============ */
+
+
+/* ============ 跨课补充选择器：PET / KET 用到、FCE 没有的选择器 ============
+   由 scripts/append-missing-css.py 追加。只补「外壳里完全不存在」的选择器，
+   已有同名选择器的一律跳过 —— 否则会覆盖 FCE 已验收过的几何。 */
+.big-icon{display:inline-block;width:clamp(90px,13vw,140px);height:clamp(90px,13vw,140px);color:var(--teal);flex-shrink:0;}
+.chip{border-radius:22px;padding:13px 22px;font-size:clamp(16px,2.4vw,26px);background:var(--card);border:1.5px solid var(--line);min-height:52px;font-weight:700;cursor:pointer;}
+#refFab{position:fixed;bottom:76px;left:18px;z-index:70;background:var(--card);border:1.5px solid var(--teal);color:var(--teal);border-radius:16px;padding:12px 18px;font-size:15px;font-weight:800;box-shadow:0 4px 14px rgba(44,120,108,.18);display:flex;align-items:center;gap:8px;}
+#refFab svg{width:20px;height:20px;}
+body.ref-open #refFab{display:none;}
+/* ============ 跨课补充选择器 结束 ============ */
+
+/*==LESSON_CSS==*/
+</style>
+</head>
+<body>
+
+<header>
+  <div class="teacher-only">
+    <h1 id="hdTitle"></h1>
+    <div class="sub" id="hdSub"></div>
+  </div>
+  <div class="score-mini" id="scoreMini" title="全场总分">
+    <span class="dotA"></span>Team A <b id="sbA">0</b>
+    <span style="color:var(--dim)">:</span>
+    <b id="sbB">0</b> Team B<span class="dotB"></span>
+  </div>
+  <div class="hdr-right">
+    <button class="icon-btn teacher-only" id="refBtn" title="句型语料 Sentence Frames"></button>
+    <button class="icon-btn teacher-only" id="soundBtn" title="音效开关"></button>
+    <button class="icon-btn teacher-only" id="timerBtn" title="计时器"><span id="miniTimer"></span></button>
+    <button class="icon-btn teacher-only" id="presentBtn" title="演讲者模式 (P)"></button>
+  </div>
+</header>
+
+<div class="steps teacher-only" id="steps"></div>
+
+<main>
+<section class="screen on" id="s-home">
+  <div class="dash-title" id="dashTitle"></div>
+  <div class="dash-sub teacher-only" id="dashSub"></div>
+  <div class="menu" id="menu"></div>
+</section>
+<!--==LESSON_HTML==-->
+</main>
+
+<aside id="console" class="teacher-only">
+  <div>
+    <div class="c-title">演讲者控制台</div>
+    <div class="c-screen" id="cScreenName">主页</div>
+  </div>
+  <div class="c-status wait" id="cStatus">观众屏：未打开</div>
+  <button class="ghost-btn" id="cReopen" style="justify-content:center">重新打开观众屏</button>
+  <button class="ghost-btn" id="cCopyLink" style="justify-content:center">复制观众屏地址（弹窗被拦时用）</button>
+  <button class="ghost-btn" id="cCheck" style="justify-content:center">自检 Sync Check</button>
+  <button class="ghost-btn" id="cMod" style="justify-content:center">切换 讲解 / 练习</button>
+  <div class="c-box" id="cTip"></div>
+  <div class="c-box" id="cTalk"></div>
+  <div class="c-nav">
+    <button id="cPrev">← 上一环节</button>
+    <button id="cNext">下一环节 →</button>
+  </div>
+  <button class="ghost-btn" id="cTimer" style="justify-content:center">打开计时器</button>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="ghost-btn" id="zoomOut" style="flex:1;justify-content:center">−</button>
+    <span id="zoomLabel" style="min-width:58px;text-align:center;font-weight:800;font-size:14px">100%</span>
+    <button class="ghost-btn" id="zoomIn" style="flex:1;justify-content:center">+</button>
+  </div>
+  <button class="ghost-btn" id="zoomFit" style="justify-content:center">适配窗口 Fit to Window</button>
+  <div style="font-size:12px;color:var(--dim);line-height:1.6">快捷键：<b>-</b> 缩小 · <b>=</b> 放大 · <b>0</b> 复原。缩放只影响教师端，学生屏不受影响。</div>
+  <button id="consoleExit">退出演讲者模式（P）</button>
+</aside>
+
+<div id="refDrawer">
+  <div class="rd-head">
+    <button class="rd-close teacher-only" id="refClose">✕</button>
+  </div>
+  <div class="rd-body" id="refBody"></div>
+</div>
+
+<div id="frameBar"></div>
+
+<div id="audBadge">观众屏</div>
+<div id="byeOverlay">演示已结束</div>
+
+<div id="timerOverlay">
+  <button id="tClose">✕</button>
+  <div class="timer-card">
+    <div class="presets" id="tPresets">
+      <button data-sec="30">30 秒</button>
+      <button data-sec="60">1 分钟</button>
+      <button data-sec="120">2 分钟</button>
+      <button data-sec="240">4 分钟</button>
+      <button data-sec="600">10 分钟</button>
+    </div>
+    <div class="timer-num" id="timerNum">02:00</div>
+    <div class="timer-ctrl" id="tCtrl">
+      <button id="tMin" style="background:var(--paper);border:1.5px solid var(--line)">收起（继续走）</button>
+      <button id="tStart" style="background:var(--teal);color:#fff">开始</button>
+      <button id="tPause" style="background:var(--mustard)">暂停</button>
+      <button id="tReset" style="background:var(--paper);border:1.5px solid var(--line)">重置</button>
+    </div>
+    <div id="tEnd">
+      <div class="win-banner">Time's up! 时间到</div>
+      <button class="mega-btn" id="tContinue">Continue 继续上课</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+/* ================= 外壳对外 API（模块只能用这些，不许摸内部变量） ================= */
+/* 注册表三件套：MODS 模块名 → 模块定义；ACT 同步动作；PARTS 进出快照的模块状态字段 */
+const MODS = {};
+const ACT = {};
+const PARTS = [];
+/* 讲义翻页后的回调（模块用 TK.onDeck 挂上来；例如听力播放器「翻走这一页就自动停」） */
+const DECK_HOOKS = [];
+const TK = {
+  version: '1.0.0',
+  get isAudience() { return isAudience; },
+  go: (id) => doGo(id, true),
+  mod: (id, view) => doMod(id, view, true),
+  deck: (id, page) => doDeck(id, page, true),
+  score: (step, team, n) => addScore(step, team, n, true),
+  totals: () => totals(),
+  get ledger() { return ledger; },
+  broadcast: (msg) => send(msg),
+  renderFrameBar: (id) => renderFrameBar(id),
+  get deckState() { return deckState; },
+  get sfx() { return sfx; },
+  get ICONS() { return ICONS; },
+  img: (key) => IMG[key] || '',
+  on: (name, fn) => { ACT[name] = fn; },
+  snapshotPart: (key, get) => TK._part(key).get = get,
+  applyPart: (key, fn) => TK._part(key).apply = fn,
+  _part: (key) => PARTS.find(p => p.key === key) ||
+    (PARTS.push({ key, get: null, apply: null }), PARTS[PARTS.length - 1]),
+  registerModule: (name, def) => { MODS[name] = def; return def; },
+  get modules() { return MODS; },
+  recipeCard: (k) => recipeCard(k),
+  deckQuiet: (id, page) => doDeck(id, page, false),
+  audio: (key) => AUDIO[key] || '',
+  onDeck: (fn) => { DECK_HOOKS.push(fn); },
+  /* —— 下面是 §四 清单里没写、但三份现有工具确实在用的能力（见 references/pitfalls.md 的 API 缺口清单） —— */
+  timer: (sec, auto) => doTimer(sec, auto, true),
+  celebrate: () => celebrate(),
+  rnd: (a) => rnd(a),
+  beep: (freq, dur, type, vol) => beep(freq, dur, type, vol),
+  storage: { get: k => store.get(KEY(k)), set: (k, v) => store.set(KEY(k), v) },
+  step: (id) => LESSON.steps.find(s => s.id === id),
+  cur: () => cur,                          // 当前环节 id（模块判断「键盘事件该不该我管」用）
+  el: (id) => document.getElementById(id),
+  $: (sel, root) => (root || document).querySelector(sel),
+  $$: (sel, root) => Array.from((root || document).querySelectorAll(sel)),
+  /* .stepcard 一行 = 标题 + 句架 + 打勾，draw-question / photo-pair-steps 共用 */
+  stepRow: (badge, no, title, cn, frames, attr, i) => `
+    <div class="st-row">
+      <div class="st-head">
+        ${badge ? `<span class="st-badge">${badge}</span>` : ''}
+        <span class="st-t">${no} ${title}</span>
+        ${cn ? `<span class="st-cn">${cn}</span>` : ''}
+        <button class="check-item" ${attr}="${i}" title="这一步做到了就点一下">打勾</button>
+      </div>
+      ${(frames || []).map(row => `<div class="st-frames">${row.map(x => `<span class="scf-i">${x}</span>`).join('')}</div>`).join('')}
+    </div>`,
+};
+window.TK = TK;
+
+/*==MODULES==*/
+
+/*==LESSON_DATA==*/
+
+/* ===== 安全存储：Safari 在 file:// 下访问 localStorage 会抛异常，这里统一兜底 ===== */
+const store = (() => {
+  let mem = {};
+  let ok = false;
+  try { localStorage.setItem('__ket_t','1'); localStorage.removeItem('__ket_t'); ok = true; } catch(e) { ok = false; }
+  return {
+    ok,
+    get(k) { try { return ok ? localStorage.getItem(k) : (mem[k] === undefined ? null : mem[k]); } catch(e) { return mem[k] === undefined ? null : mem[k]; } },
+    set(k, v) { try { if (ok) localStorage.setItem(k, v); else mem[k] = v; } catch(e) { mem[k] = v; } },
+  };
+})();
+
+/* ================= 模式与同步通道 ================= */
+// 课时参数：外壳不认识具体哪节课，只认 LESSON.meta 这几个字段
+const K = LESSON.meta;
+const KEY = n => K.keyPrefix + n;
+const CHAN = K.channel;
+const isAudience = location.hash.includes('audience');
+const bc = ('BroadcastChannel' in window) ? new BroadcastChannel(CHAN) : null;
+const SID = Math.random().toString(36).slice(2, 8);   // 每次加载唯一，避免刷新后 id 重数被误判为重复
+let msgSeq = 0;
+let lastSentId = null;
+function send(msg) {
+  if (isAudience) return;
+  msg._id = SID + '-p' + (++msgSeq);
+  lastSentId = msg._id;
+  if (bc) try { bc.postMessage(msg); } catch(e){}
+  try { store.set(KEY('-msg'), JSON.stringify({...msg, _r: Math.random()})); } catch(e){}
+}
+let audSeq = 0;
+function send2(msg) {
+  if (!isAudience) return;
+  msg._id = SID + '-a' + (++audSeq);
+  if (bc) try { bc.postMessage(msg); } catch(e){}
+  try { store.set(KEY('-aud'), JSON.stringify({...msg, _r: Math.random()})); } catch(e){}
+}
+const seenMsg = new Set();
+function dup(m) {
+  if (!m._id) return false;
+  if (seenMsg.has(m._id)) return true;
+  seenMsg.add(m._id);
+  if (seenMsg.size > 2000) { seenMsg.delete(seenMsg.values().next().value); }
+  return false;
+}
+
+/* ================= 图标 ================= */
+const I = (paths, fill) => `<svg viewBox="0 0 24 24" fill="${fill?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+const ICONS = {
+  timer: I('<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/>'),
+  sound: I('<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>'),
+  mute:  I('<path d="M11 5 6 9H2v6h4l5 4z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/>'),
+  eye:   I('<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>'),
+  book:  I('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>'),
+  cards: I('<rect x="2" y="5" width="14" height="18" rx="2"/><path d="M8 3h12a2 2 0 0 1 2 2v14"/>'),
+  chat:  I('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'),
+  pair:  I('<circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="10" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M15 20c0-2.5 1.8-4.5 4-4.5"/>'),
+  grid:  I('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'),
+  mic:   I('<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/>'),
+  trophy:I('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a2 2 0 0 0 0 4h3M17 6h3a2 2 0 0 1 0 4h-3"/>'),
+};
+
+const IMG = LESSON.img || {};
+const AUDIO = LESSON.audio || {};
+
+/* ================= 课时派生量（只从这里读 LESSON，外壳不认识具体哪节课） ================= */
+const STEPS = LESSON.steps;
+const FRAME_BAR = LESSON.frames || {};
+const RECIPE = LESSON.recipe || {};
+/* 有「讲义 + 练习」的环节才显示「讲解 / 练习」双视图（原来用 PART_LESSON 判断）：
+   FCE p1/p2、PET p1–p4 是这种；KET 五个环节只有练习，没有切换；FCE overview 只有讲义（讲义直接铺在 stage）。 */
+const PART_LESSON = {};
+STEPS.forEach(s => { if (s.practice && s.lesson) PART_LESSON[s.id] = s.practice; });
+const DECK_PAGES = {};
+STEPS.forEach(s => { if (s.lesson) DECK_PAGES[s.id] = s.lesson; });
+const TD = MODS['teach-deck'];   // 讲义分页模块：负责「框」里的页体
+const recipeCard = k => {
+  const r = RECIPE[k];
+  if (!r) return '';
+  return `<div class="recipe" data-recipe="${k}">
+      <span class="recipe-badge">${r.badge}</span>
+      <ol class="recipe-list">${r.items.map(x => `<li>${x}</li>`).join('')}</ol>
+    </div>`;
+};
+const rnd = a => a[Math.floor(Math.random()*a.length)];
+
+/* ================= 音效 ================= */
+let soundOn = store.get(KEY('_sound')) !== '0';
+const soundBtn = document.getElementById('soundBtn');
+function renderSound(){ soundBtn.innerHTML = soundOn ? ICONS.sound : ICONS.mute; }
+soundBtn.onclick = () => { soundOn = !soundOn; store.set(KEY('_sound'), soundOn?'1':'0'); renderSound(); };
+renderSound();
+document.getElementById('timerBtn').insertAdjacentHTML('afterbegin', ICONS.timer);
+document.getElementById('presentBtn').innerHTML = ICONS.eye;
+function beep(freq=880, dur=.15, type='sine', vol=.22) {
+  if (!soundOn) return;
+  try {
+    const ctx = beep.ctx || (beep.ctx = new (window.AudioContext||window.webkitAudioContext)());
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.value = freq;
+    o.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+dur);
+    o.start(); o.stop(ctx.currentTime+dur);
+  } catch(e){}
+}
+/* 观众屏一律静音：观众屏和教师端在同一台电脑上，两边都响就是「听两遍」。
+   原来只在部分动作里加了 isAudience 判断，漏掉的（celebrate 里的 sfx.win）就会双响，
+   所以这里在源头关掉，后续新增动作也不会再漏。 */
+const noSound = () => {};
+const sfx = isAudience ? { click:noSound, draw:noSound, win:noSound, end:noSound } : {
+  click: () => beep(660,.08),
+  draw:  () => { beep(520,.1); setTimeout(()=>beep(780,.12),90); },
+  win:   () => [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.2),i*120)),
+  end:   () => [880,880,880].forEach((f,i)=>setTimeout(()=>beep(f,.25,'square',.18),i*350)),
+};
+
+/* ================= 彩带 ================= */
+const cvs = document.getElementById('confetti');
+function celebrate() {
+  const ctx = cvs.getContext('2d');
+  cvs.width = innerWidth; cvs.height = innerHeight;
+  cvs.style.display = 'block';
+  const colors = ['#2C786C','#D96C4F','#E0A82E','#6BCB77','#FF8A5C'];
+  const parts = Array.from({length:120}, () => ({
+    x: Math.random()*cvs.width, y: -20 - Math.random()*cvs.height*.5,
+    w: 8+Math.random()*8, h: 6+Math.random()*6,
+    c: rnd(colors), vy: 3+Math.random()*4, vx: -2+Math.random()*4,
+    r: Math.random()*Math.PI, vr: -.1+Math.random()*.2,
+  }));
+  const t0 = performance.now();
+  (function frame(t){
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    parts.forEach(p => {
+      p.y += p.vy; p.x += p.vx; p.r += p.vr;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r);
+      ctx.fillStyle = p.c; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
+    });
+    if (t - t0 < 1800) requestAnimationFrame(frame);
+    else cvs.style.display = 'none';
+  })(t0);
+  sfx.win();
+}
+
+
+/* 抽屉正文由 LESSON.ref.body 提供 */
+
+/* ================= 参考抽屉 ================= */
+let refOpen = false, refTab = LESSON.ref.tabs[0].id;
+const refBody = document.getElementById('refBody');
+function renderRefBody() { refBody.innerHTML = LESSON.ref.body[refTab] || ''; }
+function doRef(open, tab, broadcast) {
+  refOpen = open;
+  if (tab) refTab = tab;
+  document.getElementById('refDrawer').classList.toggle('on', refOpen);
+  document.body.classList.toggle('ref-open', refOpen);
+  if (document.body.classList.contains('presenting')) setTimeout(() => fitLeft(!refOpen), 60);
+  document.querySelectorAll('#refDrawer .tab').forEach(b => b.classList.toggle('cur', b.dataset.rtab === refTab));
+  renderRefBody();
+  if (!isAudience) sfx.click();
+  if (broadcast) send({t:'ref', open: refOpen, tab: refTab});
+}
+document.getElementById('refBtn').innerHTML = ICONS.book;
+document.getElementById('refBtn').onclick = () => doRef(!refOpen, refTab, true);
+document.getElementById('refClose').onclick = () => doRef(false, refTab, true);
+
+
+/* ================= 生成环节页（每个 Part = 讲解 + 练习 两个视图） ================= */
+/* 课时的顶部文案与参考抽屉 tab 都由数据生成，外壳里不留任何一节课的文字 */
+document.getElementById('hdTitle').textContent = K.title;
+document.getElementById('hdSub').innerHTML = K.subtitle;
+document.getElementById('dashTitle').innerHTML = K.dashTitle;
+document.getElementById('dashSub').innerHTML = K.dashSub;
+document.title = K.docTitle;
+document.querySelector('#refDrawer .rd-head').insertAdjacentHTML('afterbegin',
+  LESSON.ref.tabs.map(t => `<button class="tab" data-rtab="${t.id}">${t.label}</button>`).join(''));
+document.querySelectorAll('#refDrawer .tab').forEach(b => b.onclick = () => doRef(true, b.dataset.rtab, true));
+
+const main = document.querySelector('main');
+const stepScreenHTML = s => `
+<section class="screen" id="s-${s.id}">
+  <div class="topline">
+    <button class="back-btn teacher-only" data-go="home">← 返回</button>
+    <h2>${s.n}. ${s.label}</h2>
+    <span class="${K.badgeTeacherOnly ? 'badge like teacher-only' : 'badge like'}"${K.badgeTier ? ` style="background:${s.tier === 'bonus' ? 'var(--mustard-soft)' : s.tier === 'warm' ? '#E9EEF0' : 'var(--teal-soft)'};color:${s.tier === 'bonus' ? '#7a5b10' : s.tier === 'warm' ? '#5c6b70' : 'var(--teal)'}"` : ''}>${s.kind}</span>
+  </div>
+  <details class="teacher-tip teacher-only"><summary></summary><div class="tip-body">${s.tip}</div></details>
+  ${PART_LESSON[s.id] ? `
+  <div class="mod-tabs">
+    <button class="mod-tab cur" data-mod="${s.id}" data-v="teach">① 讲解 Strategy</button>
+    <button class="mod-tab" data-mod="${s.id}" data-v="prac">② 练习 Practice</button>
+  </div>
+  <div class="mod-view on" id="teach-${s.id}">
+    ${lessonDeckHTML(s.id)}
+    <div class="teach-foot teacher-only">
+      <span class="hint">${s.teachHint || K.deckHint}</span>
+      <button class="ghost-btn" data-modto="${s.id}:prac">进入练习 Practice →</button>
+    </div>
+  </div>
+  <div class="mod-view" id="prac-${s.id}">
+    ${s.pracRecap ? `<div class="recap-strip">${s.pracRecap.map(x => `<span>${x}</span>`).join('')}</div>` : ''}
+    <div class="stage" id="stage-${s.id}"></div>
+    <div class="teach-foot teacher-only">
+      <span class="hint">${s.pracHint || K.pracHint}</span>
+      <button class="ghost-btn" data-modto="${s.id}:teach">↺ 回到讲解 Strategy</button>
+    </div>
+  </div>` : (s.lesson ? `
+  <div class="stage" id="stage-${s.id}">${lessonDeckHTML(s.id)}</div>` : `
+  <div class="stage" id="stage-${s.id}"></div>`)}
+</section>`;
+
+/* ============ 讲解分页讲义：一个 Part 仍是一个模块，模块里的讲解做成 3–4 页 ============
+   一页只放一块内容，字号大、行距松，投影上一眼看完；底部翻页，翻页状态同步到观众屏（见 doDeck）。 */
+const DK_NUM = ['①','②','③','④','⑤'];
+/* 讲义页的「块 → DOM」渲染由 modules/teach-deck.js 提供（§三 的 block 词汇表）；
+   外壳只保留分页机制 deckState / doDeck / lessonDeckHTML（§二）。 */
+const lessonDeckHTML = id => {
+  const pages = DECK_PAGES[id];
+  if (!pages) return '';
+  return `<div class="lesson-deck" id="deck-${id}">
+    <div class="deck-top">
+      <div class="deck-title"></div>
+      <span class="deck-ind"></span>
+    </div>
+    <div class="deck-body">
+      ${pages.map((p, i) => `<div class="deck-page${i === 0 ? ' on' : ''}" data-title="${p.title}"></div>`).join('')}
+    </div>
+    <div class="deck-foot">
+      <button class="ghost-btn deck-nav deck-prev" data-deck="${id}:-1">← 上一页</button>
+      <span class="deck-ind-b"></span>
+      <button class="ghost-btn deck-nav deck-next" data-deck="${id}:1">下一页 →</button>
+    </div>
+  </div>`;
+};
+const deckState = {};
+Object.keys(DECK_PAGES).forEach(id => { deckState[id] = 0; });
+function doDeck(id, i, broadcast) {
+  const pages = [...document.querySelectorAll(`#deck-${id} .deck-page`)];
+  if (!pages.length) return;
+  const n = Math.max(0, Math.min(pages.length - 1, i));
+  deckState[id] = n;
+  pages.forEach((p, k) => p.classList.toggle('on', k === n));
+  const root = document.getElementById('deck-' + id);
+  const tEl = root.querySelector('.deck-title');
+  if (tEl) tEl.innerHTML = `<span class="deck-no">${DK_NUM[n]}</span>${pages[n].dataset.title || ''}`;
+  root.querySelectorAll('.deck-ind,.deck-ind-b').forEach(el => { el.textContent = `${n + 1} / ${pages.length}`; });
+  const pb = root.querySelector('.deck-prev'), nb = root.querySelector('.deck-next');
+  if (pb) pb.disabled = (n === 0);
+  if (nb) nb.disabled = (n === pages.length - 1);
+  if (!isAudience && broadcast) sfx.click();
+  if (!isAudience && document.body.classList.contains('presenting')) setTimeout(fitLeft, 60);
+  updateConsole();
+  DECK_HOOKS.forEach(f => { try { f(id, n); } catch (e) {} });
+  if (broadcast) send({t:'deck', id, i: n});
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest ? e.target.closest('[data-deck]') : null;
+  if (!b) return;
+  const [id, d] = b.dataset.deck.split(':');
+  doDeck(id, (deckState[id] || 0) + (+d), true);
+});
+STEPS.forEach(s => main.insertAdjacentHTML('beforeend', stepScreenHTML(s)));
+Object.keys(DECK_PAGES).forEach(id => doDeck(id, 0, false));   // 讲义默认停在第 1 页，同时把标题 / 页码 / 按钮禁用态画好
+Object.keys(DECK_PAGES).forEach(id => TD && TD.mount(document.getElementById('deck-' + id), TK.step(id)));
+main.insertAdjacentHTML('beforeend', `
+<section class="screen" id="s-champion">
+  <div class="topline">
+    <button class="back-btn teacher-only" data-go="home">← 返回</button>
+    <h2>Total Score 总冠军</h2>
+  </div>
+  <details class="teacher-tip teacher-only"><summary></summary><div class="tip-body"><b>流程：</b>先让学生自己喊总分 → 点「Announce」放彩带 → 分数是分环节累计的，可以让学生看哪一步拉开的差距。<br><b>提醒：</b>「Reset」下课前再点。</div></details>
+  <div class="stage" id="stage-champion"></div>
+</section>`);
+
+const stepsEl = document.getElementById('steps');
+const menuEl = document.getElementById('menu');
+STEPS.forEach(s => {
+  const b = document.createElement('button');
+  b.className = 'step' + (s.tier === 'bonus' ? ' bonus' : ''); b.dataset.id = s.id;
+  b.innerHTML = `<span class="n">${s.n}</span><span>${s.label}</span>`;
+  b.onclick = () => doGo(s.id, true);
+  stepsEl.appendChild(b);
+  const c = document.createElement('button');
+  c.className = 'menu-card';
+  c.innerHTML = `<span class="tier ${s.tier}">${s.tierText}</span>
+    <span class="ic">${ICONS[s.icon]}</span><span class="t">${s.n}. ${s.label}</span>
+    <span class="d">${s.d}</span><span class="time">约 ${s.time}</span>`;
+  c.onclick = () => doGo(s.id, true);
+  menuEl.appendChild(c);
+});
+menuEl.insertAdjacentHTML('beforeend',
+  `<button class="menu-card champ" id="menuChamp"><span class="ic">${ICONS.trophy}</span><span class="t">Total Score 总冠军</span><span class="d">分环节明细 + 总分，放彩带，清零准备下节课。</span><span class="time">课末 2 分钟</span></button>`);
+document.getElementById('menuChamp').onclick = () => doGo('champion', true);
+
+/* ================= 记分（分环节台账） ================= */
+const LEDGER0 = () => Object.fromEntries(
+  (K.ledgerSteps || LESSON.steps.filter(s => s.practice).map(s => s.id))
+    .map(id => [id, {A:0, B:0}]));
+let ledger = JSON.parse(store.get(KEY('_ledger')) || 'null') || LEDGER0();
+function totals() {
+  const t = {A:0,B:0};
+  Object.values(ledger).forEach(v => { t.A += v.A; t.B += v.B; });
+  return t;
+}
+function renderScore() {
+  const t = totals();
+  document.getElementById('sbA').textContent = t.A;
+  document.getElementById('sbB').textContent = t.B;
+}
+function addScore(step, team, n, broadcast) {
+  if (!ledger[step]) ledger[step] = {A:0,B:0};
+  ledger[step][team] = Math.max(0, ledger[step][team] + n);
+  if (!isAudience) store.set(KEY('_ledger'), JSON.stringify(ledger));
+  renderScore();
+  if (broadcast) send({t:'score', ledger});
+}
+renderScore();
+
+/* ================= 导航 ================= */
+let cur = 'home';
+let visited = new Set();
+function doGo(id, broadcast) {
+  const target = document.getElementById(id === 'home' ? 's-home' : 's-' + id);
+  // 幂等：已经在目标环节就别再 remove/add class（重放快照时每 3 秒会调一次 doGo，多余的重排会造成观众屏闪动）
+  const already = (cur === id) && target && target.classList.contains('on');
+  cur = id;
+  if (!already && target) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+    target.classList.add('on');
+  }
+  visited.add(id);
+  if (!already) document.querySelectorAll('.step').forEach(el => {
+    el.classList.toggle('cur', el.dataset.id === id);
+    el.classList.toggle('done', visited.has(el.dataset.id) && el.dataset.id !== id);
+  });
+  if (!isAudience) sfx.click();
+  if (!isAudience) window.scrollTo({top:0});
+  renderFrameBar(id);
+  if (id === 'champion') renderChampion();
+  updateConsole();
+  if (document.body.classList.contains('presenting')) setTimeout(fitLeft, 60);
+  if (broadcast) send({t:'go', id});
+}
+document.addEventListener('click', e => {
+  if (e.target.dataset && e.target.dataset.go === 'home') doGo('home', true);
+});
+STEPS.forEach((s, i) => {
+  const stage = document.getElementById('stage-' + s.id);
+  if (!stage) return;
+  const row = document.createElement('div');
+  row.className = 'next-row teacher-only';
+  const nextBtn = i < STEPS.length - 1
+    ? `<button class="ghost-btn" data-next="${STEPS[i+1].id}">下一环节：${STEPS[i+1].n}. ${STEPS[i+1].label} →</button>`
+    : `<button class="ghost-btn" data-next="champion">公布总冠军 →</button>`;
+  const minus = ledger[s.id] ? `<div class="score-add teacher-only"><span>撤销</span>
+      <button data-minus="${s.id}:A">A −1</button><button data-minus="${s.id}:B">B −1</button>
+    </div>` : '';
+  row.innerHTML = minus + nextBtn;
+  stage.appendChild(row);
+});
+document.addEventListener('click', e => {
+  if (e.target.dataset.next) doGo(e.target.dataset.next, true);
+  if (e.target.dataset.minus) {
+    const [step, team] = e.target.dataset.minus.split(':');
+    addScore(step, team, -1, true);
+    sfx.click();
+  }
+});
+
+/* ================= 挂载环节的练习模块（模块自己按契约三件套注册过） ================= */
+STEPS.forEach(s => {
+  if (!s.practice) return;
+  const def = MODS[s.practice.type];
+  if (!def) { console.warn('[TK] 没找到模块：' + s.practice.type); return; }
+  const stage = document.getElementById('stage-' + s.id);
+  const st = def.init ? def.init(s, s.practice) : {};
+  def.mount && def.mount(stage, s, s.practice);
+  def.render && def.render(st, stage);
+});
+
+/* ================= 讲解 / 练习 视图切换 + 底部句架栏 ================= */
+const modState = {};
+STEPS.forEach(s => { if (PART_LESSON[s.id]) modState[s.id] = 'teach'; });
+function doMod(id, v, broadcast) {
+  if (modState[id] === undefined) return;
+  modState[id] = v;
+  const t = document.getElementById('teach-' + id), p = document.getElementById('prac-' + id);
+  if (t) t.classList.toggle('on', v === 'teach');
+  if (p) p.classList.toggle('on', v === 'prac');
+  document.querySelectorAll(`.mod-tab[data-mod="${id}"]`).forEach(b => b.classList.toggle('cur', b.dataset.v === v));
+  if (!isAudience) sfx.click();
+  if (document.body.classList.contains('presenting')) setTimeout(fitLeft, 60);
+  updateConsole();
+  if (broadcast) send({t:'mod', id, v});
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest) return;
+  const t = e.target.closest('.mod-tab');
+  if (t) { doMod(t.dataset.mod, t.dataset.v, true); return; }
+  const f = e.target.closest('[data-modto]');
+  if (f) { const [id, v] = f.dataset.modto.split(':'); doMod(id, v, true); }
+});
+document.getElementById('cMod').onclick = () => {
+  if (modState[cur] === undefined) return;
+  doMod(cur, modState[cur] === 'teach' ? 'prac' : 'teach', true);
+};
+function renderFrameBar(id) {
+  const el = document.getElementById('frameBar');
+  if (!el) return;
+  const fb = LESSON.frameNote || {};
+  const def = LESSON.frameDefault || Object.keys(FRAME_BAR)[0];
+  const items = FRAME_BAR[id] || FRAME_BAR[def] || [];
+  el.innerHTML = items.map(x => `<span class="fb-item">${x}</span>`).join('')
+    + `<span class="fb-cn">${PART_LESSON[id] ? fb.mod : fb.general}</span>`;
+}
+renderFrameBar('home');
+
+
+
+/* ================= 总冠军 ================= */
+let champAnnounced = false;
+function champBannerHTML() {
+  const t = totals();
+  const lead = t.A === t.B ? null : (t.A > t.B ? 'A' : 'B');
+  return lead
+    ? `<span class="win-banner">Team ${lead} is today's CHAMPION! · ${lead} 组是总冠军！</span>`
+    : `<span class="win-banner">A draw! Both teams are champions! · 平局！</span>`;
+}
+function renderChampion() {
+  const t = totals();
+  const rows = STEPS.filter(s => ledger[s.id]).map(s => {
+    const v = ledger[s.id] || {A:0,B:0};
+    return `<tr><td class="step">${s.n}. ${s.label}</td><td class="a">${v.A}</td><td class="b">${v.B}</td></tr>`;
+  }).join('');
+  const st = document.getElementById('stage-champion');
+  st.innerHTML = `
+    <div class="champ-score">
+      <div class="side a"><div class="cn">Team A</div><div class="cs">${t.A}</div></div>
+      <div class="vs">VS</div>
+      <div class="side b"><div class="cn">Team B</div><div class="cs">${t.B}</div></div>
+    </div>
+    <table class="score-table">
+      <tr><th>环节</th><th>Team A</th><th>Team B</th></tr>
+      ${rows}
+      <tr><td class="step"><b>Total 总分</b></td><td class="a"><b>${t.A}</b></td><td class="b"><b>${t.B}</b></td></tr>
+    </table>
+    <div id="champResult" class="big-sub">${champAnnounced ? champBannerHTML() : 'Click to announce the winner · 点下面按钮公布结果'}</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      <button class="mega-btn mustard teacher-only" id="champGo">Announce 公布结果</button>
+      <button class="ghost-btn teacher-only" id="champReset">Reset 清零</button>
+    </div>`;
+  document.getElementById('champGo').onclick = () => doChampGo(true);
+  document.getElementById('champReset').onclick = () => {
+    ledger = LEDGER0();
+    champAnnounced = false;
+    store.set(KEY('_ledger'), JSON.stringify(ledger));
+    renderScore(); renderChampion(); sfx.click();
+    send({t:'score', ledger});
+  };
+}
+function doChampGo(broadcast) {
+  champAnnounced = true;
+  const el = document.getElementById('champResult');
+  if (el) el.innerHTML = champBannerHTML();
+  celebrate();
+  if (broadcast) send({t:'champGo'});
+}
+
+/* ================= 计时器 ================= */
+let tTotal = 120, tLeft = 120, ticking = null;
+const tNum = document.getElementById('timerNum');
+const overlay = document.getElementById('timerOverlay');
+const mini = document.getElementById('miniTimer');
+function tRender() {
+  const m = String(Math.floor(tLeft/60)).padStart(2,'0'), s = String(tLeft%60).padStart(2,'0');
+  tNum.textContent = `${m}:${s}`;
+  tNum.classList.toggle('warn', tLeft <= 10 && ticking);
+  mini.textContent = `${m}:${s}`;
+}
+function doTimer(sec, auto, broadcast) {
+  if (sec) { tTotal = tLeft = sec; stopTick(); }
+  document.getElementById('tEnd').style.display = 'none';
+  tNum.style.display = '';
+  document.getElementById('tCtrl').style.display = '';
+  document.getElementById('tPresets').style.display = '';
+  overlay.style.display = 'flex';
+  tRender();
+  if (auto) startTick();
+  if (broadcast) send({t:'timer', sec, auto});
+}
+function timerState() {
+  return { open: overlay.style.display === 'flex', running: !!ticking, total: tTotal, left: tLeft };
+}
+function applyTimer(t) {
+  if (!t) return;
+  tTotal = t.total || tTotal;
+  tLeft = t.left != null ? t.left : tLeft;
+  overlay.style.display = t.open ? 'flex' : 'none';
+  if (t.running && !ticking) startTick();
+  if (!t.running && ticking) stopTick();
+  tRender();
+}
+document.getElementById('tMin').onclick = () => { overlay.style.display = 'none'; send({t:'timerCtl', act:'min'}); };
+function closeTimer(broadcast) {
+  overlay.style.display = 'none';
+  stopTick(); tRender();
+  if (broadcast) send({t:'timerClose'});
+}
+document.getElementById('timerBtn').onclick = () => doTimer(tTotal, false, true);
+document.getElementById('tClose').onclick = () => closeTimer(true);
+document.querySelectorAll('#tPresets button').forEach(b => b.onclick = () => {
+  tTotal = tLeft = +b.dataset.sec; stopTick(); tRender(); sfx.click();
+  send({t:'timerCtl', act:'preset', total: tTotal, left: tLeft});
+});
+function startTick() {
+  if (ticking) return;
+  mini.classList.add('on');
+  ticking = setInterval(() => {
+    tLeft--; tRender();
+    if (tLeft <= 0) {
+      stopTick(); sfx.end();
+      tLeft = tTotal;
+      tNum.style.display = 'none';
+      document.getElementById('tCtrl').style.display = 'none';
+      document.getElementById('tPresets').style.display = 'none';
+      document.getElementById('tEnd').style.display = 'flex';
+    }
+  }, 1000);
+}
+function stopTick() { clearInterval(ticking); ticking = null; mini.classList.remove('on'); }
+document.getElementById('tStart').onclick = () => { startTick(); send({t:'timerCtl', act:'start', left: tLeft}); };
+document.getElementById('tPause').onclick = () => { stopTick(); send({t:'timerCtl', act:'pause', left: tLeft}); };
+document.getElementById('tReset').onclick = () => { stopTick(); tLeft = tTotal; tRender(); send({t:'timerCtl', act:'reset', total: tTotal, left: tLeft}); };
+document.getElementById('tContinue').onclick = () => closeTimer(true);
+
+/* ================= 演讲者模式 ================= */
+let audWin = null, lastHeartbeat = 0, heartbeatTimer = null;
+const cStatus = document.getElementById('cStatus');
+function setStatus(state, text) {
+  cStatus.className = 'c-status ' + state;
+  cStatus.textContent = '观众屏：' + text;
+}
+function openAudience() {
+  try {
+    audWin = window.open(
+      location.href.split('#')[0] + '#audience', KEY('_audience'),
+      'width=1280,height=800,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes'
+    );
+    if (!audWin) setStatus('bad', 'Safari 拦截了弹窗：请在地址栏右侧允许弹窗，或点「复制观众屏地址」手动打开');
+    else { setStatus('wait', '连接中…'); lastHeartbeat = Date.now(); }
+  } catch(e) {
+    setStatus('bad', '弹窗被拦截，请允许后点「重新打开观众屏」');
+  }
+}
+function enterPresenting() {
+  document.body.classList.add('presenting');
+  openAudience();
+  setTimeout(() => { sessionMinZoom = 1; fitLeft(true); }, 200);
+  lastHeartbeat = Date.now();
+  heartbeatTimer = setInterval(() => {
+    if (Date.now() - lastHeartbeat > 8000) setStatus('bad', '未连接');
+  }, 3000);
+  updateConsole();
+}
+function exitPresenting() {
+  document.body.classList.remove('presenting');
+  resetZoom();
+  sessionMinZoom = 1;
+  clearInterval(heartbeatTimer);
+  send({t:'bye'});
+  if (audWin && !audWin.closed) try { audWin.close(); } catch(e){}
+  audWin = null;
+}
+function togglePresent() {
+  document.body.classList.contains('presenting') ? exitPresenting() : enterPresenting();
+}
+document.getElementById('presentBtn').onclick = togglePresent;
+document.getElementById('consoleExit').onclick = togglePresent;
+document.getElementById('cReopen').onclick = openAudience;
+document.getElementById('cCopyLink').onclick = async () => {
+  const url = location.href.split('#')[0] + '#audience';
+  try { await navigator.clipboard.writeText(url); setStatus('ok', '地址已复制，到投影上粘贴打开'); }
+  catch(e) { prompt('复制这个地址，到投影上打开：', url); }
+};
+document.getElementById('cCheck').onclick = () => {
+  const imgs = [...document.images];
+  const bad = imgs.filter(i => !i.complete || !i.naturalWidth).length;
+  alert([
+    '观众窗口：' + (audWin && !audWin.closed ? '已打开' : '未打开（Safari 会拦截延迟弹窗，请点「重新打开观众屏」）'),
+    '广播通道 BroadcastChannel：' + (bc ? '可用' : '不可用'),
+    '存储通道 localStorage：' + (store.ok ? '可用' : '不可用 —— Safari 在 file:// 下会禁用，请双击同目录的「' + K.launcher + '」走 http 打开'),
+    '图片：' + (bad ? bad + ' 张未加载' : '全部已加载（' + K.imgNote + '）'),
+    '当前环节：' + cur,
+  ].join('\n'));
+};
+document.getElementById('cTimer').onclick = () => doTimer(tTotal, false, true);
+document.getElementById('cPrev').onclick = () => stepNav(-1);
+document.getElementById('cNext').onclick = () => stepNav(1);
+function stepNav(d) {
+  const ids = ['home', ...STEPS.map(s=>s.id), 'champion'];
+  const i = Math.max(0, ids.indexOf(cur));
+  doGo(ids[Math.min(ids.length-1, i + d)], true);
+}
+document.addEventListener('keydown', e => {
+  if (e.key.toLowerCase() === 'p' && !/INPUT|TEXTAREA/.test(document.activeElement.tagName) && !isAudience) togglePresent();
+});
+function updateConsole() {
+  if (!document.body.classList.contains('presenting')) return;
+  const s = STEPS.find(x => x.id === cur);
+  const mv = modState[cur];
+  const suffix = mv === 'prac' ? ' · 练习' : (mv === 'teach' ? ' · 讲解' : '');
+  document.getElementById('cScreenName').textContent = s ? `${s.n}. ${s.label}${suffix}` : (cur === 'champion' ? 'Total Score 总冠军' : '主页');
+  document.getElementById('cTip').innerHTML = s ? s.tip : K.homeTip;
+  document.getElementById('cTalk').innerHTML = s
+    ? '<b>说什么 Say this:</b>' + s.talk.map(t => `<div class="talk-line"><span class="talk-en">${t.en}</span><span class="talk-cn">${t.cn}</span></div>`).join('')
+    : '<b>说什么 Say this:</b><div class="talk-line"><span class="talk-en">' + K.homeTalkEn + '</span><span class="talk-cn">' + K.homeTalkCn + '</span></div>';
+  const mb = document.getElementById('cMod');
+  if (mb) {
+    mb.textContent = mv ? (mv === 'teach' ? '切到【练习 Practice】→' : '↺ 切回【讲解 Strategy】') : '当前环节无讲解 / 练习切换';
+    mb.disabled = !mv;
+    mb.style.opacity = mv ? '1' : '.5';
+  }
+}
+
+
+/* ================= 左侧操作区等比缩放（控制台不受影响） ================= */
+let uiZoom = parseFloat(store.get(KEY('_zoom')) || '1');
+store.set(KEY('_zoom'), '1');
+if (!(uiZoom >= 0.5 && uiZoom <= 1.6)) uiZoom = 1;
+if (uiZoom < 0.8) uiZoom = 1;
+let sessionMinZoom = 1;      // 本场自动适配的基准：只降不升，避免按钮忽大忽小
+function leftEls() {
+  return [document.querySelector('header'), document.querySelector('.steps'), document.querySelector('main')];
+}
+function setZoom(z, persist) {
+  uiZoom = Math.min(1.6, Math.max(0.45, Math.round(z * 100) / 100));
+  const presenting = document.body.classList.contains('presenting');
+  leftEls().forEach(el => { if (el) el.style.zoom = presenting ? uiZoom : ''; });
+  const lbl = document.getElementById('zoomLabel');
+  if (lbl) lbl.textContent = Math.round(uiZoom * 100) + '%';
+  if (persist !== false) store.set(KEY('_zoom'), String(uiZoom));
+}
+function resetZoom() { leftEls().forEach(el => { if (el) el.style.zoom = ''; }); }
+function measureWorstScreenH() {          // 需在 zoom=1 状态下调用；量完立即恢复，不改显示
+  // 每个环节「讲解」「练习」是两种视图，同一时刻只显示一种：分别量，取更大的那个，
+  // 这样切换时缩放不会跳，也不会被两页叠在一起的高度误伤。
+  const screens = [...document.querySelectorAll('.screen')];
+  const modsAll = screens.map(el => [...el.querySelectorAll('.mod-view')]);
+  const savedOn = modsAll.map(list => list.map(v => v.classList.contains('on')));
+  // 讲义是分页的：只显示「当前那一页」，所以只量当前页会把最差的那一页漏掉（实测漏掉过
+  // 1264px 与 762px 的差），缩放因此偏乐观、翻到那一页就冲出屏幕。这里把每一页都量一遍，
+  // 取所有页里的最大高度。—— 仍然在正常流里量（不用 absolute），量完逐页还原。
+  const decks = [...document.querySelectorAll('.lesson-deck')];
+  const savedPageOn = decks.map(root => [...root.querySelectorAll('.deck-page')].map(p => p.classList.contains('on')));
+  let max = 0;
+  function measureAllPages() {
+    decks.forEach(root => {
+      const pages = [...root.querySelectorAll('.deck-page')];
+      pages.forEach(p => {
+        // 一次只让一页显示：否则第 1 页和当前页会同时 'on'、两页叠起来量，高度虚高
+        // （第一版就是这么写的，量虚了 40%，缩放被压到下限 0.55，投影正文掉到 18px）
+        pages.forEach(q => q.classList.remove('on'));
+        p.classList.add('on');
+        void document.body.offsetHeight;             // 强制同步重排后再量
+        max = Math.max(max, root.closest('.screen').scrollHeight);
+      });
+    });
+  }
+  screens.forEach((el, si) => {
+    const list = modsAll[si];
+    const variants = list.length ? list.map((_, i) => i) : [-1];
+    variants.forEach(k => {
+      list.forEach((v, i) => v.classList.toggle('on', i === k));
+      if (el.classList.contains('on')) {
+        max = Math.max(max, el.scrollHeight);
+        measureAllPages();                            // 这一屏的每一页讲义都量一遍
+        return;
+      }
+      const saved = el.getAttribute('style') || '';
+      // 关键：不能用 position:absolute + width:100% 量——绝对定位会脱离 main，宽度按视口算，
+      // 而真实环节宽度是 main 的内容宽度（max-width:1100）。宽度算宽了，高度就量矮了，缩放必然偏乐观。
+      el.setAttribute('style', 'display:block;visibility:hidden;');
+      max = Math.max(max, el.scrollHeight);
+      measureAllPages();
+      if (saved) el.setAttribute('style', saved); else el.removeAttribute('style');
+    });
+  });
+  screens.forEach((el, si) => modsAll[si].forEach((v, i) => v.classList.toggle('on', savedOn[si][i])));
+  decks.forEach((root, di) => [...root.querySelectorAll('.deck-page')].forEach((p, i) => p.classList.toggle('on', savedPageOn[di][i])));
+  return max;
+}
+function computeFitZoom() {
+  // 全程同步：清零 → 测量 → 计算 → 设回，浏览器只绘制最终结果，不会闪
+  leftEls().forEach(el => { if (el) el.style.zoom = ''; });
+  const header = document.querySelector('header');
+  const steps = document.querySelector('.steps');
+  const chromeH = (header ? header.offsetHeight : 0) + (steps ? steps.offsetHeight : 0) + 76;
+  const naturalH = measureWorstScreenH() + chromeH;
+  const zH = (window.innerHeight - 8) / Math.max(naturalH, 1);
+  return Math.round(Math.max(0.55, Math.min(1, zH)) * 100) / 100;
+}
+function fitLeft(allowGrow) {
+  if (!document.body.classList.contains('presenting')) { resetZoom(); return; }
+  const z = computeFitZoom();
+  if (allowGrow) sessionMinZoom = z;
+  else sessionMinZoom = Math.min(sessionMinZoom, z);
+  setZoom(sessionMinZoom);
+}
+document.getElementById('zoomOut').onclick = () => { const v = Math.round((uiZoom - 0.05) * 100) / 100; sessionMinZoom = v; setZoom(v); };
+document.getElementById('zoomIn').onclick = () => { const v = Math.round((uiZoom + 0.05) * 100) / 100; sessionMinZoom = v; setZoom(v); };
+document.getElementById('zoomFit').onclick = () => { sessionMinZoom = 1; fitLeft(true); };
+document.addEventListener('keydown', e => {
+  if (/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if (e.key === '0' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); sessionMinZoom = 1; setZoom(1); return; }
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (!document.body.classList.contains('presenting')) return;
+  if (e.key === '-' || e.key === '_') { const v = Math.round((uiZoom - 0.05) * 100) / 100; sessionMinZoom = v; setZoom(v); }
+  if (e.key === '=' || e.key === '+') { const v = Math.round((uiZoom + 0.05) * 100) / 100; sessionMinZoom = v; setZoom(v); }
+});
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { if (document.body.classList.contains('presenting')) fitLeft(true); }, 250);
+});
+
+/* ================= 观众屏自动适应窗口（投影不滚动） ================= */
+let audFitTimer = null;
+let audZoomApplied = 0, audSig = '', audDone = false;
+function scheduleAudFit(delay, force) {    // 观众屏重算缩放的唯一入口：收消息 / resize / 轮询 / 图片加载完都走这里
+  if (!isAudience) return;                 // 教师端不需要（教师端走 fitLeft）
+  clearTimeout(audFitTimer);
+  audFitTimer = setTimeout(() => fitAudience(!!force), delay || 90);
+}
+function audUsed() {                        // 真正会造成滚动的视觉高度：main 的底边
+  const m = document.querySelector('main');
+  if (!m) return { h: 0, w: 0 };
+  const r = m.getBoundingClientRect();
+  return { h: r.bottom, w: r.width };
+}
+function fitAudience(force) {
+  if (!isAudience) return;
+  const sig = JSON.stringify([cur, Object.values(modState).join(''), deckState, PARTS.map(p => p.get && p.get()), refOpen, refTab]);
+  if (!force && audDone && sig === audSig) return;
+  audSig = sig; audDone = true;
+  const mainEl = document.querySelector('main');
+  if (!mainEl) return;
+  document.documentElement.style.zoom = '';  // 旧版本给根元素加过缩放，清掉
+  mainEl.style.zoom = '';                    // 同帧清零测量
+  const header = document.querySelector('header');
+  const fb = document.getElementById('frameBar');
+  const cs = getComputedStyle(mainEl);
+  const chromeH = (header ? header.offsetHeight : 0) + (fb ? fb.offsetHeight : 0) + (parseFloat(cs.paddingBottom) || 0);
+  const naturalH = measureWorstScreenH() + chromeH;
+  const vh = window.innerHeight;
+  // 宽度不用管：观众屏的 main 是 max-width:none; width:100%，缩放多少都铺满整屏（和教师端同一套几何）。
+  // 只按高度定比例，且上限 1 —— 放大反而会把版面挤窄、变高，得不偿失。
+  let z = naturalH > 40 ? Math.min(1, (vh - 8) / naturalH) : 1;
+  z = Math.max(0.55, Math.round(z * 100) / 100);
+  if (!force && audZoomApplied && z > audZoomApplied) z = audZoomApplied;  // 收消息时只降不升，尺寸稳定
+  mainEl.style.zoom = z;
+  // 自校正：解析公式会偏乐观（chrome 高度估不准），直接量 main 底边，还溢出就按比例再缩，最多 3 轮
+  for (let i = 0; i < 3; i++) {
+    const u = audUsed();
+    if (u.h <= vh) break;
+    const nz = Math.max(0.55, Math.round((z * (vh / Math.max(u.h, 1))) * 100) / 100 - 0.01);
+    if (nz >= z) break;                      // 缩不动了，退出，避免死循环
+    z = nz;
+    mainEl.style.zoom = z;
+  }
+  audZoomApplied = z;
+}
+window.addEventListener('resize', () => scheduleAudFit(0, true));
+window.addEventListener('load', () => scheduleAudFit(0, true));   // 图片有真实高度后再定一次，否则量出来偏矮
+
+/* ================= 状态快照与重放（模块状态走注册表） ================= */
+function snapshot() {
+  const m = {
+    t:'state', id: cur, ledger, mod: { ...modState }, deck: { ...deckState }, champ: champAnnounced,
+    ref: {open: refOpen, tab: refTab},
+    timer: timerState(),
+  };
+  PARTS.forEach(p => { if (p.get) m[p.key] = p.get(); });
+  return m;
+}
+function applyState(m) {
+  ledger = m.ledger || ledger; renderScore();
+  doGo(m.id || 'home', false);
+  if (m.mod) Object.keys(m.mod).forEach(k => doMod(k, m.mod[k], false));
+  if (m.deck) Object.keys(m.deck).forEach(k => doDeck(k, m.deck[k], false));
+  PARTS.forEach(p => { if (p.apply && m[p.key] !== undefined) p.apply(m[p.key]); });
+  applyTimer(m.timer);
+  if (m.ref && (m.ref.open !== refOpen || m.ref.tab !== refTab)) doRef(m.ref.open, m.ref.tab, false);
+  if (m.champ !== undefined) champAnnounced = !!m.champ;
+  if (cur === 'champion') renderChampion();
+}
+function setLedger(l) { ledger = l || ledger; renderScore(); if (cur === 'champion') renderChampion(); }
+
+/* ================= 同步分发 ================= */
+let pingCount = 0;
+let lastAckAt = Date.now(), lastResendAt = 0;
+function handlePingAck(m) {
+  const now = Date.now();
+  if (m.t === 'ping') {
+    lastHeartbeat = now; lastAckAt = now;
+    send(snapshot());
+    setStatus('ok', '已同步');
+  } else if (m.t === 'ack') {
+    lastHeartbeat = now; lastAckAt = now;
+    // 这里绝对不能补发！补发会产生新的 _id，下一个 ack 必然又对不上 → 自激风暴（实测 38 秒发出 8 万条快照）
+    if (m.last && lastSentId && m.last !== lastSentId) setStatus('wait', '同步中…');
+    else setStatus('ok', '已同步');
+  }
+}
+// 兜底：真的超过 3 秒收不到任何 ack 才补发一次完整快照（限流 2 秒）
+setInterval(() => {
+  if (isAudience) return;
+  const now = Date.now();
+  if (now - lastAckAt > 3000 && now - lastResendAt > 2000) { lastResendAt = now; send(snapshot()); }
+}, 1000);
+/* 同步动作注册表：外壳的通用动作 + 模块用 TK.on() 注册的动作（ACT 已声明在外壳顶部） */
+Object.assign(ACT, {
+  go: m => doGo(m.id, false),
+  score: m => setLedger(m.ledger),
+  mod: m => doMod(m.id, m.v, false),
+  deck: m => TD ? TD.actions.deck(m) : doDeck(m.id, m.i, false),
+  timer: m => doTimer(m.sec, m.auto, false),
+  timerCtl: m => {
+    if (m.act === 'start') startTick();
+    else if (m.act === 'pause') stopTick();
+    else if (m.act === 'reset') { stopTick(); tLeft = m.total || tTotal; tRender(); }
+    else if (m.act === 'preset') { tTotal = m.total; tLeft = m.left; stopTick(); tRender(); }
+    else if (m.act === 'min') overlay.style.display = 'none';
+  },
+  timerClose: () => closeTimer(false),
+  champGo: () => doChampGo(false),
+  ref: m => doRef(m.open, m.tab, false),
+  bye: () => document.body.classList.add('bye'),
+  state: m => applyState(m),
+});
+if (bc) bc.onmessage = e => {
+  const m = e.data;
+  if (dup(m)) return;
+  if (isAudience) {
+    document.body.classList.remove('bye');
+    if (ACT[m.t]) ACT[m.t](m);
+    scheduleAudFit();
+    send2({t:'ack', last: m ? m._id : null});
+  } else handlePingAck(m);
+};
+window.addEventListener('storage', e => {
+  if (!e.newValue) return;
+  try {
+    const m = JSON.parse(e.newValue);
+    if (dup(m)) return;
+    if (e.key === KEY('-msg') && isAudience) {
+      document.body.classList.remove('bye');
+      if (ACT[m.t]) ACT[m.t](m);
+      scheduleAudFit();
+      send2({t:'ack', last: m ? m._id : null});
+    } else if (e.key === KEY('-aud') && !isAudience) {
+      handlePingAck(m);
+    }
+  } catch(err){}
+});
+
+/* ===== 轮询兜底（Safari 兼容）：即使 BC 和 storage 事件都不可用，也能同步 ===== */
+let inboxAud = store.get(KEY('-aud')), inboxMsg = store.get(KEY('-msg'));
+function pollInbox() {
+  if (isAudience) {
+    const v = store.get(KEY('-msg'));
+    if (v && v !== inboxMsg) {
+      inboxMsg = v;
+      try {
+        const m = JSON.parse(v);
+        if (!dup(m)) {
+          document.body.classList.remove('bye');
+          if (ACT[m.t]) ACT[m.t](m);
+          scheduleAudFit();
+          send2({t:'ack', last: m._id});
+        }
+      } catch(e){}
+    }
+  } else {
+    const v = store.get(KEY('-aud'));
+    if (v && v !== inboxAud) {
+      inboxAud = v;
+      try {
+        const m = JSON.parse(v);
+        if (!dup(m)) handlePingAck(m);
+      } catch(e){}
+    }
+  }
+}
+window.addEventListener('hashchange', () => {
+  if (isAudience) return;
+  const want = location.hash.includes('present');
+  const on = document.body.classList.contains('presenting');
+  if (want && !on) { enterPresenting(); }
+  else if (!want && on) { exitPresenting(); }
+});
+if (!isAudience && location.hash.includes('present')) {
+  setTimeout(() => {
+    document.body.classList.add('presenting');
+    setStatus('wait', '未打开（点「打开观众屏」或用复制地址）');
+    updateConsole();
+    setTimeout(() => { sessionMinZoom = 1; fitLeft(true); }, 200);
+  }, 300);
+}
+if (isAudience) {
+  document.body.classList.add('audience');
+  setTimeout(() => fitAudience(true), 400);
+  send2({t:'ping'});
+  setInterval(() => send2({t:'ping'}), 3000);
+}
+setInterval(pollInbox, 700);
+</script>
+</body>
+</html>

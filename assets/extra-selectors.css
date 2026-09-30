@@ -1,0 +1,10 @@
+
+/* ============ 跨课补充选择器：PET / KET 用到、FCE 没有的选择器 ============
+   由 scripts/append-missing-css.py 追加。只补「外壳里完全不存在」的选择器，
+   已有同名选择器的一律跳过 —— 否则会覆盖 FCE 已验收过的几何。 */
+.big-icon{display:inline-block;width:clamp(90px,13vw,140px);height:clamp(90px,13vw,140px);color:var(--teal);flex-shrink:0;}
+.chip{border-radius:22px;padding:13px 22px;font-size:clamp(16px,2.4vw,26px);background:var(--card);border:1.5px solid var(--line);min-height:52px;font-weight:700;cursor:pointer;}
+#refFab{position:fixed;bottom:76px;left:18px;z-index:70;background:var(--card);border:1.5px solid var(--teal);color:var(--teal);border-radius:16px;padding:12px 18px;font-size:15px;font-weight:800;box-shadow:0 4px 14px rgba(44,120,108,.18);display:flex;align-items:center;gap:8px;}
+#refFab svg{width:20px;height:20px;}
+body.ref-open #refFab{display:none;}
+/* ============ 跨课补充选择器 结束 ============ */
