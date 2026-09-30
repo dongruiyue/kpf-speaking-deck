@@ -55,11 +55,13 @@ def lesson_meta(js):
     """课时文件里的 `const LESSON_META = {...};` —— 直接用 JSON.parse，不猜语法。
 
     允许这个对象跨多行（但必须是纯 JSON：双引号、不加注释），
-    所以靠「括号配平 + 跳过字符串」把对象抠出来，而不是按行正则。"""
-    key = 'const LESSON_META = '
-    i = js.find(key)
-    if i < 0:
-        raise SystemExit('课时数据里找不到 `const LESSON_META = {...};`')
+    所以靠「括号配平 + 跳过字符串」把对象抠出来，而不是按行正则。
+    定位要求「行首」：文档注释里也可能出现 `const LESSON_META = {...}` 字样，
+    不按行首锚定会先抓到注释里的那个。"""
+    m = re.search(r'^\s*const LESSON_META = ', js, re.M)
+    if not m:
+        raise SystemExit('课时数据里找不到行首的 `const LESSON_META = {...};`')
+    i = m.start()
     j = js.index('{', i)
     depth, k = 0, j
     while k < len(js):

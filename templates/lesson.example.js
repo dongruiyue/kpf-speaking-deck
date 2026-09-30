@@ -1,7 +1,7 @@
 /* templates/lesson.example.js —— 一节课的数据长什么样
  *
  * 用法：复制成 lessons/<name>.js，改 LESSON_META 与 steps。
- * 约定：第一行必须是 `const LESSON_META = {...};`（scripts/build.py 直接 JSON.parse 它，
+ * 约定：`const LESSON_META = {...};` 必须独占一行（行首；build.py 直接 JSON.parse 它，
  *       用来拿标题 / 频道名 / 存储前缀 / 端口 / 输出文件名）。
  * 图片不写在这里：放 lessons/<name>.img/<键名>.jpg，build 时转 base64 注入。
  * 讲义页（lesson）用 references/shell-boundary.md §三 的 block 词汇；
