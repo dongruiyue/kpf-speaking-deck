@@ -12,11 +12,16 @@
 ```
 kpf-speaking-deck/
 ├── SKILL.md
+├── GUIDE.md       完整说明（原理 / 机制 / 对比人工 / 待改进 / FAQ）
+├── README.md      仓库门面：是什么 / 安装 / 30 秒跑通
+├── LICENSE        MIT
+├── .gitignore     把红线目录挡在仓库外
 ├── assets/        外壳 shell.html + 跨课补充 CSS + 启动脚本模板
 ├── modules/       练习模块库（12 个模块，契约三件套）
 ├── scripts/       build / check / verify / validate 全套工具链
 ├── templates/     lesson.example.js（新课模板）
-└── references/    shell-boundary / pitfalls / layout-budget / content-extraction / publishing（本文）
+├── references/    shell-boundary / pitfalls / layout-budget / content-extraction / publishing（本文）
+└── lessons/README.md  只带这一份说明（课时数据不带）
 ```
 
 ### 不带（⚠ 版权红线，公开分发前必须删掉）

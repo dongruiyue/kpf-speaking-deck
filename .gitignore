@@ -1,7 +1,10 @@
 # 版权红线：含剑桥出版物原文/图片/录音，不进公开仓库（见 references/publishing.md）
 golden/
 out/
-lessons/
+
+# lessons/ 整个忽略，但保留一份说明（没有这个目录新用户 cp 模板会报错）
+lessons/*
+!lessons/README.md
 
 # 本地产物
 .DS_Store

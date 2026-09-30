@@ -6,6 +6,28 @@
 **输入**：课件 PPTX / 教材 PDF + 一份课时数据（`lessons/<name>.js`）
 **输出**：`out/<课名>.html`（单文件，照片录音全内嵌）+ `启动<课名>.command`（双击启动本地服务）
 
+想深入了解（原理 / 机制 / 和人工的对比 / 待改进项 / FAQ）→ **[GUIDE.md](GUIDE.md)**
+
+---
+
+## 安装
+
+```bash
+# 方式一（推荐）：git clone 到 agent 的 skill 目录
+git clone https://github.com/dongruiyue/kpf-speaking-deck.git ~/.agents/skills/kpf-speaking-deck
+
+# 方式二：GitHub 页面 → Code → Download ZIP，解压到同一个位置
+```
+
+- 支持 `~/.agents/skills/` 约定的 agent（如 Kimi Code）会按 `SKILL.md` 自动认出它；Claude Code 放 `~/.claude/skills/`。
+- **不当 skill 用也行**：`scripts/` 里全是普通命令行工具，clone 到哪儿都能跑。
+- 验证装好没：
+
+```bash
+cd ~/.agents/skills/kpf-speaking-deck
+python3 scripts/build.py --help     # 出用法 = 装好了
+```
+
 ---
 
 ## 一节课上课时长这样
@@ -81,6 +103,7 @@ node scripts/validate-deck.mjs <name> --m3  # 同步风暴/静音（真 Safari�
 
 | 文件 | 内容 |
 |---|---|
+| `GUIDE.md` | **完整说明**：原理 / 机制 / 对比人工 / 待改进 / FAQ |
 | `SKILL.md` | 入口：用法 / 自检清单 / 铁律 |
 | `references/shell-boundary.md` | 外壳契约 + 12 条验收标准 |
 | `references/layout-budget.md` | 版式预算：每条判据的出处与实测基线 |

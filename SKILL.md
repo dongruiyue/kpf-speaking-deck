@@ -13,6 +13,9 @@ description: 用「外壳 + 课时数据 + 模块库」生成单文件口语课�
 ```
 kpf-speaking-deck/
 ├── SKILL.md
+├── README.md                    仓库门面（安装 / 30 秒跑通）
+├── GUIDE.md                     完整说明（原理 / 机制 / 对比人工 / 待改进 / FAQ）
+├── LICENSE                      MIT
 ├── assets/shell.html            外壳（唯一类名 / CSS 来源；含注入点）
 ├── assets/extra-classes.css     跨课补充类（PET/KET 用到、FCE 没有的类规则）
 ├── assets/extra-selectors.css   跨课补充选择器（id / 复合选择器，如 #refFab）
