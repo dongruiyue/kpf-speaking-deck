@@ -13,6 +13,10 @@
   let P = null;        // 课时参数（step.practice）
   let S = null;        // 私有状态
   let bank = null;     // checks: { 卷名: [题…] }；plain: [{ q, phase }]
+  let stepId = null;   // 当前环节 id —— 计分必须用它，不许用 P.step（课时数据里可能根本没传）
+
+  /* 打勾卡数组按「课时实际给了几张卡」初始化 —— 写死 3 张会让只给 1 张卡的课永远完成不了 */
+  const freshUsed = () => Array((P.cards || []).length).fill(false);
 
   const id = n => P.ids[n];
   const el = n => document.getElementById(id(n));
@@ -110,7 +114,7 @@
     }
     const had = S.test !== null;
     S.test = q.t; S.idx = q.i;
-    S.used = [false, false, false]; S.done = false;
+    S.used = freshUsed(); S.done = false;
     if (had) S.turn = S.turn === 'A' ? 'B' : 'A';
     render(); TK.sfx.draw(); emit();
   }
@@ -118,10 +122,10 @@
   function card(i) {
     if (S.test === null || S.done || S.used[i]) return;
     S.used[i] = true;
-    TK.score(P.step, S.turn, 1);
+    TK.score(stepId, S.turn, 1);
     if (S.used.every(Boolean)) {
       S.done = true;
-      TK.score(P.step, 'A', P.reward); TK.score(P.step, 'B', P.reward);
+      TK.score(stepId, 'A', P.reward); TK.score(stepId, 'B', P.reward);
       TK.celebrate();
     }
     render(); TK.sfx.draw(); emit();
@@ -133,7 +137,7 @@
   }
 
   function reset() {
-    S.used = [false, false, false]; S.done = false;
+    S.used = freshUsed(); S.done = false;
     refill(); render(); TK.sfx.click(); emit();
   }
 
@@ -147,7 +151,7 @@
     S.test = s.test || null;
     S.idx = (s.idx === undefined ? null : s.idx);
     S.turn = s.turn || 'A';
-    S.used = (s.used || [false, false, false]).slice();
+    S.used = (s.used && s.used.length === freshUsed().length ? s.used : freshUsed()).slice();
     S.done = !!s.done;
     render();
   }
@@ -156,10 +160,11 @@
     /* 1) 初始 state */
     init(step, practice) {
       P = practice;
+      stepId = step.id;
       bank = P.bank;
       S = P.layout === 'plain'
         ? { pool: [], idx: null, last: null }
-        : { pool: [], test: null, idx: null, turn: 'A', used: [false, false, false], done: false };
+        : { pool: [], test: null, idx: null, turn: 'A', used: freshUsed(), done: false };
       refill();
       return S;
     },
@@ -167,6 +172,7 @@
     /* 挂载：建骨架 + 绑事件 + 注册快照字段（每次挂载只做一次） */
     mount(h, step, practice) {
       P = practice;
+      stepId = step.id;
       h.insertAdjacentHTML('afterbegin', skeleton());
       el('draw').onclick = draw;
       if (el('sw')) el('sw').onclick = flip;

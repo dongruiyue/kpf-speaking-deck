@@ -48,6 +48,23 @@ const CASES = {
   pet: 'PET-L4-Speaking-Part1-4-课堂工具.html',
   ket: 'KET-U7L3-Speaking-Part2-课堂工具.html',
 };
+
+/* 课时名 → out/ 产物：内置三课走表；其它读 lessons/<name>.js 的 LESSON_META.outFile
+  （与 verify.py 同一口径）；也可以直接给产物 .html 路径 */
+function resolveTarget(target) {
+  if (CASES[target]) return { key: target, file: path.join(ROOT, 'out', CASES[target]) };
+  if (/\.html$/.test(target)) return { key: path.basename(target, '.html'), file: path.resolve(target) };
+  const lp = path.join(ROOT, 'lessons', target + '.js');
+  if (fs.existsSync(lp)) {
+    const m = /"outFile"\s*:\s*"([^"]+)"/.exec(fs.readFileSync(lp, 'utf8'));
+    if (m) return { key: target, file: path.join(ROOT, 'out', m[1]) };
+    console.error('lessons/%s.js 的 LESSON_META 里没有 "outFile"', target);
+    process.exit(2);
+  }
+  console.error('不认识课时名「%s」：既不是内置的 %s，也找不到 lessons/%s.js（或直接给产物 .html 路径）',
+    target, Object.keys(CASES).join('/'), target);
+  process.exit(2);
+}
 const WINDOW = '1920,1080';                   /* 与 verify.py 同一套口径 */
 const JUDGE_1080 = 1080;                      /* §七 #3：每个视图 main.bottom ≤ 1080 */
 const M2_BAND = [4, 24];                      /* 标题间距正常带（px），依据见 references/layout-budget.md */
@@ -274,13 +291,13 @@ function ladderReport(m1) {
 
 /* ------------------------------------------------------------------ 单份产物 */
 async function validate(target, opts) {
-  const key = CASES[target] ? target : path.basename(target).replace(/\.html$/, '');
-  const file = CASES[target] ? path.join(ROOT, 'out', CASES[target]) : path.resolve(target);
+  const { key, file } = resolveTarget(target);
   console.log('='.repeat(96));
   console.log('%s\n%s', key, file);
   console.log('='.repeat(96));
-  if (!fs.existsSync(file)) { console.log('  ✗ 找不到产物：%s', file); return; }
-  if (!fs.existsSync(CHROME)) { console.log('  ✗ 找不到 Chrome：%s', CHROME); return; }
+  if (!fs.existsSync(file)) { console.log('  ✗ 找不到产物：%s', file); return 1; }
+  if (!fs.existsSync(CHROME)) { console.log('  ✗ 找不到 Chrome：%s', CHROME); return 1; }
+  let fails = 0;
 
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'tk-validate-'));
   const probeSrc = fs.readFileSync(path.join(HERE, 'probe.js'), 'utf8');
@@ -305,12 +322,17 @@ async function validate(target, opts) {
       console.log('\n【%s】', label);
       if (!r || r.fail || !r.probe) {
         console.log('  ✗ 页内结果没回来：%s', JSON.stringify(r && (r.fail || r)).slice(0, 300));
+        fails++;
         m1[role] = { over: [] }; m2[role] = { bad: [] };
         continue;
       }
       console.log('  （页内 %d ms 回传；探针自报的页内错误 early=%s）', r.ms,
         (r.probe.early && r.probe.early.length) ? r.probe.early.slice(0, 3).join(' | ') : '[]');
-      if (r.probe.fail) console.log('  ✗ 探针自报失败：%s', r.probe.fail);
+      if (r.probe.fail) { console.log('  ✗ 探针自报失败：%s', r.probe.fail); fails++; }
+      if ((r.probe.err || 0) > 0 || (r.probe.early || []).length) {
+        console.log('  ✗ 页内错误：err=%s early=%s', r.probe.err, JSON.stringify((r.probe.early || []).slice(0, 3)));
+        fails++;
+      }
       m1[role] = reportM1(r.probe);
       console.log('');
       m2[role] = reportM2(r.m2);
@@ -340,12 +362,16 @@ async function validate(target, opts) {
 
     console.log('\n【小结】');
     const over = m1.T.over.length + m1.A.over.length;
+    fails += over;
+    fails += m2.T.bad.length + m2.A.bad.length;
     console.log('  M1 超出 1080 的视图：%d 个 %s', over, over ? '（见下面的阶梯）' : '✅');
     console.log('  M2 间距异常：教师端 %d 页 / 观众屏 %d 页 %s', m2.T.bad.length, m2.A.bad.length,
       (m2.T.bad.length + m2.A.bad.length) ? '（见上表，先看首块的 margin-top）' : '✅');
     console.log('  M3：见上（headless 量不到，必须按上面那条命令另测）');
+    console.log('  结论：%s', fails ? '✗ 未过（%d 处）' : '✅ 通过', fails || '');
     console.log('\n【分级修正阶梯 + 复测提醒】');
     ladderReport(m1);
+    return fails;
   } finally {
     /* 关服务要连已建立的连接一起断：keep-alive 的 socket 留着会让 node 不退出（跑完挂着不返回） */
     ents.forEach(e => {
@@ -368,12 +394,14 @@ const m3 = args.includes('--m3');
 const raw = args.includes('--raw');
 const targets = args.filter(a => !a.startsWith('--'));
 if (!targets.length) {
-  console.error('用法：node scripts/validate-deck.mjs {fce|pet|ket|<产物.html>}... [--m3] [--raw]');
+  console.error('用法：node scripts/validate-deck.mjs {fce|pet|ket|<课时名>|<产物.html>}... [--m3] [--raw]');
   process.exit(2);
 }
+let totalFail = 0;
 for (const t of targets) {
-  await validate(t, { m3, raw });
+  totalFail += await validate(t, { m3, raw });
   console.log('');
 }
-/* 显式退出：即使还有半开的 socket 也不要让脚本跑完还挂着（上面每个 case 已各自收干净） */
-process.exit(0);
+/* 退出码即结论：0 = 全过，1 = 有失败项（自动化 / CI 只认退出码）；
+   显式退出：即使还有半开的 socket 也不要让脚本跑完还挂着（上面每个 case 已各自收干净） */
+process.exit(totalFail ? 1 : 0);

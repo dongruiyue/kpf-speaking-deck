@@ -7,7 +7,7 @@
 数字会失真，不能当判据。Safari 的标签标题（= document.title）被系统截断在 992 字符，
 但 apply / beep / err / teacher-only / win 都在最前面，够用；几何数值一律取 headless 那一份。
 
-用法：python3 scripts/safari-counts.py {pet|ket|fce}
+用法：python3 scripts/safari-counts.py {fce|pet|ket|<课时名>}
 """
 import re, subprocess, sys
 
@@ -51,7 +51,8 @@ print('  标签顺序：%s' % ' '.join(r['role'] for r in rows))
 print()
 for label, group in (('教师端', teachers), ('观众屏', auds)):
     for i, r in enumerate(group):
-        side = 'golden' if i == 0 else 'out'
+        # 有 golden 时开 4 个标签（golden/out 各一）；新课只有 out 侧 1 个标签
+        side = ('golden' if i == 0 else 'out') if len(group) == 2 else 'out'
         print('  %-6s %-7s apply=%-3s beep=%-2s err=%-2s .teacher-only 隐藏 %s/%s = %.0f%% '
               'present=%s aud=%s win=%s early=%s'
               % (label, side, r['apply'], r['beep'], r['err'], r['tohid'], r['ton'],

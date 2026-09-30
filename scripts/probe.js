@@ -151,10 +151,18 @@
     let used = null;
     for (const id of steps) {
       doGo(id, false);
-      const btn = document.querySelector('.screen.on .score-team button.a');
+      let btn = document.querySelector('.screen.on .score-team button.a');
+      /* 没有独立加分按钮的环节（如 draw-question 的打勾卡）：先抽一题，再点一张打勾卡，
+         同样能走通「+1 → 顶栏变 → 撤销回 0」这条链路 */
+      if (!btn) {
+        const draw = document.querySelector('.screen.on .mega-btn');
+        if (draw) draw.click();
+        btn = document.querySelector('.screen.on .stepcard button:not([disabled])');
+      }
       if (btn) { btn.click(); used = id; break; }
     }
     res.step = used;
+    res.skip = !used;               // 整节课没有可点的计分按钮 → 第 11 条不适用，不算失败
     res.plus = top();
     doGo('champion', false);
     res.table = Array.from(document.querySelectorAll('.score-table tr'))

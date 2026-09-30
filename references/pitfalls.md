@@ -262,3 +262,22 @@ PET/KET 迁移后改用「逐条验收 + 与迁移前的观感差异清单」来
    外壳统一 `Math.max(0, …)`。
 7. **KET 的 `.teacher-only` 数量从 41 变成 44、FCE 从 30 升到 41**：因为外壳多了几个
    `teacher-only` 元素（refBtn/timerBtn/presentBtn 等），不影响第 10 条（各产物内部仍 100% 隐藏）。
+
+---
+
+# 第三轮：外部审查（commit 0117dc1）发现的四个验收链路问题
+
+审查结论原话：示例课能构建也能开，但「全绿」不能当交付依据。四条全部属实、全部修掉。
+
+| # | 问题 | 修法 |
+|---|---|---|
+| 1 | `draw-question` 打勾计分用 `P.step`（课时数据里没传）→ 分数落进 `ledger.undefined`，冠军表环节明细与总分对不上；且 `used` 写死 3 张卡，模板只给 1 张就永远完不成。**注意：FCE 正式课的 p1 也没传 step，这个 bug 一直在生产工具里**（当时验收只点了 p2 的计分按钮，没点到 p1 的打勾卡 —— 探针盲区） | 模块改用挂载时的 `step.id`；`used` 按 `P.cards.length` 初始化；模板补成 3 张卡；探针 `scoreChain` 加 fallback（没有 `.score-team` 按钮就抽题+点打勾卡），把这条路径纳入验收 |
+| 2 | `verify.py` 只登记 fce/pet/ket，`verify.py demo` 直接 KeyError | `resolve_case()`：任意课时名从 `lessons/<name>.js` 的 `LESSON_META.outFile` 解析 |
+| 3 | `validate-deck.mjs` 找不到产物 / M1 超 / M2 异常 / 页内错误，全都 exit 0；`verify.py` 报失败也 exit 0 | 两个脚本都改为聚合失败项：0=全过、1=有未过、2=用法错误 |
+| 4 | `--m3` 链路把课时名传给只认三课的 `safari-verify.sh`，新课的 Safari 实测走不通 | 新增 `scripts/resolve-lesson.py`（三课保持 8894–8899 历史端口，新课按名字哈希进 8900–8939）；`serve-verify.sh` / `safari-verify.sh` 共用；无 golden 时只起/只开 out 侧；close 的窗口特征从 889x 扩到 89xx |
+
+第 1 条的教训记死：**探针只点了「最容易点的那种计分按钮」，另一种计分路径（打勾卡）就从没进过验收**。
+验收设计要枚举「每一类计分入口」，不能只测一种。
+
+另：`safari-verify.sh close` 关不掉 macOS 26 上那种 `visible:false`、0 标签的 Safari 僵尸窗口
+（不枚举 tab、URL 都取不到）。它无内容、无负载，留着无害；别再为它加奇怪的关闭逻辑。

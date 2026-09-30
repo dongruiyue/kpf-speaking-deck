@@ -28,7 +28,9 @@ validate-deck.mjs 走同一条通道 —— 页面自己 `fetch` POST 回本地�
  11 计分      +1 → 顶栏 → 撤销回 0 → 冠军表一致           → RES.score
  12 回归      每视图自然高度 golden vs 重建 偏差 ≤2%       → RES.nat（FCE 判通过；PET/KET 按第二节只报事实；无 golden 时输出「不适用/跳过」）
 
-用法：python3 scripts/verify.py [fce|pet|ket]...
+用法：python3 scripts/verify.py [fce|pet|ket|<课时名>]...
+      其它课时名从 lessons/<name>.js 的 LESSON_META.outFile 解析产物。
+      退出码：0 = 全过；1 = 有判据未过；2 = 不认识课时名 / 用法错误。
 """
 import io, json, os, re, shutil, signal, subprocess, sys, tempfile, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -39,10 +41,26 @@ ROOT = os.path.dirname(HERE)
 CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 
 CASES = {
-    'fce': dict(file='FCE-Speaking-Part1-2-课堂工具.html'),
-    'pet': dict(file='PET-L4-Speaking-Part1-4-课堂工具.html'),
-    'ket': dict(file='KET-U7L3-Speaking-Part2-课堂工具.html'),
+    'fce': dict(file='FCE-Speaking-Part1-2-课堂工具.html', enforce12=True),
+    'pet': dict(file='PET-L4-Speaking-Part1-4-课堂工具.html', enforce12=False),
+    'ket': dict(file='KET-U7L3-Speaking-Part2-课堂工具.html', enforce12=False),
 }
+# enforce12：第 12 条是否当判据。FCE 是外壳的基准（逐视图自然高度必须 ≤2%）；
+# PET/KET 的讲解从「一屏三栏」升级成翻页讲义是既定变化，第 12 条只报事实不判过不过。
+
+
+def resolve_case(name):
+    """fce/pet/ket 走内置表；其它课时名从 lessons/<name>.js 的 LESSON_META.outFile 解析产物名。"""
+    if name in CASES:
+        return CASES[name]
+    lp = os.path.join(ROOT, 'lessons', name + '.js')
+    if os.path.isfile(lp):
+        m = re.search(r'"outFile"\s*:\s*"([^"]+)"', io.open(lp, encoding='utf-8').read())
+        if m:
+            return dict(file=m.group(1), enforce12=False)
+        raise SystemExit('lessons/%s.js 的 LESSON_META 里没有 "outFile"' % name)
+    raise SystemExit('不认识课时名「%s」：既不是内置的 %s，也找不到 lessons/%s.js'
+                     % (name, '/'.join(CASES), name))
 PROBE_TIMEOUT = 180          # 单个（角色 × 侧）等页内 POST 的上限（真实时间；FCE 单侧实测几十秒）
 
 # 早期错误捕获（与 serve-verify.sh / validate-deck.mjs 注入的同一段）
@@ -155,8 +173,9 @@ def pct(a, b):
 
 
 def verify(case):
-    c = CASES[case]
+    c = resolve_case(case)
     fn = c['file']
+    fails = []
     print('=' * 96)
     print('%s  ——  %s' % (case.upper(), fn))
     print('=' * 96)
@@ -189,32 +208,52 @@ def verify(case):
         for nm, r in named:
             if 'fail' in r:
                 print('  ✗ %s 探针没输出：%s' % (nm, r))
+                fails.append('探针没输出（%s）' % nm)
         if 'fail' in T or 'fail' in A:
-            return
+            return fails
 
         print('视口：教师端 %s ／ 观众屏 %s（探针自报）' % (T['win'], A['win']))
         print()
         print('【第 1 条 语法】node --check 末段脚本 → 退出码 %d  %s' % (rc, '✅' if rc == 0 else '✗'))
+        if rc != 0:
+            fails.append('第 1 条 语法')
         if not has_gold:
             print('【第 2 条 内容保真】不适用：没有 golden/（发布版不带迁移前对照）→ 跳过内容保真')
-        print('【第 6 条 素材】交互后 DOM 里 <img> %d 张，naturalWidth>0 的 %d 张，为 0 的 %d 张  %s'
-              % (T['img']['n'], T.get('imgAll'), T['img']['bad'],
-                 '✅' if T['img']['bad'] == 0 and T['img']['n'] > 0 else '✗'))
+        if T['img']['n'] == 0:
+            print('【第 6 条 素材】本课没有照片 → 不适用（无图可坏）  ✅')
+        else:
+            print('【第 6 条 素材】交互后 DOM 里 <img> %d 张，naturalWidth>0 的 %d 张，为 0 的 %d 张  %s'
+                  % (T['img']['n'], T.get('imgAll'), T['img']['bad'],
+                     '✅' if T['img']['bad'] == 0 else '✗'))
+            if T['img']['bad'] != 0:
+                fails.append('第 6 条 素材')
         print('【第 7 条 错误】err=%d  early=%s  交互点击 %s 次  %s'
               % (T['err'], T.get('early'), T.get('inter'), '✅' if T['err'] == 0 and not T.get('early') else '✗'))
+        if T['err'] != 0 or T.get('early'):
+            fails.append('第 7 条 错误')
         print('【第 10 条 锁定】观众屏 .teacher-only %d 个，实际不可见 %d 个（%s）  aud=%s  %s'
               % (A['to']['n'], A['to']['hid'], '100%%' if A['to']['hid'] == A['to']['n'] else
                  '%.0f%%' % (100.0 * A['to']['hid'] / max(A['to']['n'], 1)), A['to']['aud'],
                  '✅' if A['to']['n'] == A['to']['hid'] and A['to']['aud'] else '✗'))
+        if not (A['to']['n'] == A['to']['hid'] and A['to']['aud']):
+            fails.append('第 10 条 锁定')
         print('【第 11 条 计分】清零 %s → 点 %s 的 +1 → %s → 撤销 → %s'
               % (T['score']['zero'], T['score']['step'], T['score']['plus'], T['score']['undo']))
         print('             冠军表：%s' % T['score']['table'])
         ok11 = (T['score']['zero'] == '0:0' and T['score']['plus'].endswith(':0')
                 and T['score']['plus'] != '0:0' and T['score']['undo'] == '0:0')
-        print('             %s' % ('✅ 顶栏与冠军表一致、撤销回 0' if ok11 else '✗ 见上面的原始数值'))
+        if T['score'].get('skip'):
+            print('             （本课没有可点的计分按钮 → 第 11 条不适用）')
+        else:
+            print('             %s' % ('✅ 顶栏与冠军表一致、撤销回 0' if ok11 else '✗ 见上面的原始数值'))
+            if not ok11:
+                fails.append('第 11 条 计分')
+        aud_ok = A['audio']['els'] == 0 and not A['audio']['box']
         print('【KET 播放器】<audio> %d 个 / 播放器盒子 %s（教师端）；观众屏 <audio> %d 个 / 盒子 %s  %s'
               % (T['audio']['els'], T['audio']['box'], A['audio']['els'], A['audio']['box'],
-                 '✅ 观众屏不建播放器' if A['audio']['els'] == 0 and not A['audio']['box'] else '⚠ 见数值'))
+                 '✅ 观众屏不建播放器' if aud_ok else '⚠ 见数值'))
+        if not aud_ok:
+            fails.append('观众屏播放器')
 
         # 第 3 条：每视图 bottom ≤ 1080
         bad3 = [(k, v) for k, v in T['v'].items() if v > 1080]
@@ -223,10 +262,14 @@ def verify(case):
         print('【第 3 条 版式】教师端最大 bottom %.2f；观众屏最大 bottom %.2f  %s'
               % (max(T['v'].values()), max(A['v'].values()),
                  '✅ 全部 ≤1080' if not bad3 and not bad3a else '✗ %s' % (bad3 + bad3a)))
+        if bad3 or bad3a:
+            fails.append('第 3 条 版式')
         # 第 4 条：观众屏 left=0 / 右侧不留白
         bad4 = [(k, lr) for k, lr in A['vlr'].items() if lr[0] != 0 or abs(lr[1] - int(A['win'].split('x')[0])) > 0.5]
         print('【第 4 条 版式】观众屏 left 全为 0、right 全等于视口宽 %s  %s'
               % (A['win'].split('x')[0], '✅' if not bad4 else '✗ %s' % bad4[:3]))
+        if bad4:
+            fails.append('第 4 条 版式')
         # 第 5 条：讲义页自然高 / 投影字号
         dz = A['decks']
         pages = sorted(set(k[:-1] for k in dz if k.endswith('h')))
@@ -241,6 +284,11 @@ def verify(case):
             print('             × 该场缩放 %.2f → 投影上最小正文 %.1f px；每屏是否落进 %s：%s'
                   % (zm, (min(pxs) if pxs else 0) * zm, T['win'],
                      '✅ ' + str(max(A['v'].values()) <= 1080) + '（第 3 条）'))
+            if max(hs) > 1100:
+                fails.append('第 5 条 讲义页高（>1100px）')
+            # 「投影正文 ≥20px」在规格里只写了 FCE（§七 #5）；PET/KET 只报不判
+            if c.get('enforce12') and pxs and min(pxs) * zm < 20:
+                fails.append('第 5 条 投影字号（<20px）')
         else:
             print('【第 5 条 版式】这一节课没有讲义分页（环节都是练习页）→ 无讲义页可量；'
                   '练习页每屏是否落进 %s：%s' % (T['win'], '✅ ' + str(max(A['v'].values()) <= 1080)))
@@ -267,9 +315,12 @@ def verify(case):
                                                  '—' if d is None else '%+.2f%%' % d))
             ds = [d for _, _, _, d in rows if d is not None]
             if ds:
+                mx = max(abs(d) for d in ds)
                 print('  教师端：%d 个视图，最大偏差 %.2f%%，%s' % (
-                    len(ds), max(abs(d) for d in ds),
-                    '✅ 全部 ≤2%' if max(abs(d) for d in ds) <= 2 else '⚠ 有视图超过 2%'))
+                    len(ds), mx,
+                    '✅ 全部 ≤2%' if mx <= 2 else '⚠ 有视图超过 2%'))
+                if c.get('enforce12') and mx > 2:
+                    fails.append('第 12 条 回归（教师端 %.2f%%）' % mx)
             print()
             print('  观众屏逐视图自然高度（迁移前 / 重建 / 偏差）')
             keys = sorted(set(AG.get('nat', {}) or {}) | set(A.get('nat') or {}))
@@ -281,16 +332,26 @@ def verify(case):
                                                      '—' if b is None else '%.2f' % b, '—'))
                 else:
                     print('  %-22s %10.2f %10.2f %9s' % (k, a, b, '%+.2f%%' % pct(a, b)))
+            ds_a = [abs(pct(AG['nat'][k], A['nat'][k])) for k in keys
+                    if k in (AG.get('nat') or {}) and k in (A.get('nat') or {})]
+            if c.get('enforce12') and ds_a and max(ds_a) > 2:
+                fails.append('第 12 条 回归（观众屏 %.2f%%）' % max(ds_a))
             print()
             print('  观众屏带 zoom 的 bottom（第 3 条用的那一列；缩放 %.2f）' % zm)
             for k in sorted(set(AG['v']) | set(A['v'])):
                 print('  %-22s %10s %10s' % (k, AG['v'].get(k, '—'), A['v'].get(k, '—')))
+        print('  %s' % ('✅ 本课全过' if not fails else '✗ 本课未过：' + '、'.join(fails)))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+    return fails
 
 
 if __name__ == '__main__':
     which = sys.argv[1:] or list(CASES)
+    bad = []
     for c in which:
-        verify(c)
+        bad += verify(c)
         print()
+    if bad:
+        print('✗ 验收未过：%s' % '、'.join(sorted(set(bad))))
+        sys.exit(1)

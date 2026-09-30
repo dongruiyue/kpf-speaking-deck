@@ -59,7 +59,9 @@ const LESSON = (() => {
       practice: {
         type: 'draw-question', snapKey: 'p1', msg: 'p1State', msgShape: 'state',
         layout: 'checks', bank: { 'Test 1': ['问题一', '问题二'] },
-        cards: [{ t: 'also / as well', cn: '补充信息', frames: [] }],
+        cards: [{ t: 'also / as well', cn: '补充信息', frames: [] },
+                { t: 'because / so', cn: '给出理由', frames: [] },
+                { t: 'for example / such as', cn: '举个例子', frames: [] }],
         badge: recipe.p1.badge, nos: ['①', '②', '③'], cardAttr: 'p1card',
         ids: { turn: 'p1Turn', box: 'p1Q', steps: 'p1Steps', draw: 'p1Draw', sw: 'p1Switch', reset: 'p1Reset' },
         tag: 'Part 1 Interview', emptyTag: 'Press · Part 1 Interview', emptyText: '点「抽题」抽一道问题',
