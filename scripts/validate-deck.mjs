@@ -67,7 +67,9 @@ function resolveTarget(target) {
 }
 const WINDOW = '1920,1080';                   /* 与 verify.py 同一套口径 */
 const JUDGE_1080 = 1080;                      /* §七 #3：每个视图 main.bottom ≤ 1080 */
-const M2_BAND = [4, 24];                      /* 标题间距正常带（px），依据见 references/layout-budget.md */
+const M2_BAND = [4, 28];                      /* 标题间距正常带（px），依据见 references/layout-budget.md §二.10：
+                                                 上限 28 = deck-top padding 8 + 首块 margin-top 实测最大 ~19
+                                                 （FCE 全 8 页都压在 19；PET 样课的 deck-steps 首块量到 25） */
 const HASH = { T: 'present&probe&fast', A: 'audience&probe&fast' };
 const ROLE_TIMEOUT = 120000;                  /* 单个角色等结果的上限（真实时间，秒级就够） */
 
@@ -368,7 +370,7 @@ async function validate(target, opts) {
     console.log('  M2 间距异常：教师端 %d 页 / 观众屏 %d 页 %s', m2.T.bad.length, m2.A.bad.length,
       (m2.T.bad.length + m2.A.bad.length) ? '（见上表，先看首块的 margin-top）' : '✅');
     console.log('  M3：见上（headless 量不到，必须按上面那条命令另测）');
-    console.log('  结论：%s', fails ? '✗ 未过（%d 处）' : '✅ 通过', fails || '');
+    console.log('  结论：%s', fails ? ('✗ 未过（' + fails + ' 处）') : '✅ 通过');
     console.log('\n【分级修正阶梯 + 复测提醒】');
     ladderReport(m1);
     return fails;

@@ -79,6 +79,9 @@
       b.classList.toggle('on', S.used[i]);
       b.disabled = S.done || S.used[i];
       b.textContent = S.used[i] ? '已打勾' : '打勾';
+      /* 观众屏不显示按钮，改显示状态标记（✓ = 这招用上了） */
+      const st = b.parentElement && b.parentElement.querySelector('.check-state');
+      if (st) st.textContent = S.used[i] ? '✓' : '';
     });
     const tl = el('turn');
     tl.textContent = S.done ? P.doneText : `${P.turnPrefix}${S.turn}${drawn ? P.turnSuffix : ''}`;

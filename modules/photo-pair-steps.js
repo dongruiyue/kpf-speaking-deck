@@ -56,6 +56,9 @@
       b.classList.toggle('on', S.checks[i]);
       b.disabled = S.done || S.checks[i];
       b.textContent = S.checks[i] ? '已打勾' : '打勾';
+      /* 观众屏不显示按钮，改显示状态标记 */
+      const st = b.parentElement && b.parentElement.querySelector('.check-state');
+      if (st) st.textContent = S.checks[i] ? '✓' : '';
     });
     const fq = el('followQ');
     const showF = S.follow && task !== null;

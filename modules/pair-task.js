@@ -92,7 +92,7 @@
     const names = S.chosen.map(i => P.places[i].name);
     el('win').innerHTML =
       `<div class="win-banner">Great decision! · 决定：${names[0]} + ${names[1]}</div>
-     <div class="big-sub">Everyone say: We'd like to go to the ${names[0]} and the ${names[1]} because ...</div>`;
+     <div class="big-sub">Everyone say: ${P.doneLine ? P.doneLine.replace('{a}', names[0]).replace('{b}', names[1] || names[0]) : `We'd like to go to the ${names[0]} and the ${names[1]} because ...`}</div>`;
     TK.celebrate();
     if (!quiet) TK.broadcast({ t: P.msg.done });
   }

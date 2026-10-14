@@ -16,12 +16,14 @@ kpf-speaking-deck/
 ├── README.md      仓库门面：是什么 / 安装 / 30 秒跑通
 ├── LICENSE        MIT
 ├── .gitignore     把红线目录挡在仓库外
+├── welcome.html   首次使用引导页（随包分发，纯静态可离线）
+├── examples/      打包好的原创样课（KET / PET 各一节，含启动脚本）
 ├── assets/        外壳 shell.html + 跨课补充 CSS + 启动脚本模板
 ├── modules/       练习模块库（12 个模块，契约三件套）
 ├── scripts/       build / check / verify / validate 全套工具链
 ├── templates/     lesson.example.js（新课模板）
 ├── references/    shell-boundary / pitfalls / layout-budget / content-extraction / publishing（本文）
-└── lessons/README.md  只带这一份说明（课时数据不带）
+└── lessons/README.md + 两份原创样课数据（sample-ket.js / sample-pet.js）；其余课时数据不带
 ```
 
 ### 不带（⚠ 版权红线，公开分发前必须删掉）
@@ -46,13 +48,14 @@ kpf-speaking-deck/
 
 1. **放置**：整个目录放到 `~/.agents/skills/kpf-speaking-deck/`（SKILL.md 的 frontmatter 已就位，agent 直接认）。
 2. **依赖**：
-   - `python3`（标准库即可：`build.py` / `verify.py` / `check-content.py` / `serve-verify.sh` 都只用标准库）；
-   - `node`（`check-classes.mjs` / `check-drift.mjs` / `validate-deck.mjs` 是 `.mjs`，无 npm 依赖）；
-   - **Chrome**（浏览器验收用，`--headless=new`，路径写死为 macOS 的
+   - **教师上课**（双击打开成品课件）：只需 macOS + python3（macOS 自带）。**当前仅适配 macOS**；
+     Windows / Linux 未完成适配，不承诺可用。
+   - **生成课件**（agent）：再加 node（check / validate-deck）。
+   - **验收**（可选）：再加 **Chrome**（headless 验收用，`--headless=new`，路径写死为 macOS 的
      `/Applications/Google Chrome.app/...`；非 macOS 或 Chromium 请改 `scripts/verify.py` 与
      `scripts/validate-deck.mjs` 顶部的 `CHROME` 常量）；
-   - 可选：**Safari 路径**（第 8/9 条同步风暴 / 静音必须在真实时间下测，
-     `scripts/safari-verify.sh` + `scripts/safari-counts.py`，仅 macOS）；
+     第 8/9 条（同步风暴 / 静音）需要真 **Safari**（仅 macOS），
+     `scripts/safari-verify.sh` + `scripts/safari-counts.py`。
    - 可选：抽取脚本（从 PPT / PDF 抽课件素材）需要 PyMuPDF / Pillow 等第三方库 ——
      **依赖以各脚本头部的「依赖」声明为准**（`pip install` 什么、是否必须，脚本开头都写了）。
 3. **端口**：验收用的本地端口（8894–8899）是普通的临时常量，集中在 `scripts/serve-verify.sh`

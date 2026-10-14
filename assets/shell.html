@@ -612,6 +612,45 @@ body.audience .recap-strip span{font-size:clamp(13px,1.3vw,26px);}
 body.ref-open #refFab{display:none;}
 /* ============ 跨课补充选择器 结束 ============ */
 
+/* ===== 主题（课时在 meta.theme 里选：'k' 自然课堂 / 'pf' 教材编辑；不写 = 默认风格）===== */
+/* K 自然课堂：暖白纸面、深绿、大文字、浅色活动区 */
+body.theme-k{
+  --paper:#FFFDF7; --card:#FFFFFF; --line:#D5DFD3;
+  --ink:#233E38; --dim:#5C6B61;
+  --teal:#21644E; --teal-soft:#EAF2E6;
+  --terra:#C05B3A; --terra-ink:#A24A2E; --terra-soft:#F9EAE3;
+  --mustard:#DFA42C; --mustard-soft:#F8ECCB;
+}
+/* PF 教材编辑：克制排版、细分隔线、小圆角、衬线大标题 */
+body.theme-pf{
+  --paper:#F8F7F3; --card:#FFFFFF; --line:#D5D8D0;
+  --ink:#222B2A; --dim:#626C67;
+  --teal:#245D59; --teal-soft:#E8EEE9;
+  --terra:#B4472C; --terra-ink:#96421F; --terra-soft:#F3E7DF;
+  --mustard:#B8902A; --mustard-soft:#F4ECD4;
+}
+body.theme-pf .menu-card, body.theme-pf .step, body.theme-pf .icon-btn,
+body.theme-pf .back-btn, body.theme-pf .mega-btn, body.theme-pf .ghost-btn{border-radius:5px;}
+body.theme-pf .menu-card:hover{transform:none;box-shadow:none;}
+body.theme-pf .deck-title, body.theme-pf .topline h2{font-family:Georgia,'Songti SC','PingFang SC',serif;font-weight:600;}
+
+/* ===== 观众屏：按钮残影 → 状态标记；题目第一焦点 ===== */
+.check-state{display:none;}
+body.audience .check-item{display:none!important;}      /* 打勾按钮只在教师端出现 */
+body.audience .check-state{display:inline;color:var(--teal);font-weight:800;font-size:clamp(18px,1.8vw,34px);margin-left:8px;}
+body.audience .q-bar{font-size:clamp(24px,3vw,46px)!important;padding:clamp(18px,2.2vw,40px) clamp(24px,2.6vw,52px);line-height:1.35;}
+body.audience .big-word{font-size:clamp(30px,4.2vw,58px)!important;}
+
+/* ===== 首次开课引导（可关、可重开、不进快照、不广播、观众屏不弹）===== */
+#guideOv{position:fixed;inset:0;background:rgba(32,42,42,.45);z-index:400;display:none;align-items:center;justify-content:center;}
+#guideOv.on{display:flex;}
+#guideOv .g-card{background:var(--paper);border:1px solid var(--line);border-radius:14px;max-width:520px;width:88%;padding:26px 28px;box-shadow:0 18px 50px rgba(0,0,0,.22);}
+#guideOv h3{margin:0 0 4px;font-size:20px;color:var(--ink);}
+#guideOv .g-sub{font-size:13px;color:var(--dim);margin-bottom:16px;}
+#guideOv .g-item{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:14.5px;line-height:1.65;color:var(--ink);}
+#guideOv .g-item b{color:var(--teal);font-size:16px;flex-shrink:0;}
+#guideOv .g-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+
 /*==LESSON_CSS==*/
 </style>
 </head>
@@ -655,6 +694,7 @@ body.ref-open #refFab{display:none;}
   <button class="ghost-btn" id="cReopen" style="justify-content:center">重新打开观众屏</button>
   <button class="ghost-btn" id="cCopyLink" style="justify-content:center">复制观众屏地址（弹窗被拦时用）</button>
   <button class="ghost-btn" id="cCheck" style="justify-content:center">自检 Sync Check</button>
+  <button class="ghost-btn" id="cGuide" style="justify-content:center">开课帮助</button>
   <button class="ghost-btn" id="cMod" style="justify-content:center">切换 讲解 / 练习</button>
   <div class="c-box" id="cTip"></div>
   <div class="c-box" id="cTalk"></div>
@@ -683,6 +723,16 @@ body.ref-open #refFab{display:none;}
 <div id="frameBar"></div>
 
 <div id="audBadge">观众屏</div>
+<div id="guideOv" role="dialog" aria-label="开课帮助">
+  <div class="g-card">
+    <h3>开课三步</h3>
+    <div class="g-sub">第一次用这份课件时看一眼；之后随时从控制台「开课帮助」重开。</div>
+    <div class="g-item"><b>1</b><span>点控制台的「重新打开观众屏」，把弹出的窗口<b>拖到投影屏</b>全屏（同一台电脑、同一个浏览器，不是跨设备）。</span></div>
+    <div class="g-item"><b>2</b><span>试一次翻页或抽题，确认学生屏会跟随；这节课有音频的话，在教师端试听一次（声音只从教师端出）。</span></div>
+    <div class="g-item"><b>3</b><span>有计分的环节，试一次加分和撤销。没有扩展屏就单屏上课：不进演讲者模式，教学提示保持折叠。</span></div>
+    <div class="g-actions"><button class="ghost-btn" id="gNever">不再显示</button><button class="mega-btn" id="gOk" style="padding:10px 22px;font-size:15px">知道了</button></div>
+  </div>
+</div>
 <div id="byeOverlay">演示已结束</div>
 
 <div id="timerOverlay">
@@ -764,6 +814,7 @@ const TK = {
         <span class="st-t">${no} ${title}</span>
         ${cn ? `<span class="st-cn">${cn}</span>` : ''}
         <button class="check-item" ${attr}="${i}" title="这一步做到了就点一下">打勾</button>
+        <span class="check-state" aria-hidden="true"></span>
       </div>
       ${(frames || []).map(row => `<div class="st-frames">${row.map(x => `<span class="scf-i">${x}</span>`).join('')}</div>`).join('')}
     </div>`,
@@ -789,9 +840,15 @@ const store = (() => {
 /* ================= 模式与同步通道 ================= */
 // 课时参数：外壳不认识具体哪节课，只认 LESSON.meta 这几个字段
 const K = LESSON.meta;
-const KEY = n => K.keyPrefix + n;
-const CHAN = K.channel;
+/* 内部标识（存储键前缀 / 同步频道）：课时没写就按 folder 派生 ——
+   照抄模板忘了改 channel/keyPrefix 时，也不至于和别的课共用同一条同步频道。 */
+const KEY = n => (K.keyPrefix || ((K.folder || 'lesson').toLowerCase().replace(/[^a-z0-9]/g, '') || 'lesson')) + n;
+const CHAN = K.channel || ((K.folder || 'lesson') + '-class-v1');
 const isAudience = location.hash.includes('audience');
+/* 主题：课时在 meta.theme 里选 'k'（自然课堂）/ 'pf'（教材编辑）；不写就是默认风格。
+   用映射写全类名（而不是 'theme-' + x），让 check-classes 能看到字面量。 */
+const themeCls = { k: 'theme-k', pf: 'theme-pf' }[K.theme];
+if (themeCls) document.body.classList.add(themeCls);
 const bc = ('BroadcastChannel' in window) ? new BroadcastChannel(CHAN) : null;
 const SID = Math.random().toString(36).slice(2, 8);   // 每次加载唯一，避免刷新后 id 重数被误判为重复
 let msgSeq = 0;
@@ -1182,13 +1239,33 @@ document.getElementById('cMod').onclick = () => {
 function renderFrameBar(id) {
   const el = document.getElementById('frameBar');
   if (!el) return;
-  const fb = LESSON.frameNote || {};
-  const def = LESSON.frameDefault || Object.keys(FRAME_BAR)[0];
+  /* 字段契约：课时数据把 frameNote / frameDefault 放在 LESSON.meta 里（三份正式课都这样），
+     顶层写法只做向后兼容；两者都没有时用缺省文案，绝不渲染出 "undefined"。 */
+  const fb = LESSON.frameNote || K.frameNote || {};
+  const def = LESSON.frameDefault || K.frameDefault || Object.keys(FRAME_BAR)[0];
+  const note = (PART_LESSON[id] ? fb.mod : fb.general) || '';
   const items = FRAME_BAR[id] || FRAME_BAR[def] || [];
   el.innerHTML = items.map(x => `<span class="fb-item">${x}</span>`).join('')
-    + `<span class="fb-cn">${PART_LESSON[id] ? fb.mod : fb.general}</span>`;
+    + (note ? `<span class="fb-cn">${note}</span>` : '');
 }
 renderFrameBar('home');
+
+/* ===== 首次开课引导：每台机器每节课只自动弹一次；控制台「开课帮助」随时重开 ===== */
+(function () {
+  const ov = document.getElementById('guideOv');
+  if (!ov) return;
+  const KG = KEY('-guide-seen');
+  const show = () => ov.classList.add('on');
+  const hide = () => ov.classList.remove('on');
+  const ok = document.getElementById('gOk');
+  const never = document.getElementById('gNever');
+  const help = document.getElementById('cGuide');
+  if (ok) ok.onclick = hide;
+  if (never) never.onclick = () => { store.set(KG, '1'); hide(); };
+  if (help) help.onclick = show;
+  /* 只在教师端首开时弹；观众屏/存储不可用时静默不弹 */
+  if (!isAudience && store.ok && !store.get(KG)) show();
+})();
 
 
 

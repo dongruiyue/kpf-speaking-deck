@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>欢迎使用口语课件助手 · kpf-speaking-deck</title>
+<style>
+  :root {
+    --paper: #f7f4ec;
+    --surface: #fffdf8;
+    --ink: #26302a;
+    --muted: #57614f;
+    --green: #2e5b41;
+    --green-dark: #1f4230;
+    --line: #ddd5c2;
+    --wash: #efe9da;
+    --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", Georgia, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.75;
+    overflow-x: hidden;
+    overflow-x: clip;
+  }
+  h1, h2, h3 { font-family: var(--serif); line-height: 1.35; margin: 0; font-weight: 700; }
+  p { margin: 0; }
+  a { color: var(--green-dark); }
+  :focus-visible { outline: 3px solid var(--green-dark); outline-offset: 2px; border-radius: 4px; }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+  .container { max-width: 1020px; margin: 0 auto; padding: 0 24px; }
+  section { scroll-margin-top: 24px; }
+
+  .skip {
+    position: absolute; left: 16px; top: -48px;
+    background: var(--green-dark); color: #fff; padding: 8px 16px;
+    border-radius: 0 0 8px 8px; text-decoration: none; z-index: 30;
+    transition: top .15s ease;
+  }
+  .skip:focus-visible { top: 0; }
+
+  /* 已完成首次引导的回访横幅 */
+  .welcomed {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-left: 4px solid var(--green);
+    border-radius: 10px; padding: 10px 16px; margin-bottom: 40px;
+    font-size: 14.5px;
+  }
+  .welcomed[hidden] { display: none; }
+  .welcomed strong { font-weight: 600; }
+  .welcomed a { font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--green); }
+  .welcomed a:hover { background: var(--wash); }
+
+  /* 第一屏 */
+  .hero { padding: 72px 0 64px; }
+  .kicker {
+    font-size: 13px; letter-spacing: .18em; color: var(--green-dark);
+    font-weight: 600; margin-bottom: 18px;
+  }
+  .hero h1 {
+    font-size: clamp(30px, 4.4vw, 44px);
+    max-width: 18em; margin-bottom: 18px;
+  }
+  .lead { font-size: 17.5px; color: var(--muted); max-width: 40em; margin-bottom: 44px; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 28px 28px 24px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .card h2 { font-size: 22px; display: flex; align-items: center; gap: 10px; }
+  .mark {
+    width: 12px; height: 12px; flex: none;
+    background: var(--green); border-radius: 3px;
+  }
+  .card .desc { color: var(--muted); font-size: 15px; }
+  .sample-links { display: flex; flex-direction: column; gap: 10px; margin-top: 2px; }
+  .sample {
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid var(--line-strong, #c9bfa6); border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px 14px;
+    text-decoration: none; color: var(--ink); font-weight: 600; font-size: 15.5px;
+    background: var(--paper);
+  }
+  .sample:hover { border-color: var(--green); background: var(--wash); }
+  .tag {
+    flex: none; font-size: 12.5px; font-weight: 700; letter-spacing: .06em;
+    color: var(--green-dark); border: 1.5px solid var(--green);
+    border-radius: 6px; padding: 1px 7px;
+  }
+  .fine { font-size: 13.5px; color: var(--muted); }
+  .btn-primary {
+    display: inline-block; align-self: flex-start;
+    background: var(--green); color: #fff;
+    font-size: 16.5px; font-weight: 600; font-family: var(--sans);
+    padding: 13px 26px; border-radius: 10px; border: none;
+    text-decoration: none; cursor: pointer;
+  }
+  .btn-primary:hover { background: var(--green-dark); }
+
+  /* 章节通用 */
+  .section { padding: 56px 0; border-top: 1px solid var(--line); }
+  .section-head { margin-bottom: 28px; }
+  .section-head h2 { font-size: clamp(24px, 3vw, 30px); margin-bottom: 8px; }
+  .section-head .sub { color: var(--muted); max-width: 42em; }
+
+  /* 环境说明 */
+  .env-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; counter-reset: env; }
+  .env-list li {
+    display: flex; gap: 16px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: 18px 20px;
+  }
+  .env-num {
+    flex: none; width: 30px; height: 30px; margin-top: 2px;
+    border: 2px solid var(--green); border-radius: 50%;
+    color: var(--green-dark); font-weight: 700; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .env-list h3 { font-size: 17.5px; margin-bottom: 4px; font-family: var(--sans); font-weight: 700; }
+  .env-list p { color: var(--muted); font-size: 15px; }
+
+  /* 需求表单 */
+  .steps {
+    display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center;
+    margin-bottom: 30px; font-size: 15px; color: var(--muted);
+  }
+  .steps .n {
+    display: inline-flex; width: 24px; height: 24px; margin-right: 7px;
+    background: var(--green); color: #fff; border-radius: 6px;
+    align-items: center; justify-content: center;
+    font-size: 13.5px; font-weight: 700; vertical-align: middle;
+  }
+  .steps .arrow { color: var(--line-strong, #b9ad92); }
+  form { display: grid; gap: 22px; max-width: 680px; }
+  .field { border: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .field legend, .field > label { font-weight: 700; font-size: 16px; padding: 0; }
+  .req, .opt { font-size: 13px; font-weight: 600; margin-left: 6px; }
+  .req { color: #8a3b1e; }
+  .opt { color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip-input {
+    position: absolute; width: 1px; height: 1px; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  .chip-label {
+    border: 1.5px solid var(--line); border-radius: 999px;
+    background: var(--surface); padding: 9px 22px;
+    font-size: 15.5px; font-weight: 600; cursor: pointer;
+  }
+  .chip-label:hover { border-color: var(--green); }
+  .chip-input:checked + .chip-label {
+    background: var(--green); border-color: var(--green); color: #fff;
+  }
+  .chip-input:focus-visible + .chip-label {
+    outline: 3px solid var(--green-dark); outline-offset: 2px;
+  }
+  input[type="text"], select, textarea {
+    width: 100%; font: inherit; color: var(--ink);
+    background: var(--surface); border: 1.5px solid var(--line);
+    border-radius: 10px; padding: 11px 14px;
+  }
+  input[type="text"]:focus, select:focus, textarea:focus {
+    outline: 3px solid var(--green-dark); outline-offset: 1px; border-color: var(--green);
+  }
+  .hint { font-size: 13.5px; color: var(--muted); }
+  .materials-note {
+    border: 1.5px dashed var(--line-strong, #b9ad92);
+    border-radius: 12px; padding: 14px 18px;
+    font-size: 15px; color: var(--muted); background: var(--wash);
+  }
+  .materials-note strong { color: var(--ink); }
+  .preview-block { max-width: 680px; margin-top: 34px; display: grid; gap: 8px; }
+  .preview-block > label { font-weight: 700; font-size: 16px; }
+  #f-preview {
+    resize: vertical; min-height: 150px; line-height: 1.8;
+    background: var(--wash); font-size: 15px;
+  }
+  .copy-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 18px; max-width: 680px; }
+  .status { font-size: 14.5px; color: var(--green-dark); font-weight: 600; }
+  .status.err { color: #8a3b1e; }
+  .next-step {
+    max-width: 680px; margin-top: 20px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-left: 4px solid var(--green);
+    border-radius: 10px; padding: 14px 18px; font-size: 15px;
+  }
+  .next-step strong { display: block; margin-bottom: 4px; }
+  .next-step .fine { margin-top: 8px; }
+
+  footer {
+    border-top: 1px solid var(--line); padding: 28px 0 96px;
+    color: var(--muted); font-size: 13.5px;
+  }
+  footer .container { display: flex; flex-wrap: wrap; gap: 6px 24px; justify-content: space-between; }
+
+  .help-fab {
+    position: fixed; right: 20px; bottom: 20px; z-index: 20;
+    background: var(--surface); color: var(--green-dark);
+    border: 1.5px solid var(--green); border-radius: 999px;
+    padding: 9px 18px; font-size: 14.5px; font-weight: 700;
+    text-decoration: none; box-shadow: 0 2px 10px rgba(38, 48, 42, .14);
+  }
+  .help-fab:hover { background: var(--wash); }
+
+  .noscript-note {
+    max-width: 680px; margin-top: 20px; padding: 12px 16px;
+    border: 1.5px dashed #b9ad92; border-radius: 10px;
+    font-size: 14.5px; color: #8a3b1e; background: var(--wash);
+  }
+
+  @media (max-width: 880px) {
+    .hero { padding: 48px 0 44px; }
+    .cards { grid-template-columns: 1fr; }
+    .section { padding: 44px 0; }
+    .help-fab { right: 14px; bottom: 14px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要内容</a>
+
+<header class="hero" id="top">
+  <div class="container">
+    <div class="welcomed" id="welcomed-banner" hidden>
+      <strong>你已完成首次引导。</strong>
+      <a href="#make">直接做课</a>
+      <span aria-hidden="true">·</span>
+      <a href="#examples">看示例课</a>
+      <span class="fine">（完整引导就在下方，可随时翻看）</span>
+    </div>
+
+    <p class="kicker">KPF SPEAKING DECK · 口语课件助手</p>
+    <h1>把教学想法，变成课堂上能用的口语课件</h1>
+    <p class="lead">把教学想法或现有材料交给 AI，生成课堂上能用的互动口语课件：教师端翻页、计时、计分，学生屏同步投影。适用于 KET、PET、FCE 口语课。</p>
+
+    <div class="cards">
+      <section class="card" id="examples" aria-labelledby="t-try">
+        <h2 id="t-try"><span class="mark" aria-hidden="true"></span>体验示例课</h2>
+        <p class="desc">先打开一节做好的样课，感受翻页、练习，以及教师端和学生屏的配合。</p>
+        <div class="sample-links">
+          <a class="sample" href="examples/示例课-KET-放学后的活动.html" data-example>
+            <span class="tag" aria-hidden="true">KET</span>样课 · 放学后的活动
+          </a>
+          <a class="sample" href="examples/示例课-PET-阅读习惯.html" data-example>
+            <span class="tag" aria-hidden="true">PET</span>样课 · 阅读习惯
+          </a>
+        </div>
+        <p class="fine">直接点开就能看；若计分或双屏同步不正常，改用 examples 文件夹里对应的启动脚本（.command）打开。</p>
+      </section>
+
+      <section class="card" aria-labelledby="t-make">
+        <h2 id="t-make"><span class="mark" aria-hidden="true"></span>制作我的第一节课</h2>
+        <p class="desc">填好级别、主题和时长，本页会把它们整理成一段完整的需求；复制后粘贴给你的 AI 助手，附上材料，就可以生成课件。</p>
+        <a class="btn-primary" href="#make">开始填写需求</a>
+        <p class="fine">约 1 分钟填完；已填写的内容会保留在本机浏览器中，不会丢失。</p>
+      </section>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <section class="section" aria-labelledby="t-env">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="t-env">环境与准备</h2>
+        <p class="sub">开始前，你只需要知道这三件事。</p>
+      </div>
+      <ol class="env-list">
+        <li>
+          <span class="env-num" aria-hidden="true">1</span>
+          <div>
+            <h3>上课用什么</h3>
+            <p>一台 Mac 电脑（当前版本仅适配 macOS）、系统自带的 Python 3，以及 Safari 或 Chrome 浏览器。Windows 和 Linux 暂未适配。</p>
+          </div>
+        </li>
+        <li>
+          <span class="env-num" aria-hidden="true">2</span>
+          <div>
+            <h3>命令谁来跑</h3>
+            <p>生成课件和检查课件都由你的 AI 助手完成，你不需要自己运行任何命令。</p>
+          </div>
+        </li>
+        <li>
+          <span class="env-num" aria-hidden="true">3</span>
+          <div>
+            <h3>要不要联网</h3>
+            <p>AI 生成课件时可能需要联网（取决于你使用的 AI 服务）；课件生成后在教室本地打开，不依赖网络。</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" id="make" aria-labelledby="t-form">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="t-form">制作我的第一节课</h2>
+        <p class="sub">三步完成：填写下面的需求，点击「复制需求」，然后回到你的 AI 对话粘贴并附上材料。</p>
+      </div>
+
+      <div class="steps" aria-hidden="true">
+        <span><span class="n">1</span>填写需求</span>
+        <span class="arrow">→</span>
+        <span><span class="n">2</span>复制需求</span>
+        <span class="arrow">→</span>
+        <span><span class="n">3</span>粘贴给 AI，附上材料</span>
+      </div>
+
+      <form id="deck-form" novalidate>
+        <fieldset class="field">
+          <legend>级别<span class="req">必选</span></legend>
+          <div class="chips">
+            <input class="chip-input" type="radio" name="level" id="lv-ket" value="KET"><label class="chip-label" for="lv-ket">KET</label>
+            <input class="chip-input" type="radio" name="level" id="lv-pet" value="PET"><label class="chip-label" for="lv-pet">PET</label>
+            <input class="chip-input" type="radio" name="level" id="lv-fce" value="FCE"><label class="chip-label" for="lv-fce">FCE</label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="f-topic">主题<span class="req">必选</span></label>
+          <input type="text" id="f-topic" placeholder="例如：放学后的活动" autocomplete="off">
+        </div>
+
+        <fieldset class="field">
+          <legend>时长</legend>
+          <div class="chips">
+            <input class="chip-input" type="radio" name="minutes" id="m-30" value="30"><label class="chip-label" for="m-30">30 分钟</label>
+            <input class="chip-input" type="radio" name="minutes" id="m-40" value="40" checked><label class="chip-label" for="m-40">40 分钟</label>
+            <input class="chip-input" type="radio" name="minutes" id="m-45" value="45"><label class="chip-label" for="m-45">45 分钟</label>
+            <input class="chip-input" type="radio" name="minutes" id="m-60" value="60"><label class="chip-label" for="m-60">60 分钟</label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="f-goal">学习目标<span class="opt">可选</span></label>
+          <input type="text" id="f-goal" placeholder="例如：练习回答个人问题并给出简单理由" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="f-style">风格</label>
+          <select id="f-style">
+            <option value="auto" selected>按级别默认（KET → 自然课堂；PET / FCE → 教材编辑）</option>
+            <option value="natural">自然课堂 —— 暖白、深绿，适合低龄课堂</option>
+            <option value="editorial">教材编辑 —— 克制排版，以题目与语言点为中心</option>
+          </select>
+          <p class="hint" id="style-hint">默认规则：KET 采用自然课堂，PET / FCE 采用教材编辑。</p>
+        </div>
+
+        <div class="materials-note">
+          <strong>本页不接收文件。</strong>教材、图片、录音请在下一步的 AI 对话里直接附上；没有材料也可以，AI 会使用原创内容，不会编造教材出处。
+        </div>
+      </form>
+
+      <div class="preview-block">
+        <label for="f-preview">将向 AI 发送的需求</label>
+        <p class="hint">根据你填写的内容实时生成，发送前可以通读检查。</p>
+        <textarea id="f-preview" readonly rows="8" placeholder="选择级别并填写主题后，这里会实时生成完整需求。"></textarea>
+      </div>
+
+      <div class="copy-row">
+        <button type="button" class="btn-primary" id="btn-copy">复制需求</button>
+        <p class="status" id="copy-status" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="next-step">
+        <strong>下一步</strong>
+        回到你的 AI 对话，粘贴这段需求，并把教材、图片或录音直接附在对话里。
+        <p class="fine">说明：「复制需求」只是把上面这段文字放进剪贴板，不会替你联系 AI 或生成课件。</p>
+      </div>
+
+      <noscript>
+        <p class="noscript-note">当前浏览器未启用 JavaScript，「复制需求」与表单记忆不可用。你仍可阅读本页引导，并按上面的字段自行组织一段需求发给 AI。</p>
+      </noscript>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <span>kpf-speaking-deck · 首次使用引导</span>
+    <span>本页完全离线运行，不发起任何网络请求，也不收集任何信息。</span>
+  </div>
+</footer>
+
+<a class="help-fab" href="#top">使用帮助</a>
+
+<script>
+(function () {
+  'use strict';
+
+  var store = {
+    get: function (k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { window.localStorage.setItem(k, v); } catch (e) { } }
+  };
+
+  var form = document.getElementById('deck-form');
+  var topicEl = document.getElementById('f-topic');
+  var goalEl = document.getElementById('f-goal');
+  var styleEl = document.getElementById('f-style');
+  var styleHint = document.getElementById('style-hint');
+  var preview = document.getElementById('f-preview');
+  var copyBtn = document.getElementById('btn-copy');
+  var statusEl = document.getElementById('copy-status');
+  var banner = document.getElementById('welcomed-banner');
+
+  var FORM_KEY = 'kpf-deck-form-v1';
+  var STYLE_NAMES = { natural: '自然课堂', editorial: '教材编辑' };
+
+  function currentState() {
+    var levelEl = form.querySelector('input[name="level"]:checked');
+    var minutesEl = form.querySelector('input[name="minutes"]:checked');
+    return {
+      level: levelEl ? levelEl.value : '',
+      topic: topicEl.value.trim(),
+      minutes: minutesEl ? minutesEl.value : '40',
+      goal: goalEl.value.trim(),
+      style: styleEl.value
+    };
+  }
+
+  function resolveStyle(s) {
+    if (s.style !== 'auto') return STYLE_NAMES[s.style];
+    return s.level === 'KET' ? STYLE_NAMES.natural : STYLE_NAMES.editorial;
+  }
+
+  function updateStyleHint() {
+    var s = currentState();
+    if (s.style !== 'auto') {
+      styleHint.textContent = '已手动选择「' + STYLE_NAMES[s.style] + '」，更换级别不会改变它。';
+    } else if (s.level) {
+      styleHint.textContent = '当前将按 ' + s.level + ' 默认采用「' + resolveStyle(s) + '」。';
+    } else {
+      styleHint.textContent = '默认规则：KET 采用自然课堂，PET / FCE 采用教材编辑。';
+    }
+  }
+
+  function buildText(s) {
+    var goalPart = s.goal ? '学习目标：' + s.goal.replace(/。+\s*$/, '') + '。' : '';
+    return '请使用 kpf-speaking-deck 做一节 ' + s.level + ' 口语课，主题是「' + s.topic + '」，时长 ' +
+      s.minutes + ' 分钟。' + goalPart +
+      '课件采用' + resolveStyle(s) + '风格。' +
+      '教材、图片或录音等素材我会直接附在对话里；如果没有附上，请使用原创内容，不要编造教材出处。' +
+      '先给我一段简短的课堂安排，再生成课件并做检查。' +
+      '请先检查你是否能识别 kpf-speaking-deck skill，并告诉我当前环境能否生成和打开课件。';
+  }
+
+  function refreshPreview() {
+    var s = currentState();
+    preview.value = (s.level && s.topic) ? buildText(s) : '';
+  }
+
+  function saveForm() {
+    store.set(FORM_KEY, JSON.stringify(currentState()));
+  }
+
+  function restoreForm() {
+    var raw = store.get(FORM_KEY);
+    if (!raw) return;
+    var s;
+    try { s = JSON.parse(raw); } catch (e) { return; }
+    if (!s || typeof s !== 'object') return;
+    if (s.level) {
+      var lv = form.querySelector('input[name="level"][value="' + s.level + '"]');
+      if (lv) lv.checked = true;
+    }
+    if (s.minutes) {
+      var mn = form.querySelector('input[name="minutes"][value="' + s.minutes + '"]');
+      if (mn) mn.checked = true;
+    }
+    if (typeof s.topic === 'string') topicEl.value = s.topic;
+    if (typeof s.goal === 'string') goalEl.value = s.goal;
+    if (typeof s.style === 'string' && (s.style === 'auto' || STYLE_NAMES[s.style])) styleEl.value = s.style;
+  }
+
+  function setStatus(msg, isErr) {
+    statusEl.textContent = msg;
+    statusEl.classList.toggle('err', !!isErr);
+  }
+
+  function toggleBanner() {
+    banner.hidden = store.get('kpf-deck-welcomed') !== '1';
+  }
+
+  function markWelcomed() {
+    store.set('kpf-deck-welcomed', '1');
+    toggleBanner();
+  }
+
+  function fallbackSelect() {
+    preview.focus();
+    preview.select();
+    var copied = false;
+    try { copied = document.execCommand('copy'); } catch (e) { copied = false; }
+    if (copied) {
+      setStatus('已复制到剪贴板。', false);
+    } else {
+      setStatus('无法自动复制：文本已为你选中，请按 ⌘C 复制。', false);
+    }
+  }
+
+  copyBtn.addEventListener('click', function () {
+    var s = currentState();
+    if (!s.level) {
+      setStatus('请先选择级别（KET / PET / FCE）。', true);
+      var first = form.querySelector('input[name="level"]');
+      if (first) first.focus();
+      return;
+    }
+    if (!s.topic) {
+      setStatus('请先填写本课主题。', true);
+      topicEl.focus();
+      return;
+    }
+    var text = buildText(s);
+    preview.value = text;
+    markWelcomed();
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      var settled = false;
+      var timer = setTimeout(function () {
+        if (!settled) { settled = true; fallbackSelect(); }
+      }, 1500);
+      var onOk = function () {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        setStatus('已复制到剪贴板。', false);
+      };
+      var onFail = function () {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        fallbackSelect();
+      };
+      try {
+        navigator.clipboard.writeText(text).then(onOk, onFail);
+      } catch (e) {
+        onFail();
+      }
+    } else {
+      fallbackSelect();
+    }
+  });
+
+  var exampleLinks = document.querySelectorAll('[data-example]');
+  for (var i = 0; i < exampleLinks.length; i++) {
+    exampleLinks[i].addEventListener('click', markWelcomed);
+  }
+
+  form.addEventListener('input', function () {
+    refreshPreview();
+    updateStyleHint();
+    saveForm();
+  });
+  form.addEventListener('change', function () {
+    refreshPreview();
+    updateStyleHint();
+    saveForm();
+  });
+
+  restoreForm();
+  refreshPreview();
+  updateStyleHint();
+  toggleBanner();
+})();
+</script>
+</body>
+</html>

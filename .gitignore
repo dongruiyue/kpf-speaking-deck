@@ -2,9 +2,13 @@
 golden/
 out/
 
-# lessons/ 整个忽略，但保留一份说明（没有这个目录新用户 cp 模板会报错）
+# lessons/ 整个忽略，但保留说明与两份原创样课（原创内容，可公开）
 lessons/*
 !lessons/README.md
+!lessons/sample-ket.js
+!lessons/sample-pet.js
+
+# examples/ 是打包好的原创样课，随仓库分发
 
 # 本地产物
 .DS_Store

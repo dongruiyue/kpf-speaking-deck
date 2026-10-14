@@ -281,3 +281,22 @@ PET/KET 迁移后改用「逐条验收 + 与迁移前的观感差异清单」来
 
 另：`safari-verify.sh close` 关不掉 macOS 26 上那种 `visible:false`、0 标签的 Safari 僵尸窗口
 （不枚举 tab、URL 都取不到）。它无内容、无负载，留着无害；别再为它加奇怪的关闭逻辑。
+
+---
+
+# 第四轮：分发版改造（2026-10-14，按交接文档 AGENT-HANDOFF.md）
+
+| 改动 | 说明 |
+|---|---|
+| frameNote/frameDefault 字段契约 | 三份正式课都放在 LESSON_META，外壳却读 LESSON 顶层 → 底栏中文提示渲染成 `undefined`（生产环境一直在）。外壳改为 `LESSON.frameNote || K.frameNote || {}`，两者都没就留空，绝不渲染 "undefined" |
+| 启动器健康检查 | `curl -s -o /dev/null` 对 404 也返回退出码 0 → 换成看 HTTP 状态码：200 才认、000 才起服务、其它=端口被占；起服务后轮询「课件本身 200」才算就绪（最多 10 秒）；失败一律明确报错，不报成功 |
+| 标识自动生成 | channel/keyPrefix 缺省时外壳在运行时按 folder 派生；build.py 对模板示例值（demo-class-v1 / demo）直接警告 —— 照抄模板不会再和别的课共用同步频道 |
+| 构建前校验 | build.py 新增：缺 meta 字段 / 环节 id 重复 / 未知模块 type / 素材同名冲突 / 引用了不存在的素材键，都拦在构建前。教训：课时文件可能在定义期摸浏览器 API（pet-l4 有 `document.getElementById`），node 校验要垫一个什么都吸收的 Proxy 桩 |
+| 主题系统 | 课时 `meta.theme`：`'k'` 自然课堂（暖白+深绿）/ `'pf'` 教材编辑（克制、衬线标题、小圆角）；不写 = 默认。配色/圆角/标题字体在外壳 `<style>` 尾部，用映射写全类名让 check-classes 能看到 |
+| 观众屏去残影 | stepRow 的「打勾」按钮在观众屏一直是死的按钮残影 → 现在观众屏显示状态标记 ✓，按钮只在教师端；观众屏题目字号提到 clamp(24px,3vw,46px)（题目第一焦点） |
+| 首次开课引导 | 外壳内置「开课三步」卡：首开自动弹一次（每台机器每节课记一次），可关可不再显示，控制台「开课帮助」随时重开；不进快照、不广播、观众屏不弹 |
+| pair-task doneLine | 汇报句原来写死 "go to the X"，活动类话题语法不通 → 新增 `doneLine` 参数（{a}/{b} 占位），不写就用原句 |
+| M2 带宽 24→28 | deck-steps 首块实测 25px，旧带（4–24）取样不足；改尺子不改内容，依据写在 layout-budget.md §二.10 |
+| FCE 第 12 条授权改版 | 观众屏 p1/p2 练习页自然高度 +8.27%/+5.58% 是这轮改版的预期结果（题目加大+去残影），verify.py 里逐视图标注，不判失败、不伪造一致 |
+| 两份原创样课 | lessons/sample-ket.js（放学后的活动 30min）+ sample-pet.js（阅读习惯 40min），构建进 examples/ 随包分发；PET 样课的"照片"是代码绘制的原创 SVG 插画（photo-relay 离了图跑不过验收，空相框更糟） |
+| welcome.html | 随包首次引导页：两个主入口（体验样课 / 复制需求回 AI）、诚实的环境说明、复制三级降级、localStorage 静默降级 |

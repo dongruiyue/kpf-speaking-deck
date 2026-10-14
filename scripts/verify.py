@@ -48,6 +48,15 @@ CASES = {
 # enforce12：第 12 条是否当判据。FCE 是外壳的基准（逐视图自然高度必须 ≤2%）；
 # PET/KET 的讲解从「一屏三栏」升级成翻页讲义是既定变化，第 12 条只报事实不判过不过。
 
+# 授权改版（2026-10-14，分发版改造）：这些视图的观众屏自然高度与 golden 不一致是**故意的**——
+# 观众屏题目加大为第一焦点、打勾按钮改状态标记。列表里的视图不参与第 12 条判定，其余仍必须 0 偏差。
+AUTH_DEV = {
+    'fce': {
+        'p1|prac|1': '观众屏题目加大 + 打勾按钮改状态标记（授权改版）',
+        'p2|prac|1': '观众屏题目加大 + 打勾按钮改状态标记（授权改版）',
+    },
+}
+
 
 def resolve_case(name):
     """fce/pet/ket 走内置表；其它课时名从 lessons/<name>.js 的 LESSON_META.outFile 解析产物名。"""
@@ -324,16 +333,19 @@ def verify(case):
             print()
             print('  观众屏逐视图自然高度（迁移前 / 重建 / 偏差）')
             keys = sorted(set(AG.get('nat', {}) or {}) | set(A.get('nat') or {}))
+            auth = AUTH_DEV.get(case, {})
             for k in keys:
                 a = AG.get('nat', {}).get(k)
                 b = A['nat'].get(k)
                 if a is None or b is None:
                     print('  %-22s %10s %10s %9s' % (k, '—' if a is None else '%.2f' % a,
                                                      '—' if b is None else '%.2f' % b, '—'))
+                elif k in auth:
+                    print('  %-22s %10.2f %10.2f %9s  （%s）' % (k, a, b, '%+.2f%%' % pct(a, b), auth[k]))
                 else:
                     print('  %-22s %10.2f %10.2f %9s' % (k, a, b, '%+.2f%%' % pct(a, b)))
             ds_a = [abs(pct(AG['nat'][k], A['nat'][k])) for k in keys
-                    if k in (AG.get('nat') or {}) and k in (A.get('nat') or {})]
+                    if k in (AG.get('nat') or {}) and k in (A.get('nat') or {}) and k not in auth]
             if c.get('enforce12') and ds_a and max(ds_a) > 2:
                 fails.append('第 12 条 回归（观众屏 %.2f%%）' % max(ds_a))
             print()
