@@ -42,6 +42,27 @@
     `<button class="${b.team === 'A' ? 'a' : 'b'}" data-${P.scoreAttr}="${b.team}">${b.label}</button>`).join('')}</div>
   <div class="rule-line">${P.rule}</div>`;
     }
+    /* questionFirst：题目占主区第一焦点，句架默认折叠、由教师单独展开（见 render / toggleFrames）。
+       课时不写这个开关时，输出与原来逐字节一致（FCE p1、示例课都走这条老路）。 */
+    if (P.questionFirst) {
+      return `
+  <div class="teacher-only" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+    <button class="mega-btn" id="${id('draw')}">${P.drawLabel}</button>
+  </div>
+  <div class="dq-q" id="${id('box')}"></div>
+  <div class="turn-label dq-turn" id="${id('turn')}"></div>
+  <div class="frames-toggle teacher-only">
+    <button class="ghost-btn" data-frames-toggle="1" aria-expanded="false">${P.framesShowLabel}</button>
+  </div>
+  <div class="stepcard" id="${id('steps')}">${(P.cards || []).map((c, i) =>
+    TK.stepRow(i === 0 ? P.badge : '', P.nos[i], c.t, c.cn, c.frames, `data-${P.cardAttr}`, i,
+      { framesOn: S && S.framesOn })).join('')}</div>
+  <div class="teacher-only" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+    <button class="ghost-btn" id="${id('sw')}">${P.switchLabel}</button>
+    <button class="ghost-btn" id="${id('reset')}">${P.resetLabel}</button>
+  </div>
+  <div class="rule-line">${P.rule}</div>`;
+    }
     return `
   <div class="turn-label" id="${id('turn')}"></div>
   <div class="teacher-only" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
@@ -71,9 +92,16 @@
       return;
     }
     const drawn = S.test !== null && S.idx !== null;
-    el('box').innerHTML = drawn
-      ? `<span class="q-tag">${S.test} · ${P.tag}</span>${bank[S.test][S.idx]}`
-      : `<span class="q-tag">${P.emptyTag}</span>${P.emptyText}`;
+    if (P.questionFirst) {
+      /* 题目是页面第一焦点：深色大字 + 左对齐；卷名 / 话题降为一行小字（样式见外壳 .dq-q） */
+      el('box').innerHTML = drawn
+        ? `<span class="dq-meta">${S.test} · ${P.tag}</span><span class="dq-text">${bank[S.test][S.idx]}</span>`
+        : `<span class="dq-meta">${P.emptyTag}</span><span class="dq-text">${P.emptyText}</span>`;
+    } else {
+      el('box').innerHTML = drawn
+        ? `<span class="q-tag">${S.test} · ${P.tag}</span>${bank[S.test][S.idx]}`
+        : `<span class="q-tag">${P.emptyTag}</span>${P.emptyText}`;
+    }
     q(P.cardAttr).forEach(b => {
       const i = +b.dataset[P.cardAttr];
       b.classList.toggle('on', S.used[i]);
@@ -83,6 +111,15 @@
       const st = b.parentElement && b.parentElement.querySelector('.check-state');
       if (st) st.textContent = S.used[i] ? '✓' : '';
     });
+    /* 句架展开状态：教师独立控制。展开只是显示动作 —— 不加分、不进台账（给分仍只走 card()）。 */
+    if (P.questionFirst) {
+      const tg = document.querySelector('[data-frames-toggle]');
+      if (tg) {
+        tg.textContent = S.framesOn ? (P.framesHideLabel || '收起句架 Hide frames') : (P.framesShowLabel || '显示句架 Show frames');
+        tg.setAttribute('aria-expanded', S.framesOn ? 'true' : 'false');
+      }
+      document.querySelectorAll('.st-frames[data-frames]').forEach(f => { f.dataset.frames = S.framesOn ? 'on' : 'off'; });
+    }
     const tl = el('turn');
     tl.textContent = S.done ? P.doneText : `${P.turnPrefix}${S.turn}${drawn ? P.turnSuffix : ''}`;
     tl.style.color = S.done ? 'var(--green)' : (S.turn === 'A' ? 'var(--teal)' : 'var(--terra-ink)');
@@ -113,13 +150,13 @@
     const q = S.pool.pop();
     if (P.layout === 'plain') {
       S.idx = q;
-      render(); TK.sfx.draw(); emit(); return;
+      render(); TK.sfx.draw(); TK.refit(); emit(); return;
     }
     const had = S.test !== null;
     S.test = q.t; S.idx = q.i;
     S.used = freshUsed(); S.done = false;
     if (had) S.turn = S.turn === 'A' ? 'B' : 'A';
-    render(); TK.sfx.draw(); emit();
+    render(); TK.sfx.draw(); TK.refit(); emit();
   }
 
   function card(i) {
@@ -144,6 +181,13 @@
     refill(); render(); TK.sfx.click(); emit();
   }
 
+  /* 展开 / 收起句架：只改显示状态，**不碰分数**。
+     （「展示句架」和「给分」是两个独立动作 —— card() 才计分，这里绝不计分。） */
+  function toggleFrames() {
+    S.framesOn = !S.framesOn;
+    render(); TK.sfx.click(); TK.refit(); emit();
+  }
+
   function applySnap(s) {
     if (!s) return;
     S.pool = (s.pool || []).slice();
@@ -156,6 +200,7 @@
     S.turn = s.turn || 'A';
     S.used = (s.used && s.used.length === freshUsed().length ? s.used : freshUsed()).slice();
     S.done = !!s.done;
+    S.framesOn = !!s.framesOn;     // 晚加入的学生窗口与教师端一致；收广播不再触发任何计分
     render();
   }
 
@@ -167,7 +212,7 @@
       bank = P.bank;
       S = P.layout === 'plain'
         ? { pool: [], idx: null, last: null }
-        : { pool: [], test: null, idx: null, turn: 'A', used: freshUsed(), done: false };
+        : { pool: [], test: null, idx: null, turn: 'A', used: freshUsed(), done: false, framesOn: false };
       refill();
       return S;
     },
@@ -181,6 +226,8 @@
       if (el('sw')) el('sw').onclick = flip;
       if (el('reset')) el('reset').onclick = reset;
       if (el('timer')) el('timer').onclick = () => TK.timer(P.timer.sec, true);
+      const frameBtn = document.querySelector('[data-frames-toggle]');
+      if (frameBtn) frameBtn.onclick = toggleFrames;
       q(P.cardAttr).forEach(b => b.onclick = () => card(+b.dataset[P.cardAttr]));
       q(P.scoreAttr).forEach(b => b.onclick = () => {
         TK.score(step.id, b.dataset[P.scoreAttr], 1); TK.sfx.draw();
@@ -199,7 +246,7 @@
     /* 4) 进快照的字段 */
     snapshot: () => (P.layout === 'plain'
       ? { pool: S.pool.slice(), idx: S.idx }
-      : { pool: S.pool, test: S.test, idx: S.idx, turn: S.turn, used: S.used.slice(), done: S.done }),
+      : { pool: S.pool, test: S.test, idx: S.idx, turn: S.turn, used: S.used.slice(), done: S.done, framesOn: S.framesOn }),
 
     reset(state) { S = state; refill(); return S; },
   };

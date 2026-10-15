@@ -16,17 +16,19 @@
   const PIC = k => `<img class="picimg" src="${TK.img(k)}" alt="">`;
 
   function skeleton() {
+    /* 翻页入口与页码放在内容上方的稳定导航区：教师端首屏就能看到「下一页」，不用滚到底；
+       两个翻页按钮是 teacher-only —— 学生端只留页码（原来学生屏也能看到老师的翻页按钮）。 */
     return `
   <div class="tool-page-tag teacher-only" id="${P.ids.tag}"></div>
-  <div class="flash-grid" id="${P.ids.pics}" style="display:none;max-width:760px"></div>
+  <div class="deck-nav tool-nav">
+    <button class="ghost-btn teacher-only" id="${P.ids.prev}">${P.prevLabel}</button>
+    <span class="page-ind" id="${P.ids.ind}"></span>
+    <button class="ghost-btn teacher-only" id="${P.ids.next}">${P.nextLabel}</button>
+  </div>
+  <div class="flash-grid cols-4 tool-pics" id="${P.ids.pics}" style="display:none"></div>
   <ul class="tool-frames" id="${P.ids.frames}"></ul>
   <div id="${P.ids.audioSlot}"></div>
   <div class="scaffold" id="${P.ids.hint}"></div>
-  <div class="deck-nav">
-    <button class="ghost-btn" id="${P.ids.prev}">${P.prevLabel}</button>
-    <span class="page-ind" id="${P.ids.ind}"></span>
-    <button class="ghost-btn" id="${P.ids.next}">${P.nextLabel}</button>
-  </div>
   <div class="rule-line">${P.rule}</div>`;
   }
 
@@ -55,6 +57,7 @@
     }
     el('ind').textContent = `${S.page + 1} / ${P.pages.length}`;
     if (!TK.isAudience) TK.sfx.draw();
+    TK.refit();                                 // 每页高度不同：两端都按这一页重算布局
     if (!quiet) TK.broadcast({ t: P.msg, n: S.page });
   }
 

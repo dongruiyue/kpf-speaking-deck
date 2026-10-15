@@ -156,13 +156,31 @@ body.presenting #console{display:flex;grid-column:2;grid-row:1/4;position:static
 #console .c-status.wait{background:var(--mustard-soft);color:#7a5b10;}
 #consoleExit{background:var(--ink);color:#fff;border-radius:12px;padding:14px;font-size:16px;font-weight:800;}
 
-/* ---------- 常驻句架栏 ---------- */
+/* ---------- 句架辅助区（原来叫「常驻句架栏」） ----------
+   课时在外壳可读到的 frameBar 配置里声明：
+     mode:'fixed'（缺省，行为不变）| 'flow'（置于正常文档流，绝不遮挡内容）
+     open:true 一开始就展开（缺省收起：只留一条「句架」开关）
+     suppress:['draw'] 这一环节页面里已经显示同类提示 → 底栏不再重复
+   收起 / 展开会改高度，教师端与学生端的适配都按实测高度重算（见 chromeBottom / fitAudience）。 */
 #frameBar{position:fixed;left:0;right:0;bottom:0;z-index:65;background:var(--card);border-top:2px solid var(--teal);display:flex;align-items:center;gap:18px;padding:10px 22px;flex-wrap:wrap;justify-content:center;}
+#frameBar .fb-items{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center;}
 #frameBar .fb-item{font-size:clamp(14px,1.9vw,19px);font-weight:800;color:var(--teal);white-space:nowrap;}
 #frameBar .fb-cn{font-size:12px;color:var(--dim);font-weight:700;}
+#frameBar .fb-toggle{background:var(--paper);border:1.5px solid var(--line);border-radius:11px;padding:5px 12px;font-size:12.5px;font-weight:800;color:var(--dim);white-space:nowrap;flex-shrink:0;}
+#frameBar .fb-toggle:hover{border-color:var(--teal);color:var(--teal);}
+#frameBar[data-open="0"] .fb-items{display:none;}
+#frameBar[data-mode="flow"]{position:static;left:auto;right:auto;bottom:auto;border:1.5px solid var(--line);border-radius:14px;margin:0 22px 20px;padding:8px 16px;justify-content:space-between;gap:10px;}
+/* 演讲者模式：控制台是 grid-row:1/4 + height:100vh，若把三行都改成 auto，它会把 100vh
+   平摊到前三行、把句架区顶到视口外（实测 y=657＞视口 633）。保留第三行的 1fr 吸收控制台的高度，
+   只加一个 auto 的第四行放句架区。 */
+body.presenting.fb-flow,body.ref-open.fb-flow{grid-template-rows:auto auto 1fr auto;}
+body.presenting #frameBar[data-mode="flow"],body.ref-open #frameBar[data-mode="flow"]{grid-column:1;grid-row:4;}
+#frameBar[data-mode="flow"] .fb-items{justify-content:flex-start;}
+body.audience #frameBar[data-mode="flow"]{margin:0 clamp(20px,2.2vw,72px) 22px;}
 body.presenting #frameBar,body.ref-open #frameBar{padding:7px 14px;gap:12px;flex-wrap:nowrap;overflow:hidden;}
 body.presenting #frameBar .fb-item,body.ref-open #frameBar .fb-item{font-size:13px;}
 body.presenting #frameBar .fb-cn,body.ref-open #frameBar .fb-cn{display:none;}
+body.presenting #frameBar[data-mode="flow"],body.ref-open #frameBar[data-mode="flow"]{padding:8px 14px;flex-wrap:wrap;overflow:visible;gap:10px;}
 body.presenting #frameBar{right:var(--console-w);}
 
 #refBtn{color:var(--teal);}
@@ -458,6 +476,22 @@ body.audience .deck-foot{padding-top:6px;}
 .st-cn{font-size:clamp(12px,1.1vw,20px);color:#8a6a1e;font-weight:800;line-height:1.3;}
 .st-frames{display:flex;flex-wrap:wrap;gap:2px 22px;}
 .stepcard .check-item{margin-left:auto;flex-shrink:0;border-width:2px;}
+
+/* ---------- 抽题页（draw-question）：题目第一焦点，句架默认折叠 ----------
+   课时写 questionFirst:true 才启用这一套（FCE / 示例课仍是原来的 .q-bar，几何不动）。
+   题：深色大字、左对齐、不要黄底虚线框；卷名与当前队伍降为次要；句架由教师单独展开，
+   展开只是显示动作 —— 不计分、不进台账。 */
+.dq-q{width:100%;max-width:1100px;display:flex;flex-direction:column;gap:2px;text-align:left;}
+.dq-q .dq-meta{font-size:clamp(11px,1vw,14px);letter-spacing:.8px;color:var(--dim);font-weight:700;text-transform:uppercase;}
+.dq-q .dq-text{font-size:clamp(22px,2.6vw,40px);font-weight:700;line-height:1.28;color:var(--ink);}
+.dq-turn{width:100%;max-width:1100px;text-align:left;font-size:clamp(12.5px,1.15vw,18px);font-weight:800;}
+.frames-toggle{display:flex;justify-content:flex-start;width:100%;max-width:1100px;}
+/* 句架折叠用属性而不是类：属性不影响 photo-pair-steps（它不带 data-frames） */
+.st-frames[data-frames="off"]{display:none;}
+body.audience .dq-q{max-width:none;}
+body.audience .dq-q .dq-meta{font-size:clamp(14px,1.3vw,24px);}
+body.audience .dq-q .dq-text{font-size:clamp(30px,3.4vw,66px);}
+body.audience .dq-turn{max-width:none;font-size:clamp(15px,1.5vw,26px);}
 /* 观众屏：句架字号 ≥22px（实际值还要乘整场自适应缩放） */
 body.audience .stepcard{padding:clamp(9px,.9vw,14px) clamp(14px,1.4vw,24px);gap:clamp(6px,.7vw,10px);}
 body.audience .st-badge{width:clamp(62px,5.2vw,92px);height:clamp(62px,5.2vw,92px);font-size:clamp(21px,1.9vw,32px);}
@@ -494,11 +528,42 @@ body.audience .photo-pair .ph-tag{font-size:clamp(14px,1.25vw,22px);}
 .flash-card.static:hover{transform:none;border-color:var(--line);}
 .flash-card.chosen{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-soft);}
 .flash-card .tick{position:absolute;top:8px;right:12px;font-size:22px;font-weight:900;color:var(--teal);}
-.tool-page-tag{font-size:15px;color:var(--dim);font-weight:700;}
-.tool-frames{text-align:left;max-width:820px;width:100%;}
-.tool-frames li{list-style:none;font-size:clamp(19px,2.8vw,30px);line-height:1.7;font-weight:700;padding:9px 0;border-bottom:1.5px dashed var(--line);}
+/* 快闪的教师操作带：盖住 / 翻开 / 计时 / 计分收成一行（观众屏整块 teacher-only 隐藏） */
+.flash-ops{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;width:100%;}
+.flash-ops-label{font-size:12.5px;font-weight:800;color:var(--dim);}
+.flash-ops .ops-sep{width:1px;height:22px;background:var(--line);}
+.flash-ops .score-team{gap:10px;}
+/* flash-cards 自己的布局标记（课时里的 cols 参数声明列数）：
+   8 张卡按 4 列 × 2 行排，小屏 2 列。**只作用于 flash-cards 的网格** ——
+   mock-exam / pair-task / tool-pager 复用的 .flash-grid 不受影响（它们不带 .cols-4）。
+   卡片不再用 aspect-ratio 撑高，改成「固定图形区 + 固定两行文字区」，所以每张等高、
+   图标光学大小一致（object-fit:contain，方形图标按高度对齐，不裁切）。 */
+.flash-grid.cols-4{grid-template-columns:repeat(4,minmax(0,1fr));}
+.flash-grid.cols-4 .flash-card{aspect-ratio:auto;height:clamp(104px,15.5vh,158px);padding:8px 10px;gap:4px;}
+.flash-grid.cols-4 .flash-card .pic{flex:0 0 auto;height:clamp(46px,7.4vh,80px);min-height:0;}
+.flash-grid.cols-4 .flash-card .picimg{object-fit:contain;}
+.flash-grid.cols-4 .flash-card .name{font-size:clamp(14px,1.5vw,20px);line-height:1.15;height:2.3em;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;}
+@media (max-width:820px){.flash-grid.cols-4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.tool-page-tag{font-size:clamp(14px,1.35vw,19px);color:var(--teal);font-weight:700;letter-spacing:.3px;}
+/* 句型库正文：正文 400–500、行内重点 600–700（原来整段 700、行高 1.7 会把长内容堆成字墙） */
+.tool-frames{text-align:left;max-width:900px;width:100%;}
+.tool-frames li{list-style:none;font-size:clamp(16px,1.75vw,24px);line-height:1.5;font-weight:500;padding:7px 0;border-bottom:1px solid var(--line);}
 .tool-frames li:last-child{border-bottom:none;}
-.tool-frames li b{color:var(--teal);}
+.tool-frames li b{color:var(--teal);font-weight:700;}
+/* 句型库的翻页入口放在稳定导航区（内容上方），教师端首屏就能看到「下一页」，
+   学生端只留页码 —— 两个按钮是 teacher-only，见 tool-pager 模块。 */
+.tool-nav{width:100%;max-width:900px;border-bottom:1.5px solid var(--line);border-top:none;padding:2px 0 8px;margin-bottom:2px;justify-content:center;}
+.tool-nav .page-ind{font-size:clamp(14px,1.4vw,20px);}
+/* 顶部导航是常驻控件，不该像讲义底部翻页那样占 48–72px（那是「投影上要按得着」的尺寸） */
+.tool-nav .ghost-btn{min-height:38px;padding:7px 15px;font-size:clamp(13px,1.15vw,15px);}
+body.audience .deck-nav.tool-nav{padding:4px 0 10px;}
+body.audience .tool-nav .page-ind{font-size:clamp(16px,1.6vw,28px);}
+body.audience .tool-nav .ghost-btn{min-height:46px;padding:8px 17px;font-size:clamp(14px,1.3vw,17px);}
+/* 句型库的话题卡（材料）：和快闪用同一个 4 列 × 2 行的布局标记，页面高度可预期 */
+.tool-pics{max-width:900px;}
+body.audience .tool-pics{max-width:min(1100px,100%);}
+/* 观众屏的句型行：这是学生要照着说出来的东西，必须≥24px（自然字号 × 该页缩放 ≥24） */
+body.audience .tool-frames li{font-size:clamp(20px,2.2vw,34px);}
 .deck-nav .page-ind{font-size:17px;font-weight:800;color:var(--dim);min-width:64px;}
 /* ---------- 教材录音播放器（只给教师端；观众屏不出声、不显示）单行紧凑版 ---------- */
 .audio-box{display:none;align-items:center;gap:12px;width:100%;max-width:820px;background:var(--mustard-soft);border:2px solid var(--mustard);border-radius:18px;padding:12px 16px;flex-wrap:wrap;}
@@ -621,6 +686,66 @@ body.theme-k{
   --terra:#C05B3A; --terra-ink:#A24A2E; --terra-soft:#F9EAE3;
   --mustard:#DFA42C; --mustard-soft:#F8ECCB;
 }
+/* ---- K 主题的布局规则（不只是换颜色）----
+   原则：暖白纸面 + 深绿强调 + 常规深色正文；浅绿**只**用于辅助任务区；
+   常规页面去掉大面积黄色、虚线描边与重阴影；减少嵌套卡片；题目 / 材料 / 提示三级排版；
+   正文不普遍用 800/900 字重。**全部限定在 body.theme-k 内**，PF 主题、状态色语义、计时结束提示都不动。 */
+/* 1) 去掉外层大卡片：内容直接落在暖白纸面上（原来 stage / 卡片套卡片，投影上像一堵白墙） */
+body.theme-k .stage{background:transparent;border:none;border-radius:0;box-shadow:none;padding:0;min-height:0;}
+body.theme-k .menu-card,body.theme-k .crit-card,body.theme-k .teach-col{border:1px solid var(--line);border-radius:12px;box-shadow:none;}
+body.theme-k .menu-card:hover{transform:none;box-shadow:none;border-color:var(--teal);}
+body.theme-k .lesson-deck{border-radius:12px;box-shadow:none;}
+/* 2) 辅助任务区 = 浅绿（stepcard / recipe / scaffold / 教学提示）；取消虚线描边与黄色大块 */
+body.theme-k .stepcard,body.theme-k .recipe{background:var(--teal-soft);border:1px solid var(--line);border-radius:12px;box-shadow:none;}
+body.theme-k .st-row{border-bottom:1px solid var(--line);}
+body.theme-k .st-badge,body.theme-k .recipe-badge{background:var(--teal);color:#fff;box-shadow:none;}
+body.theme-k .st-t{color:var(--ink);}
+body.theme-k .st-cn{color:var(--dim);}
+body.theme-k .scaffold{background:var(--teal-soft);border:1px solid var(--line);color:var(--dim);}
+body.theme-k .scaffold b{color:var(--teal);}
+body.theme-k .teacher-tip{background:var(--teal-soft);border:1px solid var(--line);}
+/* 3) 剩下的黄色只当「极小面积强调」，不给整块底色 */
+body.theme-k .recap-strip span{background:var(--paper);border:1px solid var(--line);color:var(--teal);}
+body.theme-k .deck-time span{background:var(--paper);border:1px solid var(--line);color:var(--dim);}
+body.theme-k .deck-time span b{color:var(--teal);}
+body.theme-k .deck-anno{background:var(--paper);border:1px solid var(--line);}
+body.theme-k .deck-anno .dk-ae{color:var(--teal);}
+body.theme-k .deck-anno .dk-ai{color:var(--dim);}
+body.theme-k .ov-score{background:var(--paper);border-color:var(--line);color:var(--teal);}
+body.theme-k .ov-foot{border:1px solid var(--line);}
+body.theme-k .crit-foot{border:1px solid var(--line);}
+body.theme-k .mega-btn,body.theme-k .mega-btn.terra,body.theme-k .mega-btn.mustard{box-shadow:none;}
+body.theme-k .mega-btn.mustard{background:var(--teal);color:#fff;}
+/* 4) 三级排版：题目（最大最深）→ 材料（常规正文）→ 提示（小一号、浅绿底、不抢焦点） */
+body.theme-k .dq-q .dq-text{color:var(--ink);font-weight:700;}
+body.theme-k .big-word{font-weight:700;color:var(--ink);}
+body.theme-k .tool-frames li{font-weight:500;color:var(--ink);}
+body.theme-k .tool-frames li b{font-weight:700;}
+body.theme-k .scf-i{font-weight:500;}
+body.theme-k .rule-line{font-weight:500;color:var(--dim);}
+/* 5) 正文不普遍用 800/900：标题 600–700、正文 400–500 */
+body.theme-k header h1,body.theme-k .dash-title,body.theme-k .topline h2{font-weight:600;}
+body.theme-k .deck-title,body.theme-k .menu-card .t{font-weight:600;}
+body.theme-k .menu-card .d,body.theme-k .menu-card .time{font-weight:400;}
+body.theme-k .menu-card .time{color:var(--dim);}
+body.theme-k .flash-card .name{font-weight:600;}
+body.theme-k .st-t{font-weight:700;}
+body.theme-k .recipe-list li{font-weight:500;}
+body.theme-k .lesson-deck .dk-i{font-weight:600;}
+body.theme-k .deck-tips-list li{font-weight:500;}
+body.theme-k .deck-keytips .dk-te{font-weight:600;}
+body.theme-k .teacher-tip summary{font-weight:700;}
+body.theme-k .tool-page-tag{font-weight:700;}
+/* 6) 首页精简：课程名 + 一句话目标 + 环节入口；每张卡不再重复「核心 / 热身」徽章
+     （环节自己的等级在顶部步骤条与环节页的 kind 徽标里仍有） */
+body.theme-k .menu-card .tier{display:none;}
+/* 7) 底栏改成正常文档流后不再覆盖内容，main 底部那段预留可以收回来 */
+body.theme-k.audience main{padding-bottom:24px;}
+body.theme-k main{padding-bottom:16px;}
+/* 8) 密度：K 主题的字号本来就偏大，练习页最容易溢出。这几条只在 K 主题生效，
+      目的不是缩字号凑高度，而是把「标题 / 卡片题目」这两档收到与正文字阶匹配的位置 */
+body.theme-k .big-word{font-size:clamp(24px,3.2vw,44px);}
+body.theme-k .flash-card .name{font-size:clamp(15px,1.5vw,20px);}
 /* PF 教材编辑：克制排版、细分隔线、小圆角、衬线大标题 */
 body.theme-pf{
   --paper:#F8F7F3; --card:#FFFFFF; --line:#D5D8D0;
@@ -650,6 +775,11 @@ body.audience .big-word{font-size:clamp(30px,4.2vw,58px)!important;}
 #guideOv .g-item{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:14.5px;line-height:1.65;color:var(--ink);}
 #guideOv .g-item b{color:var(--teal);font-size:16px;flex-shrink:0;}
 #guideOv .g-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+/* 第一步的「打开学生屏」按钮与状态行：点一下就同步打开（不延迟，避免被弹窗拦截） */
+#guideOv .g-open{margin:10px 0 2px;display:inline-block;padding:10px 20px;font-size:15px;}
+#guideOv .g-state{display:block;font-size:12.5px;color:var(--dim);margin-top:6px;line-height:1.5;}
+#guideOv .g-state.ok{color:var(--teal);font-weight:700;}
+#guideOv .g-state.bad{color:var(--terra-ink);font-weight:700;}
 
 /*==LESSON_CSS==*/
 </style>
@@ -720,17 +850,26 @@ body.audience .big-word{font-size:clamp(30px,4.2vw,58px)!important;}
   <div class="rd-body" id="refBody"></div>
 </div>
 
-<div id="frameBar"></div>
+<div id="frameBar" data-mode="fixed" data-open="1">
+  <button class="fb-toggle teacher-only" id="fbToggle" aria-expanded="true"></button>
+  <div class="fb-items" id="fbItems"></div>
+</div>
 
 <div id="audBadge">观众屏</div>
 <div id="guideOv" role="dialog" aria-label="开课帮助">
   <div class="g-card">
     <h3>开课三步</h3>
     <div class="g-sub">第一次用这份课件时看一眼；之后随时从控制台「开课帮助」重开。</div>
-    <div class="g-item"><b>1</b><span>点控制台的「重新打开观众屏」，把弹出的窗口<b>拖到投影屏</b>全屏（同一台电脑、同一个浏览器，不是跨设备）。</span></div>
-    <div class="g-item"><b>2</b><span>试一次翻页或抽题，确认学生屏会跟随；这节课有音频的话，在教师端试听一次（声音只从教师端出）。</span></div>
+    <div class="g-item"><b>1</b><span>先把学生屏打开 —— 就在下面点：<br>
+      <button class="mega-btn g-open" id="gOpen">打开学生屏 Open student screen</button>
+      <span class="g-state" id="gOpenState"></span>
+      <span class="g-state">同一台电脑、同一个浏览器打开；不是跨设备。</span></span></div>
+    <div class="g-item"><b>2</b><span>把弹出的窗口<b>拖到投影屏</b>、按 F11 全屏；试一次翻页或抽题，确认学生屏会跟随。这节课有录音，在教师端试听一次（声音只从教师端出）。</span></div>
     <div class="g-item"><b>3</b><span>有计分的环节，试一次加分和撤销。没有扩展屏就单屏上课：不进演讲者模式，教学提示保持折叠。</span></div>
-    <div class="g-actions"><button class="ghost-btn" id="gNever">不再显示</button><button class="mega-btn" id="gOk" style="padding:10px 22px;font-size:15px">知道了</button></div>
+    <div class="g-actions">
+      <button class="ghost-btn" id="gSkip" title="这次先不看，下次开课还会自动弹出">本次跳过</button>
+      <button class="mega-btn" id="gDone" style="padding:10px 22px;font-size:15px" title="以后不再自动弹出；需要时从控制台「开课帮助」重开">完成引导</button>
+    </div>
   </div>
 </div>
 <div id="byeOverlay">演示已结束</div>
@@ -802,12 +941,20 @@ const TK = {
   beep: (freq, dur, type, vol) => beep(freq, dur, type, vol),
   storage: { get: k => store.get(KEY(k)), set: (k, v) => store.set(KEY(k), v) },
   step: (id) => LESSON.steps.find(s => s.id === id),
+  /* 模块自己改了「当前页内容高度」时叫一次（翻页 / 展开句架 / 抽题）：
+     教演与观众屏各按当前活动页重算布局，短页不被长页连累。 */
+  refit: () => refitNow(),
   cur: () => cur,                          // 当前环节 id（模块判断「键盘事件该不该我管」用）
   el: (id) => document.getElementById(id),
   $: (sel, root) => (root || document).querySelector(sel),
   $$: (sel, root) => Array.from((root || document).querySelectorAll(sel)),
-  /* .stepcard 一行 = 标题 + 句架 + 打勾，draw-question / photo-pair-steps 共用 */
-  stepRow: (badge, no, title, cn, frames, attr, i) => `
+  /* .stepcard 一行 = 标题 + 句架 + 打勾，draw-question / photo-pair-steps 共用。
+     第 8 个参数 opts 只在课时显式开启句架折叠（draw-question 的 questionFirst）时传进来；
+     不传时输出与原来逐字节一致 —— photo-pair-steps 的 DOM 不受影响。 */
+  stepRow: (badge, no, title, cn, frames, attr, i, opts) => {
+    const o = opts || {};
+    const collapsible = o.framesOn !== undefined;
+    return `
     <div class="st-row">
       <div class="st-head">
         ${badge ? `<span class="st-badge">${badge}</span>` : ''}
@@ -816,8 +963,9 @@ const TK = {
         <button class="check-item" ${attr}="${i}" title="这一步做到了就点一下">打勾</button>
         <span class="check-state" aria-hidden="true"></span>
       </div>
-      ${(frames || []).map(row => `<div class="st-frames">${row.map(x => `<span class="scf-i">${x}</span>`).join('')}</div>`).join('')}
-    </div>`,
+      ${(frames || []).map(row => `<div class="st-frames"${collapsible ? ` data-frames="${o.framesOn ? 'on' : 'off'}"` : ''}>${row.map(x => `<span class="scf-i">${x}</span>`).join('')}</div>`).join('')}
+    </div>`;
+  },
 };
 window.TK = TK;
 
@@ -899,6 +1047,15 @@ const AUDIO = LESSON.audio || {};
 const STEPS = LESSON.steps;
 const FRAME_BAR = LESSON.frames || {};
 const RECIPE = LESSON.recipe || {};
+/* 句架辅助区的课时配置（在读 LESSON 的这一段就解析好：模块挂载时可能就会用到它，
+   不能等到文件后面的「底部句架栏」那一节才初始化 —— 那会踩 TDZ，把整段外壳脚本打断）。 */
+const FB_CONF = LESSON.frameBar || K.frameBar || {};
+const FB_MODE = FB_CONF.mode === 'flow' ? 'flow' : 'fixed';
+const FB_SUPPRESS = Array.isArray(FB_CONF.suppress) ? FB_CONF.suppress : [];
+let fbOpen = FB_CONF.open === undefined ? true : !!FB_CONF.open;
+/* 演讲者模式把 body 变成 grid（左栏 + 控制台），句架区在正常文档流时是第 4 个网格项：
+   第三行必须从 1fr 改成 auto，否则它会被推到视口下方（实测 y=657 / 视口 633，老师根本看不见）。 */
+if (FB_MODE === 'flow') document.body.classList.add('fb-flow');
 /* 有「讲义 + 练习」的环节才显示「讲解 / 练习」双视图（原来用 PART_LESSON 判断）：
    FCE p1/p2、PET p1–p4 是这种；KET 五个环节只有练习，没有切换；FCE overview 只有讲义（讲义直接铺在 stage）。 */
 const PART_LESSON = {};
@@ -1236,6 +1393,21 @@ document.getElementById('cMod').onclick = () => {
   if (modState[cur] === undefined) return;
   doMod(cur, modState[cur] === 'teach' ? 'prac' : 'teach', true);
 };
+/* ================= 句架辅助区（可配置：课时 / 环节） =================
+   LESSON.frameBar（或 meta.frameBar）= { mode:'fixed'|'flow', open:bool, suppress:[stepId…] }
+     不写（缺省）= 原来的常驻底栏，行为一字不变；
+     mode:'flow' = 置于正常文档流（排在 main 之后），**绝不遮挡内容**；
+     open:false  = 默认收起，只留一条「句架」开关（教师端可点开）；
+     suppress    = 这些环节的页面里已经显示了同类提示（例如抽题页的三步句架），底栏不再重复。
+   （FB_CONF / FB_MODE / FB_SUPPRESS / fbOpen 在文件前面「课时派生量」那一节就解析好了：
+     模块挂载阶段就可能用到，不能等到这里才初始化。） */
+function fbSuppressed(id) { return FB_SUPPRESS.indexOf(id) >= 0; }
+function renderFbToggle(id) {
+  const b = document.getElementById('fbToggle');
+  if (!b) return;
+  b.textContent = (fbOpen ? '收起句架 ▾' : '句架 Sentence frames ▸') + (fbSuppressed(id) ? '（本环节已显示）' : '');
+  b.setAttribute('aria-expanded', fbOpen ? 'true' : 'false');
+}
 function renderFrameBar(id) {
   const el = document.getElementById('frameBar');
   if (!el) return;
@@ -1245,25 +1417,68 @@ function renderFrameBar(id) {
   const def = LESSON.frameDefault || K.frameDefault || Object.keys(FRAME_BAR)[0];
   const note = (PART_LESSON[id] ? fb.mod : fb.general) || '';
   const items = FRAME_BAR[id] || FRAME_BAR[def] || [];
-  el.innerHTML = items.map(x => `<span class="fb-item">${x}</span>`).join('')
-    + (note ? `<span class="fb-cn">${note}</span>` : '');
+  el.dataset.mode = FB_MODE;
+  el.dataset.open = fbOpen ? '1' : '0';
+  renderFbToggle(id);
+  const box = document.getElementById('fbItems');
+  if (!box) return;
+  box.innerHTML = fbSuppressed(id) ? ''      /* 抽题页等页面已展示同类提示 → 不重复 */
+    : items.map(x => `<span class="fb-item">${x}</span>`).join('')
+      + (note ? `<span class="fb-cn">${note}</span>` : '');
 }
+/* 收起 / 展开会改高度：布局测量与缩放跟着重算（教师端 fitLeft、观众屏 scheduleAudFit 各走自己的） */
+function setFrameOpen(v) {
+  fbOpen = !!v;
+  const el = document.getElementById('frameBar');
+  if (el) el.dataset.open = fbOpen ? '1' : '0';
+  renderFbToggle(cur);
+  if (document.body.classList.contains('presenting')) setTimeout(fitLeft, 60);
+  scheduleAudFit(0, true);
+}
+const fbToggleEl = document.getElementById('fbToggle');
+if (fbToggleEl) fbToggleEl.onclick = () => setFrameOpen(!fbOpen);
 renderFrameBar('home');
 
-/* ===== 首次开课引导：每台机器每节课只自动弹一次；控制台「开课帮助」随时重开 ===== */
+/* ===== 开课引导：第一步就在弹层里把学生屏打开 =====
+   打开动作与用户点击同步触发（绝不放进 setTimeout —— 延迟弹窗会被浏览器拦掉）。
+   「完成引导」写状态（以后不再自动弹，控制台「开课帮助」随时可重开）；
+   「本次跳过」只关掉弹层、不写状态（下次开课还会自动弹）。 */
 (function () {
   const ov = document.getElementById('guideOv');
   if (!ov) return;
   const KG = KEY('-guide-seen');
   const show = () => ov.classList.add('on');
   const hide = () => ov.classList.remove('on');
-  const ok = document.getElementById('gOk');
-  const never = document.getElementById('gNever');
-  const help = document.getElementById('cGuide');
-  if (ok) ok.onclick = hide;
-  if (never) never.onclick = () => { store.set(KG, '1'); hide(); };
-  if (help) help.onclick = show;
-  /* 只在教师端首开时弹；观众屏/存储不可用时静默不弹 */
+  const state = (html, cls) => {
+    const el = document.getElementById('gOpenState');
+    if (!el) return;
+    el.className = 'g-state' + (cls ? ' ' + cls : '');
+    el.innerHTML = html;
+  };
+  const openBtn = document.getElementById('gOpen');
+  const skipBtn = document.getElementById('gSkip');
+  const doneBtn = document.getElementById('gDone');
+  const helpBtn = document.getElementById('cGuide');
+  if (openBtn) openBtn.onclick = () => {
+    openAudience();
+    if (audWin && !audWin.closed) {
+      state('✅ 学生屏已打开 —— 把它拖到投影屏、按 F11 全屏，再进第 2 步试一次翻页。', 'ok');
+    } else {
+      state('⚠ 弹窗被拦了。现在可做的下一步：① 在地址栏右侧允许本站弹窗，再点一次上面的按钮；'
+        + '② 或点控制台的「复制观众屏地址」，到投影上粘贴打开。', 'bad');
+    }
+  };
+  if (skipBtn) skipBtn.onclick = () => { state(''); hide(); };          // 本次跳过：不写状态
+  if (doneBtn) doneBtn.onclick = () => {                                // 完成引导：写状态
+    if (!store.ok) {
+      state('⚠ 这台机器上存不了「已完成」（Safari 在 file:// 下禁用本地存储），下次开课还会弹一次。'
+        + '想不弹：双击课件同目录的启动脚本、用 http 打开；或这次先点「本次跳过」。', 'bad');
+      return;                                                           // 不关弹层，先让老师看到
+    }
+    store.set(KG, '1'); hide();
+  };
+  if (helpBtn) helpBtn.onclick = () => { state(''); show(); };
+  /* 只在教师端首开时弹；观众屏 / 存储不可用时静默不弹 */
   if (!isAudience && store.ok && !store.get(KG)) show();
 })();
 
@@ -1407,7 +1622,7 @@ function openAudience() {
 function enterPresenting() {
   document.body.classList.add('presenting');
   openAudience();
-  setTimeout(() => { sessionMinZoom = 1; fitLeft(true); }, 200);
+  setTimeout(() => { manualZoom = null; fitLeft(true); }, 200);
   lastHeartbeat = Date.now();
   heartbeatTimer = setInterval(() => {
     if (Date.now() - lastHeartbeat > 8000) setStatus('bad', '未连接');
@@ -1417,7 +1632,7 @@ function enterPresenting() {
 function exitPresenting() {
   document.body.classList.remove('presenting');
   resetZoom();
-  sessionMinZoom = 1;
+  manualZoom = null;
   clearInterval(heartbeatTimer);
   send({t:'bye'});
   if (audWin && !audWin.closed) try { audWin.close(); } catch(e){}
@@ -1443,6 +1658,10 @@ document.getElementById('cCheck').onclick = () => {
     '存储通道 localStorage：' + (store.ok ? '可用' : '不可用 —— Safari 在 file:// 下会禁用，请双击同目录的「' + K.launcher + '」走 http 打开'),
     '图片：' + (bad ? bad + ' 张未加载' : '全部已加载（' + K.imgNote + '）'),
     '当前环节：' + cur,
+    /* 密度体检：当前这一屏 / 全课最高的一屏，以及被压到 0.9 以下的屏（自适应只作有限兜底，不能掩盖过密页面） */
+    '当前这一屏自然高：' + Math.round(measureActiveScreenH()) + 'px；全课最高的一屏：' + Math.round(measureWorstScreenH()) + 'px（视口 ' + window.innerHeight + 'px）',
+    DENSE.length ? '⚠ 内容过密的屏：' + DENSE.map(d => d.where + ' ' + d.view + ' 缩放' + d.zoom).join(' · ') + ' —— 建议拆页或折叠'
+                 : '内容密度：没有需要靠缩小的屏',
   ].join('\n'));
 };
 document.getElementById('cTimer').onclick = () => doTimer(tTotal, false, true);
@@ -1480,7 +1699,7 @@ let uiZoom = parseFloat(store.get(KEY('_zoom')) || '1');
 store.set(KEY('_zoom'), '1');
 if (!(uiZoom >= 0.5 && uiZoom <= 1.6)) uiZoom = 1;
 if (uiZoom < 0.8) uiZoom = 1;
-let sessionMinZoom = 1;      // 本场自动适配的基准：只降不升，避免按钮忽大忽小
+let manualZoom = null;       // 教师手动调过缩放就用它（导航时不覆盖）；点「适配窗口」或重进演讲者模式清空
 function leftEls() {
   return [document.querySelector('header'), document.querySelector('.steps'), document.querySelector('main')];
 }
@@ -1541,33 +1760,87 @@ function measureWorstScreenH() {          // 需在 zoom=1 状态下调用；量
   decks.forEach((root, di) => [...root.querySelectorAll('.deck-page')].forEach((p, i) => p.classList.toggle('on', savedPageOn[di][i])));
   return max;
 }
+/* 底部 chrome 高度。固定底栏的课时沿用历史常量 76（= main 的 34px 内边距 + 固定栏 ≈42px，
+   三份正式课的缩放都按这个值验收过）；句架区改成正常文档流后按**实测外高**算（含下外边距，
+   否则文档会多出一个滚动条）—— 收起 / 展开立刻反映到缩放与测量上（见 setFrameOpen）。 */
+function fbOuterH() {
+  const fb = document.getElementById('frameBar');
+  if (!fb || fb.dataset.mode !== 'flow') return 0;
+  const cs = getComputedStyle(fb);
+  return fb.offsetHeight + (parseFloat(cs.marginTop) || 0) + (parseFloat(cs.marginBottom) || 0);
+}
+function chromeBottom() {
+  const mainEl = document.querySelector('main');
+  const padB = mainEl ? parseFloat(getComputedStyle(mainEl).paddingBottom) || 0 : 0;
+  const fb = document.getElementById('frameBar');
+  if (fb && fb.dataset.mode === 'flow') return padB + fbOuterH() + 8;
+  return 76;
+}
+/* 只量**当前这一屏**（当前环节 × 当前讲/练视图 × 当前讲义页）。
+   原来用 measureWorstScreenH()（全课最高的一屏）定缩放 → 短页被无关长页连累（学生屏被压到 0.55–0.64，
+   题目 38.4px × 0.64 ≈ 24.6px）。现在按当前活动页处理布局：短页该多大就多大；
+   长页确实超量时由自校正兜底，并把这一屏报出来（reportDense），提示拆页 / 折叠。
+   —— 隐藏的 .mod-view / .deck-page 是 display:none，不会混进 scrollHeight。 */
+function measureActiveScreenH() {
+  const scr = document.querySelector('.screen.on');
+  if (!scr) return measureWorstScreenH();          // 兜底：没有活动屏时才退回全课最坏值
+  return scr.scrollHeight;
+}
+/* 页面过密要报出来，不许靠缩放静默掩盖。归一化到 0.9：缩放已压到 0.9 以下 = 这一屏内容超量。 */
+const DENSE = [];
+window.__tkDense = DENSE;
+function viewKey() {
+  const mv = modState[cur];
+  const d = deckState[cur];
+  return cur + (mv ? '|' + mv : '') + (d === undefined ? '' : ':' + (d + 1));
+}
+function reportDense(z, naturalH, where) {
+  const view = viewKey();
+  const i = DENSE.findIndex(x => x.view === view && x.where === where);
+  if (i >= 0) DENSE.splice(i, 1);
+  if (z >= 0.9) return;
+  DENSE.push({ view, where, zoom: z, naturalH: Math.round(naturalH * 100) / 100, room: window.innerHeight });
+  console.warn('[TK] 这一屏内容过密（' + where + ' 缩放已压到 ' + z + '）：' + view
+    + ' 自然高 ' + Math.round(naturalH) + 'px / 视口 ' + window.innerHeight
+    + 'px —— 请拆页或折叠，不要靠缩放掩盖。');
+}
 function computeFitZoom() {
   // 全程同步：清零 → 测量 → 计算 → 设回，浏览器只绘制最终结果，不会闪
   leftEls().forEach(el => { if (el) el.style.zoom = ''; });
   const header = document.querySelector('header');
   const steps = document.querySelector('.steps');
-  const chromeH = (header ? header.offsetHeight : 0) + (steps ? steps.offsetHeight : 0) + 76;
-  const naturalH = measureWorstScreenH() + chromeH;
+  const chromeH = (header ? header.offsetHeight : 0) + (steps ? steps.offsetHeight : 0) + chromeBottom();
+  const naturalH = measureActiveScreenH() + chromeH;
   const zH = (window.innerHeight - 8) / Math.max(naturalH, 1);
-  return Math.round(Math.max(0.55, Math.min(1, zH)) * 100) / 100;
+  const z = Math.round(Math.max(0.55, Math.min(1, zH)) * 100) / 100;
+  reportDense(z, naturalH, '教师端');
+  return z;
 }
 function fitLeft(allowGrow) {
   if (!document.body.classList.contains('presenting')) { resetZoom(); return; }
-  const z = computeFitZoom();
-  if (allowGrow) sessionMinZoom = z;
-  else sessionMinZoom = Math.min(sessionMinZoom, z);
-  setZoom(sessionMinZoom);
+  if (manualZoom && !allowGrow) { setZoom(manualZoom); return; }   // 老师手动定的缩放优先，切页不覆盖
+  if (allowGrow) manualZoom = null;
+  setZoom(computeFitZoom());
 }
-document.getElementById('zoomOut').onclick = () => { const v = Math.round((uiZoom - 0.05) * 100) / 100; sessionMinZoom = v; setZoom(v); };
-document.getElementById('zoomIn').onclick = () => { const v = Math.round((uiZoom + 0.05) * 100) / 100; sessionMinZoom = v; setZoom(v); };
-document.getElementById('zoomFit').onclick = () => { sessionMinZoom = 1; fitLeft(true); };
+/* 模块改了当前页内容高度（翻页 / 展开句架 / 抽题）时叫这个：两端各按当前活动页重算一次。
+   算的是同一条确定性路径（先清零再量），所以重复调用不会抖动。
+   延迟一个宏任务再算：模块挂载阶段也会叫它，那时候外壳后面那些 const 还没初始化（会踩 TDZ）。 */
+function refitNow() {
+  setTimeout(() => {
+    if (document.body.classList.contains('presenting')) fitLeft();
+    scheduleAudFit(0, true);
+  }, 0);
+}
+document.getElementById('zoomOut').onclick = () => { const v = Math.round((uiZoom - 0.05) * 100) / 100; manualZoom = v; setZoom(v); };
+document.getElementById('zoomIn').onclick = () => { const v = Math.round((uiZoom + 0.05) * 100) / 100; manualZoom = v; setZoom(v); };
+document.getElementById('zoomFit').onclick = () => { manualZoom = null; fitLeft(true); };
 document.addEventListener('keydown', e => {
   if (/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
-  if (e.key === '0' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); sessionMinZoom = 1; setZoom(1); return; }
+  if (e.key === '0' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); manualZoom = 1; setZoom(1); return; }
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   if (!document.body.classList.contains('presenting')) return;
-  if (e.key === '-' || e.key === '_') { const v = Math.round((uiZoom - 0.05) * 100) / 100; sessionMinZoom = v; setZoom(v); }
-  if (e.key === '=' || e.key === '+') { const v = Math.round((uiZoom + 0.05) * 100) / 100; sessionMinZoom = v; setZoom(v); }
+  if (e.key === '-' || e.key === '_') { const v = Math.round((uiZoom - 0.05) * 100) / 100; manualZoom = v; setZoom(v); }
+  if (e.key === '=' || e.key === '+') { const v = Math.round((uiZoom + 0.05) * 100) / 100; manualZoom = v; setZoom(v); }
 });
 let resizeTimer = null;
 window.addEventListener('resize', () => {
@@ -1587,11 +1860,17 @@ function audUsed() {                        // 真正会造成滚动的视觉高
   const m = document.querySelector('main');
   if (!m) return { h: 0, w: 0 };
   const r = m.getBoundingClientRect();
-  return { h: r.bottom, w: r.width };
+  let b = r.bottom;
+  const fb = document.getElementById('frameBar');
+  if (fb && fb.dataset.mode === 'flow') {
+    /* 句架区排在 main 之后，它一样会把文档撑出滚动条 —— 自校正要把它算进来 */
+    b = Math.max(b, fb.getBoundingClientRect().bottom + (parseFloat(getComputedStyle(fb).marginBottom) || 0));
+  }
+  return { h: b, w: r.width };
 }
 function fitAudience(force) {
   if (!isAudience) return;
-  const sig = JSON.stringify([cur, Object.values(modState).join(''), deckState, PARTS.map(p => p.get && p.get()), refOpen, refTab]);
+  const sig = JSON.stringify([cur, Object.values(modState).join(''), deckState, PARTS.map(p => p.get && p.get()), refOpen, refTab, fbOpen]);
   if (!force && audDone && sig === audSig) return;
   audSig = sig; audDone = true;
   const mainEl = document.querySelector('main');
@@ -1601,14 +1880,18 @@ function fitAudience(force) {
   const header = document.querySelector('header');
   const fb = document.getElementById('frameBar');
   const cs = getComputedStyle(mainEl);
-  const chromeH = (header ? header.offsetHeight : 0) + (fb ? fb.offsetHeight : 0) + (parseFloat(cs.paddingBottom) || 0);
-  const naturalH = measureWorstScreenH() + chromeH;
+  /* 固定底栏的课时：main 的 padding-bottom 已经给固定栏让过位，再加一次栏高就是重复预留
+     （原来两者都算进 chrome，学生屏被白压一档）；句架区改成正常文档流后在 main 之后，
+     要把它的实测外高（含下外边距）算进来，否则文档会多出一个滚动条、第 4 条判据就挂了。 */
+  const fbH = fbOuterH();
+  const chromeH = (header ? header.offsetHeight : 0) + fbH + (parseFloat(cs.paddingBottom) || 0);
+  /* 按**当前活动页**定缩放（原来是全课最高的一屏 → 短页被无关长页连累）。 */
+  const naturalH = measureActiveScreenH() + chromeH;
   const vh = window.innerHeight;
   // 宽度不用管：观众屏的 main 是 max-width:none; width:100%，缩放多少都铺满整屏（和教师端同一套几何）。
   // 只按高度定比例，且上限 1 —— 放大反而会把版面挤窄、变高，得不偿失。
   let z = naturalH > 40 ? Math.min(1, (vh - 8) / naturalH) : 1;
   z = Math.max(0.55, Math.round(z * 100) / 100);
-  if (!force && audZoomApplied && z > audZoomApplied) z = audZoomApplied;  // 收消息时只降不升，尺寸稳定
   mainEl.style.zoom = z;
   // 自校正：解析公式会偏乐观（chrome 高度估不准），直接量 main 底边，还溢出就按比例再缩，最多 3 轮
   for (let i = 0; i < 3; i++) {
@@ -1620,6 +1903,7 @@ function fitAudience(force) {
     mainEl.style.zoom = z;
   }
   audZoomApplied = z;
+  reportDense(z, naturalH, '学生屏');
 }
 window.addEventListener('resize', () => scheduleAudFit(0, true));
 window.addEventListener('load', () => scheduleAudFit(0, true));   // 图片有真实高度后再定一次，否则量出来偏矮
@@ -1755,7 +2039,7 @@ if (!isAudience && location.hash.includes('present')) {
     document.body.classList.add('presenting');
     setStatus('wait', '未打开（点「打开观众屏」或用复制地址）');
     updateConsole();
-    setTimeout(() => { sessionMinZoom = 1; fitLeft(true); }, 200);
+    setTimeout(() => { manualZoom = null; fitLeft(true); }, 200);
   }, 300);
 }
 if (isAudience) {

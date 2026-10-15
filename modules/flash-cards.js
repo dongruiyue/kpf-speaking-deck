@@ -13,18 +13,31 @@
   const PIC = k => `<img class="picimg" src="${TK.img(k)}" alt="">`;
 
   function skeleton() {
+    /* 盖住 / 翻开 / 计时 / 计分收成一条紧凑的教师操作带（观众屏整块隐藏） */
     return `
   <div class="flash-grid" id="${P.ids.grid}"></div>
   <div id="${P.ids.cd}" style="display:none"></div>
-  <div class="score-team teacher-only">
-    ${P.scoreButtons.map(b => `<button class="${b.team === 'A' ? 'a' : 'b'}" data-${P.attr}="${b.team}">${b.label}</button>`).join('')}
-  </div>
-  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center" class="teacher-only">
+  <div class="flash-ops teacher-only">
+    <span class="flash-ops-label">教师操作</span>
     <button class="ghost-btn" id="${P.ids.cover}">${P.coverLabel}</button>
     <button class="ghost-btn" id="${P.ids.reveal}">${P.revealLabel}</button>
     <button class="ghost-btn" id="${P.ids.timer}">${TK.ICONS.timer} ${P.timerLabel}</button>
+    <span class="ops-sep"></span>
+    <span class="score-team">
+      ${P.scoreButtons.map(b => `<button class="${b.team === 'A' ? 'a' : 'b'}" data-${P.attr}="${b.team}">${b.label}</button>`).join('')}
+    </span>
   </div>
   <div class="rule-line">${P.rule}</div>`;
+  }
+
+  /* 列数标记：课时写 practice.cols 覆盖；缺省时 8 张卡按 4 列 × 2 行（小屏 2 列）——
+     原来 auto-fit 在 1280 宽排出 7+1，第二行孤零零一张卡。
+     只给 flash-cards 自己的网格加 .cols-4；mock-exam / pair-task / tool-pager 复用的
+     .flash-grid 不带这个标记，版式不受影响。 */
+  function applyCols() {
+    const grid = el('grid');
+    if (!grid) return;
+    grid.classList.toggle('cols-4', P.cols ? +P.cols === 4 : P.places.length === 8);
   }
 
   function buildGrid() {
@@ -51,6 +64,7 @@
   function render() {
     if (!S) return;
     if (el('grid').children.length !== P.places.length) buildGrid();
+    applyCols();
     P.places.forEach((_, i) => setCard(i, S.covered[i]));
   }
 
@@ -106,6 +120,7 @@
       S = S || { covered: P.places.map(() => false) };
       h.insertAdjacentHTML('afterbegin', skeleton());
       buildGrid();
+      applyCols();
       el('cover').onclick = () => coverAll(true, false);
       el('reveal').onclick = () => coverAll(false, false);
       el('timer').onclick = memory;
