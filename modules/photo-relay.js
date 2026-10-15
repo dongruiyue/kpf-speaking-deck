@@ -11,23 +11,32 @@ function photoRelayFactory() {
   let P = null, S = null;
   const el = n => document.getElementById(P.ids[n]);
 
+  /* 版式按 references/typography.md §八：① 轮到哪组 + 图说什么 → ② 照片 + 句架 → ③ 控件一行 → ④ 说明 */
   function skeleton() {
     return `
-  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center" class="teacher-only">
-    <button class="mega-btn" id="${P.ids.add}">${P.addLabel}</button>
-    <button class="ghost-btn" id="${P.ids.skip}">${P.skipLabel}</button>
-    <button class="ghost-btn" id="${P.ids.sw}">${P.switchLabel}</button>
-    <button class="ghost-btn" id="${P.ids.timer}">${TK.ICONS.timer} ${P.timerLabel}</button>
+  <div class="prac-set">
+    <div class="turn-label" id="${P.ids.turn}"></div>
+    <div class="big-sub" id="${P.ids.label}"></div>
   </div>
-  <div class="media-split">
-    <img id="${P.ids.photo}" alt="">
-    <div class="media-side">
-      <div class="big-sub" id="${P.ids.label}"></div>
-      ${(P.chips || []).map(row => `<div class="reminder-chips">${row.map(c => `<span>${c}</span>`).join('')}</div>`).join('')}
-      <div class="turn-label" id="${P.ids.turn}"></div>
+  <div class="prac-set">
+    <div class="media-split">
+      <img id="${P.ids.photo}" alt="">
+      <div class="media-side">
+        ${(P.chips || []).map(row => `<div class="reminder-chips">${row.map(c => `<span>${c}</span>`).join('')}</div>`).join('')}
+      </div>
     </div>
   </div>
-  <div class="rule-line">${P.rule}</div>`;
+  <div class="prac-set">
+    <div class="btn-row teacher-only">
+      <button class="mega-btn" id="${P.ids.add}">${P.addLabel}</button>
+      <button class="ghost-btn" id="${P.ids.skip}">${P.skipLabel}</button>
+      <button class="ghost-btn" id="${P.ids.sw}">${P.switchLabel}</button>
+      <button class="ghost-btn" id="${P.ids.timer}">${TK.ICONS.timer} ${P.timerLabel}</button>
+    </div>
+  </div>
+  <div class="prac-set">
+    <div class="rule-line">${P.rule}</div>
+  </div>`;
   }
 
   function render() {
@@ -39,7 +48,7 @@ function photoRelayFactory() {
     }
     const t = el('turn');
     t.textContent = `${P.turnPrefix}${S.turn}${P.turnSuffix}`;
-    t.style.color = S.turn === 'A' ? 'var(--teal)' : 'var(--terra-ink)';
+    t.style.color = S.turn === 'A' ? 'var(--c-team-a)' : 'var(--c-team-b)';
   }
 
   const emit = t => TK.broadcast({ t, ...(t === P.msg.switch ? { idx: S.idx } : { turn: S.turn }) });

@@ -216,6 +216,15 @@ def main():
     mod_src = '\n\n'.join('/* ================= modules/%s.js ================= */\n%s' % (n, s.rstrip('\n'))
                           for n, s in mods)
 
+    # 注入前先确认外壳里**该有的标记都在**：只查残留会漏掉「标记被删掉」这种情形 ——
+    # 2026-10-15 排版改造时外壳丢了 /*==LESSON_CSS==*/，课时级 CSS 静默失效却没有任何报错。
+    SHELL_MARKERS = ['__LESSON_TITLE__', '/*==LESSON_CSS==*/', '<!--==LESSON_HTML==-->',
+                     '/*==MODULES==*/', '/*==LESSON_DATA==*/']
+    gone = [m for m in SHELL_MARKERS if m not in shell]
+    if gone:
+        raise SystemExit('外壳缺少注入标记：%s —— 这些标记是 build.py 的接口，'
+                         '删掉会让对应内容静默丢失' % ', '.join(gone))
+
     out = shell
     out = out.replace('__LESSON_TITLE__', meta['docTitle'])
     out = out.replace('/*==LESSON_CSS==*/', css)

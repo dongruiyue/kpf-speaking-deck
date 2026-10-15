@@ -25,57 +25,76 @@ function drawQuestionFactory() {
   const ATTR = k => (k ? 'data-' + k.replace(/([A-Z])/g, '-$1').toLowerCase() : 'data-none');
   const q = k => document.querySelectorAll('[' + ATTR(k) + ']');
 
-  /* ---------------- 静态骨架：只建一次 ---------------- */
+  /* ---------------- 静态骨架：只建一次 ----------------
+     版式按 references/typography.md §八：一条左轴；四组纵向顺序
+     ① 内容（题目 + 次要信息）→ ② 素材 / 选项 → ③ 教学控件（**一行** .btn-row）→ ④ 计分与说明。
+     三个分支的组序一致，只有组内元素不同。 */
   function skeleton() {
     const chips = (P.chips || []).map(row =>
       `<div class="reminder-chips">${row.map(c => `<span>${c}</span>`).join('')}</div>`).join('');
     if (P.layout === 'plain') {
       return `
-  <div class="sentence" id="${id('box')}" style="display:none"></div>
-  <div class="big-word" id="${id('topic')}" style="font-size:clamp(20px,2.8vw,30px)">${P.emptyText}</div>
-  ${chips}
-  <div class="teacher-only" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-    <button class="mega-btn" id="${id('draw')}">${P.drawLabel}</button>
-    ${P.timer ? `<button class="ghost-btn" id="${id('timer')}">${TK.ICONS.timer} ${P.timer.label}</button>` : ''}
+  <div class="prac-set">
+    <div class="question" id="${id('box')}" style="display:none"></div>
+    <div class="big-word" id="${id('topic')}">${P.emptyText}</div>
   </div>
-  <div class="score-team teacher-only">${(P.scoreButtons || []).map(b =>
-    `<button class="${b.team === 'A' ? 'a' : 'b'}" data-${P.scoreAttr}="${b.team}">${b.label}</button>`).join('')}</div>
-  <div class="rule-line">${P.rule}</div>`;
+  ${chips ? `<div class="prac-set">${chips}</div>` : ''}
+  <div class="prac-set">
+    <div class="btn-row teacher-only">
+      <button class="mega-btn" id="${id('draw')}">${P.drawLabel}</button>
+      ${P.timer ? `<button class="ghost-btn" id="${id('timer')}">${TK.ICONS.timer} ${P.timer.label}</button>` : ''}
+    </div>
+  </div>
+  <div class="prac-set">
+    <div class="score-team teacher-only">${(P.scoreButtons || []).map(b =>
+      `<button class="${b.team === 'A' ? 'a' : 'b'}" data-${P.scoreAttr}="${b.team}">${b.label}</button>`).join('')}</div>
+    <div class="rule-line">${P.rule}</div>
+  </div>`;
     }
     /* questionFirst：题目占主区第一焦点，句架默认折叠、由教师单独展开（见 render / toggleFrames）。
-       课时不写这个开关时，输出与原来逐字节一致（FCE p1、示例课都走这条老路）。 */
+       课时不写这个开关时，输出与原来只有容器差异（FCE p1、示例课都走这条老路）。 */
     if (P.questionFirst) {
       return `
-  <div class="teacher-only" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-    <button class="mega-btn" id="${id('draw')}">${P.drawLabel}</button>
+  <div class="prac-set">
+    <div class="dq-q" id="${id('box')}"></div>
+    <div class="turn-label dq-turn" id="${id('turn')}"></div>
   </div>
-  <div class="dq-q" id="${id('box')}"></div>
-  <div class="turn-label dq-turn" id="${id('turn')}"></div>
-  <div class="frames-toggle teacher-only">
-    <button class="ghost-btn" data-frames-toggle="1" aria-expanded="false">${P.framesShowLabel}</button>
+  <div class="prac-set">
+    <div class="stepcard" id="${id('steps')}">${(P.cards || []).map((c, i) =>
+      TK.stepRow(i === 0 ? P.badge : '', P.nos[i], c.t, c.cn, c.frames, `data-${P.cardAttr}`, i,
+        { framesOn: S && S.framesOn })).join('')}</div>
   </div>
-  <div class="stepcard" id="${id('steps')}">${(P.cards || []).map((c, i) =>
-    TK.stepRow(i === 0 ? P.badge : '', P.nos[i], c.t, c.cn, c.frames, `data-${P.cardAttr}`, i,
-      { framesOn: S && S.framesOn })).join('')}</div>
-  <div class="teacher-only" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-    <button class="ghost-btn" id="${id('sw')}">${P.switchLabel}</button>
-    <button class="ghost-btn" id="${id('reset')}">${P.resetLabel}</button>
+  <div class="prac-set">
+    <div class="btn-row teacher-only">
+      <button class="mega-btn" id="${id('draw')}">${P.drawLabel}</button>
+      <button class="ghost-btn" data-frames-toggle="1" aria-expanded="false">${P.framesShowLabel}</button>
+      <button class="ghost-btn" id="${id('sw')}">${P.switchLabel}</button>
+      <button class="ghost-btn" id="${id('reset')}">${P.resetLabel}</button>
+    </div>
   </div>
-  <div class="rule-line">${P.rule}</div>`;
+  <div class="prac-set">
+    <div class="rule-line">${P.rule}</div>
+  </div>`;
     }
     return `
-  <div class="turn-label" id="${id('turn')}"></div>
-  <div class="teacher-only" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-    <button class="mega-btn" id="${id('draw')}">${P.drawLabel}</button>
+  <div class="prac-set">
+    <div class="turn-label" id="${id('turn')}"></div>
+    <div class="q-bar" id="${id('box')}"></div>
   </div>
-  <div class="q-bar" id="${id('box')}"></div>
-  <div class="stepcard" id="${id('steps')}">${(P.cards || []).map((c, i) =>
-    TK.stepRow(i === 0 ? P.badge : '', P.nos[i], c.t, c.cn, c.frames, `data-${P.cardAttr}`, i)).join('')}</div>
-  <div class="teacher-only" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-    <button class="ghost-btn" id="${id('sw')}">${P.switchLabel}</button>
-    <button class="ghost-btn" id="${id('reset')}">${P.resetLabel}</button>
+  <div class="prac-set">
+    <div class="stepcard" id="${id('steps')}">${(P.cards || []).map((c, i) =>
+      TK.stepRow(i === 0 ? P.badge : '', P.nos[i], c.t, c.cn, c.frames, `data-${P.cardAttr}`, i)).join('')}</div>
   </div>
-  <div class="rule-line">${P.rule}</div>`;
+  <div class="prac-set">
+    <div class="btn-row teacher-only">
+      <button class="mega-btn" id="${id('draw')}">${P.drawLabel}</button>
+      <button class="ghost-btn" id="${id('sw')}">${P.switchLabel}</button>
+      <button class="ghost-btn" id="${id('reset')}">${P.resetLabel}</button>
+    </div>
+  </div>
+  <div class="prac-set">
+    <div class="rule-line">${P.rule}</div>
+  </div>`;
   }
 
   /* ---------------- 纯渲染：幂等，不重置滚动 ---------------- */
@@ -115,14 +134,14 @@ function drawQuestionFactory() {
     if (P.questionFirst) {
       const tg = document.querySelector('[data-frames-toggle]');
       if (tg) {
-        tg.textContent = S.framesOn ? (P.framesHideLabel || '收起句架 Hide frames') : (P.framesShowLabel || '显示句架 Show frames');
+        tg.textContent = S.framesOn ? (P.framesHideLabel || '收起句架') : (P.framesShowLabel || '显示句架');
         tg.setAttribute('aria-expanded', S.framesOn ? 'true' : 'false');
       }
       document.querySelectorAll('.st-frames[data-frames]').forEach(f => { f.dataset.frames = S.framesOn ? 'on' : 'off'; });
     }
     const tl = el('turn');
     tl.textContent = S.done ? P.doneText : `${P.turnPrefix}${S.turn}${drawn ? P.turnSuffix : ''}`;
-    tl.style.color = S.done ? 'var(--green)' : (S.turn === 'A' ? 'var(--teal)' : 'var(--terra-ink)');
+    tl.style.color = S.done ? 'var(--c-ok)' : (S.turn === 'A' ? 'var(--c-team-a)' : 'var(--c-team-b)');
     el('draw').textContent = drawn ? P.nextLabel : P.drawLabel;
   }
 

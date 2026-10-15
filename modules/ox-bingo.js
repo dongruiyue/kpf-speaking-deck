@@ -11,13 +11,24 @@ function oxBingoFactory() {
   const el = n => document.getElementById(P.ids[n]);
   const PIC = k => `<img class="picimg" src="${TK.img(k)}" alt="">`;
 
+  /* 版式按 references/typography.md §八：① 轮到哪组 → ② 棋盘 → ③ 控件一行 → ④ 胜负 + 说明 */
   function skeleton() {
     return `
-  <div class="turn-label" id="${P.ids.turn}"></div>
-  <div class="bingo-grid3" id="${P.ids.grid}"></div>
-  <div id="${P.ids.win}"></div>
-  <button class="ghost-btn teacher-only" id="${P.ids.reset}">${P.resetLabel}</button>
-  <div class="rule-line">${P.rule}</div>`;
+  <div class="prac-set">
+    <div class="turn-label" id="${P.ids.turn}"></div>
+  </div>
+  <div class="prac-set">
+    <div class="bingo-grid3" id="${P.ids.grid}"></div>
+  </div>
+  <div class="prac-set">
+    <div class="btn-row teacher-only">
+      <button class="ghost-btn" id="${P.ids.reset}">${P.resetLabel}</button>
+    </div>
+  </div>
+  <div class="prac-set">
+    <div id="${P.ids.win}"></div>
+    <div class="rule-line">${P.rule}</div>
+  </div>`;
   }
 
   function render() {
@@ -41,14 +52,14 @@ function oxBingoFactory() {
   function updateTurn() {
     const label = el('turn');
     label.textContent = S.done ? '' : (S.turn === 'A' ? P.turnA : P.turnB);
-    label.style.color = S.turn === 'A' ? 'var(--teal)' : 'var(--terra)';
+    label.style.color = S.turn === 'A' ? 'var(--c-team-a)' : 'var(--c-team-b)';
   }
 
   function renderWin() {
     const w = S.winner;
     el('win').innerHTML = w
-      ? `<div class="win-banner">Team ${w} makes a line! +2 · ${w} 组连线成功！</div>`
-      : `<div class="win-banner">It's a draw! · 格子占满，平局！</div>`;
+      ? `<div class="win-banner">Team ${w} makes a line! +2<span class="cn-line">${w} 组连线成功，加 2 分</span></div>`
+      : `<div class="win-banner">It's a draw!<span class="cn-line">格子占满，平局</span></div>`;
   }
 
   /* quiet=true 是「收到广播」这条路径：用同一套判定重算局面，但绝不再本地计分（铁律 2）；

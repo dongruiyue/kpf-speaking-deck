@@ -27,7 +27,7 @@
     } catch (e) {
       return `<div class="dk-blk" style="border-left:3px solid var(--terra);color:var(--terra-ink)">`
         + `⚠ 这一页有个「${(b && b.type) || '未知'}」块没渲染出来：${String((e && e.message) || e)}`
-        + `　—— 检查 lessons 数据里这个块的字段</div>`;
+        + ` —— 检查 lessons 数据里这个块的字段</div>`;
     }
   }
 
@@ -53,7 +53,7 @@
         + `<ul class="ov-list">${d.items.map(x => `<li>${x}</li>`).join('')}</ul></div>`).join('')}</div>`
         + (b.foot ? `<div class="dk-cn ov-foot">${b.foot}</div>` : '');
       case 'keytips': return `<div class="deck-keytips">${b.items.map((t, i) =>
-        `<div class="dk-tip"><span class="dk-tn">Tip ${i + 1}</span>`
+        `<div class="dk-tip"><span class="dk-tn">${i + 1}.</span>`
         + `<span><span class="dk-te">${t.en}</span><span class="dk-tc">${t.cn}</span></span></div>`).join('')}</div>`;
       case 'quote': return `<div class="deck-quote">`
         + `${b.label ? `<div class="dk-cn">${b.label}</div>` : ''}`

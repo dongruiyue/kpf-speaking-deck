@@ -10,7 +10,7 @@
  * 冠军页由外壳自动生成；台账默认收录全部带 practice 的环节（p1–p4）。
  */
 
-const LESSON_META = {"theme": "pf", "title": "示例课 PET · Reading Habits 阅读习惯", "docTitle": "示例课 PET · 阅读习惯 · Speaking 课堂工具", "subtitle": "Sample lesson · 阅读习惯 · Interview / Picture / Collaborative / Discussion", "channel": "sample-pet-v1", "keyPrefix": "samplepet", "folder": "sample-pet", "port": 8822, "launcher": "启动示例课-PET.command", "outFile": "示例课-PET-阅读习惯.html", "imgNote": "0 张照片；Part 2/3 配图是代码绘制的原创示意插画", "dashTitle": "示例课 PET · 阅读习惯 · 上课流程", "dashSub": "上课顺序：先走「0. Overview 总览」弄清四个 Part 考什么、今天怎么练，再 Part 1 → 2 → 3 → 4 逐个走——每个 Part 先讲解、再练习，练完回看要点闭环。计分写在每个环节里，总分课末汇总。按 P 进入演讲者模式。", "deckHint": "讲义一页一件事，用底部「← 上一页 / 下一页 →」翻，翻页会同步到投影；练习时句架挂在屏幕底部。", "pracHint": "练完回看要点，这个 Part 就在这里闭环。", "homeTip": "<b>主页：</b>先点「0. Overview 总览」把今天的路线说清楚，再 Part 1 → 2 → 3 → 4 逐个走——每个 Part 都是先讲解规律、再进练习，练完回看要点闭环。", "homeTalkEn": "Today our topic is reading habits, and we practise all four speaking parts.", "homeTalkCn": "今天的话题是阅读习惯，四个 Part 各练一遍", "frameNote": {"mod": "这个 Part 的句架 · 练习时抬头就能看", "general": "通用句架 · 每个 Part 都用得上"}, "frameDefault": "intro"};
+const LESSON_META = {"theme": "pf", "title": "示例课 PET · Reading Habits 阅读习惯", "docTitle": "示例课 PET · 阅读习惯 · Speaking 课堂工具", "subtitle": "示例课 · 阅读习惯 · Interview / Picture / Collaborative / Discussion", "channel": "sample-pet-v1", "keyPrefix": "samplepet", "folder": "sample-pet", "port": 8822, "launcher": "启动示例课-PET.command", "outFile": "示例课-PET-阅读习惯.html", "imgNote": "0 张照片；Part 2/3 配图是代码绘制的原创示意插画", "dashTitle": "示例课 PET · 阅读习惯 · 上课流程", "dashSub": "上课顺序：先走「0. 总览」弄清四个 Part 考什么、今天怎么练，再按 Part 1 → 2 → 3 → 4 逐个走。每个 Part 先讲解、再练习，练完回看要点闭环。计分写在每个环节里，总分课末汇总。按 P 进入演讲者模式。", "deckHint": "讲义一页一件事，用底部「← 上一页 / 下一页 →」翻，翻页会同步到投影；练习时句架挂在屏幕底部。", "pracHint": "练完回看要点，这个 Part 就在这里闭环。", "homeTip": "<b>主页：</b>先点「0. 总览」把今天的路线说清楚，再按 Part 1 → 2 → 3 → 4 逐个走。每个 Part 都是先讲解规律、再进练习，练完回看要点闭环。", "homeTalkEn": "Today our topic is reading habits, and we practise all four speaking parts.", "homeTalkCn": "今天的话题是阅读习惯，四个 Part 各练一遍", "frameNote": {"mod": "这个 Part 的句架 · 练习时抬头就能看", "general": "通用句架 · 每个 Part 都用得上"}, "frameDefault": "intro", "frameBar": {"suppress": ["p2", "p3"]}};
 
 const LESSON = (() => {
 
@@ -79,11 +79,11 @@ const PART_LESSON = {
       `回答时看着考官或搭档，<b>保持眼神交流</b>。`,
     ],
     lang: [
-      { t: '补细节 · Actually / Also', i: `I'm 14. <b>Actually</b>, my birthday is next week.`, e: '补一个别人不知道的细节，回答马上变长。' },
-      { t: '对比 · but', i: `I like stories, <b>but</b> I don't often have time to read.`, e: '先肯定、再转折，最自然的加长办法。' },
-      { t: '原因 · because / so', i: `I like the school library <b>because</b> it is quiet and full of comics.`, e: '一个观点 + 一个理由，考官最想听的结构。' },
-      { t: '举例 · For example', i: `I read a lot of magazines. <b>For example</b>, a science magazine about animals.`, e: '想不出理由的时候，就举一个例子。' },
-      { t: '频率 · usually / often / sometimes', i: `I <b>usually</b> read before bed.　I <b>often</b> read on the bus.`, e: '习惯类问题用频率副词开头最稳。' },
+      { t: '补细节', i: `I'm 14. <b>Actually</b>, my birthday is next week.`, e: '补一个别人不知道的细节，回答马上变长。' },
+      { t: '对比', i: `I like stories, <b>but</b> I don't often have time to read.`, e: '先肯定、再转折，最自然的加长办法。' },
+      { t: '原因', i: `I like the school library <b>because</b> it is quiet and full of comics.`, e: '一个观点 + 一个理由，考官最想听的结构。' },
+      { t: '举例', i: `I read a lot of magazines. <b>For example</b>, a science magazine about animals.`, e: '想不出理由的时候，就举一个例子。' },
+      { t: '频率', i: `I <b>usually</b> read before bed. · I <b>often</b> read on the bus.`, e: '习惯类问题用频率副词开头最稳。' },
     ],
     samples: [
       { q: 'Do you like reading? Why? / Why not?', a: `Yes, I do. I like reading <b>because</b> stories take me to new worlds. <b>For example</b>, last week I read a book about a boy who sailed around the world alone.` },
@@ -94,16 +94,16 @@ const PART_LESSON = {
   p2: {
     notes: [
       `按顺序说：<b>先整体、再细节</b>——谁在图里、在哪里、在做什么。`,
-      `说"有什么"用 <b>there is / there are</b>；说动作和穿着用<b>现在进行时</b>。`,
+      `说「有什么」用 <b>there is / there are</b>；说动作和穿着用<b>现在进行时</b>。`,
       `位置词让描述有层次：<b>on the left / in the background / next to</b>。`,
       `叫不出名字的东西就猜：<b>It looks like a …</b> / <b>Maybe it's a …</b>`,
       `说错不要停，<b>自我纠正</b>之后接着说。`,
     ],
     lang: [
-      { t: '开头 · 看到什么', i: `<b>In this picture I can see</b> …　<b>There's a</b> … / <b>There are some</b> …`, e: '' },
+      { t: '开头 · 看到什么', i: `<b>In this picture I can see</b> … · <b>There's a</b> … / <b>There are some</b> …`, e: '' },
       { t: '在哪里 · 位置', i: `on the left / right · <b>in the background</b> · in the middle · next to · behind · between`, e: '' },
-      { t: '人和动作 · 现在进行时', i: `She <b>is reading</b> a book.　He <b>is wearing</b> a blue T-shirt.　They <b>are sitting</b> …`, e: '' },
-      { t: '猜测 · 拿不准就这么说', i: `<b>It looks like</b> …　<b>Maybe</b> it's …　<b>It's probably</b> …`, e: '' },
+      { t: '人和动作 · 现在进行时', i: `She <b>is reading</b> a book. · He <b>is wearing</b> a blue T-shirt. · They <b>are sitting</b> …`, e: '' },
+      { t: '猜测 · 拿不准就这么说', i: `<b>It looks like</b> … · <b>Maybe</b> it's … · <b>It's probably</b> …`, e: '' },
     ],
     samples: [
       { q: 'Picture B — It shows a boy reading under a tree.', a: `In this picture I can see a boy in a park. He <b>is sitting</b> under a big tree and he <b>is reading</b> a book. He <b>is wearing</b> a blue T-shirt. <b>In the background</b>, I can see the sun and some birds. <b>It's probably</b> a warm afternoon.` },
@@ -119,10 +119,10 @@ const PART_LESSON = {
       `最后必须<b>一起说出决定</b>，并各给一个理由。`,
     ],
     lang: [
-      { t: '提建议', i: `<b>What about</b> a comic book?　<b>How about</b> …?　<b>I think he should take</b> …`, e: '' },
-      { t: '问 / 给意见', i: `<b>What do you think?</b>　Do you agree?　<b>In my opinion</b> …`, e: '' },
-      { t: '同意 / 不同意', i: `<b>That's true.</b>　<b>I agree with you.</b>　<b>I'm not sure about that because</b> …`, e: '' },
-      { t: '收尾 · 达成一致', i: `<b>OK, so we agree</b> — let's choose …　<b>Are you OK with that?</b>　Yes, <b>let's go for it</b>.`, e: '' },
+      { t: '提建议', i: `<b>What about</b> a comic book? · <b>How about</b> …? · <b>I think he should take</b> …`, e: '' },
+      { t: '问、给意见', i: `<b>What do you think?</b> · Do you agree? · <b>In my opinion</b> …`, e: '' },
+      { t: '同意、不同意', i: `<b>That's true.</b> · <b>I agree with you.</b> · <b>I'm not sure about that because</b> …`, e: '' },
+      { t: '收尾 · 达成一致', i: `<b>OK, so we agree</b> — let's choose … · <b>Are you OK with that?</b> · Yes, <b>let's go for it</b>.`, e: '' },
     ],
     samples: [
       { q: 'Leo can take ONE thing to read for a week without internet. Decide together.', a: `A: <b>What about</b> a long novel? A week is a long time.<br>B: <b>I'm not sure about that because</b> he might finish it in two days. <b>How about</b> a puzzle and quiz book?<br>A: Puzzles are fun, <b>but</b> once you finish one, you can't do it again. <b>I think</b> the comic book is better — he can read it many times.<br>B: <b>That's true.</b> <b>OK, so we agree</b> — let's choose the comic book.` },
@@ -138,10 +138,10 @@ const PART_LESSON = {
       `换着词说，展示<b>词汇和句型的多样性</b>。`,
     ],
     lang: [
-      { t: '给观点', i: `<b>I think</b> …　<b>In my opinion</b> …　<b>For me</b>, …`, e: '' },
-      { t: '加理由 / 举例', i: `… <b>because</b> …　… <b>so</b> …　<b>For example</b>, …`, e: '' },
-      { t: '回应同伴', i: `<b>I agree with you, and I also think</b> …　<b>I see your point, but</b> …`, e: '' },
-      { t: '比较 / 让步 · 提分句', i: `Paper books are <b>better than</b> screens for me.　<b>Although</b> e-books are handy, I still …`, e: '' },
+      { t: '给观点', i: `<b>I think</b> … · <b>In my opinion</b> … · <b>For me</b>, …`, e: '' },
+      { t: '加理由、举例', i: `… <b>because</b> … · … <b>so</b> … · <b>For example</b>, …`, e: '' },
+      { t: '回应同伴', i: `<b>I agree with you, and I also think</b> … · <b>I see your point, but</b> …`, e: '' },
+      { t: '比较、让步 · 提分句', i: `Paper books are <b>better than</b> screens for me. · <b>Although</b> e-books are handy, I still …`, e: '' },
     ],
     samples: [
       { q: 'Which do you prefer, reading a book or watching the film of the book? (Why?)', a: `<b>I prefer reading the book because</b> the pictures in my head are usually better than the film. <b>Also</b>, I can stop and think whenever I want, <b>so</b> I understand the story more deeply.` },
@@ -161,9 +161,9 @@ const FRAME_BAR = {
 };
 
 const STEPS = [
-  { id: 'intro', n: 0, label: 'Overview 总览', icon: 'grid', time: '4 分钟', kind: '总览 · 先说清楚', tier: 'core', tierText: '总览',
+  { id: 'intro', n: 0, label: '总览', icon: 'grid', time: '4 分钟', kind: '总览 · 先说清楚', tier: 'core', tierText: '总览',
     d: '先把四个 Part 考什么、今天怎么练讲清楚，再一个一个过。',
-    tip: '<b>这一页的作用：</b>不是玩，是把「考试长什么样、今天怎么练」立起来，后面每个 Part 才有落点。<br><b>讲法：</b>四页翻着讲：① 四个 Part ② 考官想看什么 ③ 上课方式与计分 ④ 四个评分维度。让学生自己念出来，别你一个人讲。<br><b>收尾：</b>带读三条总纲（Say more / Talk together / Keep going）——这是全课的钩子，后面每练完一个 Part 回来对一次号。',
+    tip: '<b>这一页的作用：</b>不是玩，是把「考试长什么样、今天怎么练」立起来，后面每个 Part 才有落点。<br><b>讲法：</b>四页翻着讲：1. 四个 Part；2. 考官想看什么；3. 上课方式与计分；4. 四个评分维度。让学生自己念出来，别你一个人讲。<br><b>收尾：</b>带读三条总纲——这是全课的钩子，后面每练完一个 Part 回来对一次号。',
     talk: [
       { en: `Today our topic is reading habits, and we practise all four speaking parts.`, cn: `明确主题与路线` },
       { en: `Part 1 is about you. Part 2 is a long turn with a picture. What about Parts 3 and 4?`, cn: `让学生自己说出后两个 Part 的形式` },
@@ -173,10 +173,10 @@ const STEPS = [
     lesson: [
       { title: '这节课要走的四个 Part', blocks: [
         { type: 'kv', rows: [
-          { k: 'Part 1', v: 'Interview 问答 · 聊你自己和阅读习惯', t: '<b>约 2 分钟</b>' },
-          { k: 'Part 2', v: 'Picture 看图长描述 · 一个人说满', t: '<b>每人约 1 分钟</b>' },
-          { k: 'Part 3', v: 'Collaborative 协作讨论 · 一起做个决定', t: '<b>约 2–3 分钟</b>' },
-          { k: 'Part 4', v: 'Discussion 话题深入 · 说你的观点', t: '<b>约 3 分钟</b>' },
+          { k: 'Part 1', v: '问答· 聊你自己和阅读习惯', t: '<b>约 2 分钟</b>' },
+          { k: 'Part 2', v: '看图长描述· 一个人说满', t: '<b>每人约 1 分钟</b>' },
+          { k: 'Part 3', v: '协作讨论· 一起做个决定', t: '<b>约 2–3 分钟</b>' },
+          { k: 'Part 4', v: '话题深入· 说你的观点', t: '<b>约 3 分钟</b>' },
         ] },
         { type: 'text', lines: [['cn', '四个 Part 连着来，中间不换搭档；今天所有题目都围着「阅读习惯」转。']] },
       ] },
@@ -189,7 +189,7 @@ const STEPS = [
       ] },
       { title: '这节课怎么上 · 怎么计分', blocks: [
         { type: 'steps', items: [
-          '每个 Part 先【讲解】看规律，再进【练习】上手',
+          '每个 Part 先看「讲解」的规律，再进「练习」上手',
           '练习里答得好 / 讨论成功就加分，规则写在每个环节页面底部',
           '总分课末在「总冠军」页汇总，看看今天哪组更会说',
         ] },
@@ -205,36 +205,36 @@ const STEPS = [
         ], foot: '这节课每练完一个 Part，回来对一次号：我刚才做到了哪一条？' },
       ] },
     ] },
-  { id: 'p1', n: 1, label: 'Part 1 · Interview', icon: 'chat', time: '8 分钟', kind: '讲 3 分钟 + 练 5 分钟', tier: 'core', tierText: '核心',
+  { id: 'p1', n: 1, label: 'Part 1 问答', icon: 'chat', time: '8 分钟', kind: '讲 3 分钟 + 练 5 分钟', tier: 'core', tierText: '核心',
     d: '先讲 Part 1 规律，再抽题问答——用上「拓展三法」就加分。',
-    tip: '<b>① 先讲解（约 3 分钟）：</b>规律页重点砸在「<b>不能只答一个词</b>」；句架页让学生用 Actually / but / because / For example 当场造句；示范页读一遍，让学生听到「变长」是什么样。<br><b>② 再练习（约 5 分钟）：</b>抽题 → 学生答 → 答出「观点 + 原因/例子」就点该组 <b>+1</b>。Phase 1 基本信息别拖太久，Phase 2 阅读习惯才是主战场。<br><b>③ 闭环：</b>回到讲解页，让学生自己说出三条要点。',
+    tip: '<b>1. 先讲解（约 3 分钟）：</b>规律页重点砸在「<b>不能只答一个词</b>」；句架页让学生用 Actually / but / because / For example 当场造句；示范页读一遍，让学生听到「变长」是什么样。<br><b>2. 再练习（约 5 分钟）：</b>抽题 → 学生答 → 答出「观点 + 原因/例子」就点该组 <b>+1</b>。Phase 1 基本信息别拖太久，Phase 2 阅读习惯才是主战场。<br><b>3. 闭环：</b>回到讲解页，让学生自己说出三条要点。',
     talk: [
       { en: `Part 1 is an interview about you. Rule number one: never answer with just one word.`, cn: `讲第一条规律` },
       { en: `Add one more sentence with "actually", "but", "because" or "for example". Try one now.`, cn: `让学生用拓展三法造句` },
       { en: `Time to practise. Draw a question and answer in full sentences.`, cn: `切到练习，抽题` },
       { en: `Good — you gave a reason. One point! Now ask your partner: what about you?`, cn: `加分 + 提醒把问题抛回同伴` },
     ] },
-  { id: 'p2', n: 2, label: 'Part 2 · Picture 描述', icon: 'cards', time: '9 分钟', kind: '讲 4 分钟 + 练 5 分钟', tier: 'core', tierText: '核心',
+  { id: 'p2', n: 2, label: 'Part 2 图片描述', icon: 'cards', time: '9 分钟', kind: '讲 4 分钟 + 练 5 分钟', tier: 'core', tierText: '核心',
     d: '先讲怎么按顺序描述一张图，再两组轮流加一句，不许重复。',
-    tip: '<b>① 先讲解（约 4 分钟）：</b>「先整体后细节」和两种时态的分工（there is vs 现在进行时）要讲透；句架页带读一遍；示范页以 Picture B 为样例。<br><b>② 再练习（约 5 分钟）：</b>两组轮流加一句，每句必须是新信息——加一句该组 <b>+1</b> 并自动换手；重复或卡住点「Skip 不得分·换手」。每张图约 1 分钟。<br><b>素材说明：</b>示例课不放照片，两张配图是代码绘制的原创插画，描述方法和照片题完全一致。<br><b>③ 闭环：</b>问「刚才哪一句用了现在进行时？」',
+    tip: '<b>1. 先讲解（约 4 分钟）：</b>「先整体后细节」和两种时态的分工（there is vs 现在进行时）要讲透；句架页带读一遍；示范页以 Picture B 为样例。<br><b>2. 再练习（约 5 分钟）：</b>两组轮流加一句，每句必须是新信息——加一句该组 <b>+1</b> 并自动换手；重复或卡住点「换手（不得分）」。每张图约 1 分钟。<br><b>素材说明：</b>示例课不放照片，两张配图是代码绘制的原创插画，描述方法和照片题完全一致。<br><b>3. 闭环：</b>问「刚才哪一句用了现在进行时？」',
     talk: [
       { en: `Part 2 is your long turn: describe the picture from the general idea to the details.`, cn: `讲描述顺序` },
       { en: `Use "there is" and "there are" for things. Use the present continuous for actions and clothes.`, cn: `讲两种时态的分工` },
       { en: `Teams take turns. One new sentence each time — no repeats!`, cn: `切练习，讲接龙规则` },
       { en: `Look at the background, the clothes, the colours. What else can you see?`, cn: `用维度提示推进` },
     ] },
-  { id: 'p3', n: 3, label: 'Part 3 · Collaborative', icon: 'pair', time: '9 分钟', kind: '讲 4 分钟 + 练 5 分钟', tier: 'core', tierText: '核心',
+  { id: 'p3', n: 3, label: 'Part 3 协作讨论', icon: 'pair', time: '9 分钟', kind: '讲 4 分钟 + 练 5 分钟', tier: 'core', tierText: '核心',
     d: '先讲协商话术，再帮 Leo 选一周要带的读物，最后达成一致。',
-    tip: '<b>① 先讲解（约 4 分钟）：</b>五条规律里最容易被忽略的是「每个选项都聊到」和「最后说出决定」；句架页带读一遍；示范对话请两个学生分角色念。<br><b>② 再练习（约 5 分钟）：</b>读情境 → 2 分钟计时 → 点选项记录进度（点一次 = 讨论过，再点一次 = 定为决定）→ 点「Agree!」双方各 <b>+2</b>。<br><b>③ 闭环：</b>问「刚才哪一句是在问同伴意见？」',
+    tip: '<b>1. 先讲解（约 4 分钟）：</b>五条规律里最容易被忽略的是「每个选项都聊到」和「最后说出决定」；句架页带读一遍；示范对话请两个学生分角色念。<br><b>2. 再练习（约 5 分钟）：</b>读情境 → 点「计时 2 分钟」→ 点选项记录进度（点一次：讨论过；再点一次：定为决定）→ 点「达成一致」，双方各 <b>+2</b>。<br><b>3. 闭环：</b>问「刚才哪一句是在问同伴意见？」',
     talk: [
       { en: `Part 3: you and your partner decide together. Two minutes.`, cn: `讲 Part 3 形式` },
       { en: `Every suggestion needs a reason. Then ask: what do you think?`, cn: `讲「建议 + 原因 + 问同伴」` },
       { en: `Don't decide too early — talk about every option first.`, cn: `提醒所有选项都聊到` },
       { en: `OK, it's time to decide. Which one, and why?`, cn: `引导达成一致并加分` },
     ] },
-  { id: 'p4', n: 4, label: 'Part 4 · Discussion', icon: 'mic', time: '8 分钟', kind: '讲 3 分钟 + 练 5 分钟', tier: 'core', tierText: '核心',
+  { id: 'p4', n: 4, label: 'Part 4 话题问答', icon: 'mic', time: '8 分钟', kind: '讲 3 分钟 + 练 5 分钟', tier: 'core', tierText: '核心',
     d: '先讲观点表达规律，再抽题轮流答，答好加分；可揭晓范文对照。',
-    tip: '<b>① 先讲解（约 3 分钟）：</b>重点是「观点 + 原因 + 例子」和「先回应再说自己」；句架页带读；范文读一篇作示范。<br><b>② 再练习（约 5 分钟）：</b>抽题 → A 组答 → B 组补充或反驳 → 点「Show Model」对照范文，答好一次该组 <b>+1</b>。<br><b>③ 闭环：</b>问「你的回答里有没有 example？」',
+    tip: '<b>1. 先讲解（约 3 分钟）：</b>重点是「观点 + 原因 + 例子」和「先回应再说自己」；句架页带读；范文读一篇作示范。<br><b>2. 再练习（约 5 分钟）：</b>抽题 → A 组答 → B 组补充或反驳 → 点「看范文」对照，答好一次该组 <b>+1</b>。<br><b>3. 闭环：</b>问「你的回答里有没有 example？」',
     talk: [
       { en: `Part 4 keeps the same topic — reading — but now you give your own opinions.`, cn: `说明 Part 4 是话题深入` },
       { en: `A full answer has three parts: opinion, reason, example.`, cn: `讲「观点 + 原因 + 例子」` },
@@ -247,9 +247,9 @@ const STEPS = [
 ['p1', 'p2', 'p3', 'p4'].forEach((id, k) => {
   const p = PART_LESSON[id];
   STEPS[k + 1].lesson = [
-    { title: '① 做题规律 · 注意事项', blocks: [{ type: 'notes', h: '① 做题规律 · 注意事项', items: p.notes }] },
-    { title: '② 应对方案 · Key language', blocks: [{ type: 'langroups', h: '② 应对方案 · Key language', groups: p.lang }] },
-    { title: '③ 开口示范 · Sample answer', blocks: [{ type: 'samples', h: '③ 开口示范 · Sample answer', items: p.samples }] },
+    { title: '做题规律', blocks: [{ type: 'notes', h: '做题规律 · 注意事项', items: p.notes }] },
+    { title: '应对方案', blocks: [{ type: 'langroups', h: '应对方案', groups: p.lang }] },
+    { title: '开口示范', blocks: [{ type: 'samples', h: '开口示范', items: p.samples }] },
   ];
   STEPS[k + 1].pracRecap = p.recap;
 });
@@ -259,19 +259,19 @@ STEPS[1].practice = {
   type: 'draw-question', snapKey: 'p1', msg: 'p1Draw', msgShape: 'plain',
   layout: 'plain',
   bank: P1_QUESTIONS,
-  topicOf: q => `Phase ${q.phase} · ${q.phase === 1 ? 'About you 基本信息' : 'Reading habits 阅读习惯'}`,
+  topicOf: q => `第 ${q.phase} 阶段 · ${q.phase === 1 ? '关于你自己' : '阅读习惯'}`,
   chips: [
-    ['Actually / Also · 补一句', 'but · 对比', 'because / so · 原因'],
-    ['usually / often / sometimes · 频率', 'For example · 举例', `I'd rather · 偏好`],
+    ['补一句', '对比', '原因'],
+    ['频率', '举例', "偏好"],
   ],
   ids: { box: 'p1Q', topic: 'p1Topic', draw: 'p1Draw', timer: 'p1Timer' },
-  emptyText: 'Press DRAW · 点「抽题」开始问答',
-  drawLabel: 'Draw a Question 抽题', nextLabel: 'Draw a Question 抽题',
-  timer: { sec: 180, label: '3-min Interview 计时' },
+  emptyText: '点「抽题」开始问答',
+  drawLabel: '抽题', nextLabel: '再抽一题',
+  timer: { sec: 180, label: '计时 3 分钟' },
   scoreAttr: 'p1',
   scoreButtons: [{ team: 'A', label: 'Team A +1（答得好）' },
                  { team: 'B', label: 'Team B +1（答得好）' }],
-  rule: '观点 + 原因/例子 就是一次好回答 · 答得好 +1',
+  rule: '观点 + 原因、例子 就是一次好回答，答得好 +1',
 };
 
 /* ---- Part 2 · 看图描述接龙（配图是原创插画，不是照片）---- */
@@ -284,10 +284,10 @@ STEPS[2].practice = {
     ['people', 'place', 'objects', 'actions', 'clothes', 'colours', 'weather', 'time of day'],
   ],
   ids: { add: 'p2Add', skip: 'p2Skip', sw: 'p2Switch', timer: 'p2Timer', photo: 'p2Photo', label: 'p2Label', turn: 'p2Turn' },
-  addLabel: 'Add a Sentence +1 加一句', skipLabel: 'Skip 不得分·换手',
-  switchLabel: 'Switch Picture 换图', timerLabel: '1-min 计时', timerSec: 60,
-  turnPrefix: 'Now: Team ', turnSuffix: ' · 轮到该组加一句', stepScore: 1,
-  rule: '每加一句新信息 +1，自动换组 · 重复不得分',
+  addLabel: '加一句 +1', skipLabel: '换手（不得分）',
+  switchLabel: '换图', timerLabel: '计时 1 分钟', timerSec: 60,
+  turnPrefix: '轮到 Team ', turnSuffix: ' · 该组加一句', stepScore: 1,
+  rule: '每加一句新信息 +1，自动换组；重复不得分',
 };
 
 /* ---- Part 3 · 协作讨论（讨论→决定→双方 +2）---- */
@@ -298,11 +298,11 @@ STEPS[3].practice = {
   chips: ['What about …?', `I'm not sure about that because …`, 'What do you think?'],
   ids: { timer: 'p3Timer', decide: 'p3Decide', reset: 'p3Reset', chips: 'p3Chips', result: 'p3Result' },
   attr: 'p3',
-  timerLabel: '2-min Discuss 计时', timerSec: 120,
-  decideLabel: 'Agree! 达成一致 +2 双方', resetLabel: 'Reset 重来',
-  needDecide: '先点选项标记「讨论过」，再点一次定为「我们的决定」· Click once = talked, twice = decided',
+  timerLabel: '计时 2 分钟', timerSec: 120,
+  decideLabel: '达成一致（双方各 +2）', resetLabel: '重来',
+  needDecide: '先点选项标记「讨论过」，再点一次定为「我们的决定」',
   doneScore: 2,
-  rule: '点一次 = 讨论过（黄）· 再点 = 定为决定（绿）· 全部聊完点「Agree!」，双方各 +2',
+  rule: '点一次：讨论过（黄）；再点一次：定为决定（绿）。全部聊完点「达成一致」，双方各 +2。',
 };
 
 /* ---- Part 4 · 话题深入问答（抽题 + 揭晓范文）---- */
@@ -312,12 +312,12 @@ STEPS[4].practice = {
   questions: P4_QUESTIONS,
   ids: { q: 'p4Q', model: 'p4Model', result: 'p4Result', draw: 'p4Draw', show: 'p4Show', timer: 'p4Timer' },
   attr: 'p4',
-  emptyText: 'Press DRAW · 点「抽题」开始讨论',
-  drawLabel: 'Draw a Question 抽题', showLabel: 'Show Model 看范文',
-  timerLabel: '3-min 计时', timerSec: 180, shownText: 'Compare with the model · 和范文对照一下',
+  emptyText: '点「抽题」开始讨论',
+  drawLabel: '抽题', showLabel: '看范文',
+  timerLabel: '计时 3 分钟', timerSec: 180, shownText: '和范文对照一下',
   scoreButtons: [{ team: 'A', label: 'Team A +1（答得好）' },
                  { team: 'B', label: 'Team B +1（答得好）' }],
-  rule: '观点 + 原因 + 例子，答好一次 +1 · 范文揭晓后对照找差距',
+  rule: '观点 + 原因 + 例子，答好一次 +1；范文揭晓后对照找差距',
 };
 
 /* ================= 参考抽屉 ================= */
@@ -333,22 +333,22 @@ const REF_FRAMES_HTML = `
 
 function refVocabHTML() {
   const groups = [
-    ['Kinds of reading 读物种类', 'novels · comic books · magazines · short stories · poems · puzzle and quiz books · e-books'],
-    ['Places to read 在哪儿读', 'in bed · on the bus · in the library · under a tree · at my desk · in a bookshop'],
-    ['Why we like it 给理由', 'relaxing · exciting · quiet · it teaches me new words · the pictures are beautiful · I can read it again and again'],
-    ['Describing a picture 描述用词', 'sitting / standing · holding a book · wearing a T-shirt · sunny · cloudy · in the background'],
+    ['读物种类', 'novels · comic books · magazines · short stories · poems · puzzle and quiz books · e-books'],
+    ['在哪儿读', 'in bed · on the bus · in the library · under a tree · at my desk · in a bookshop'],
+    ['给理由', 'relaxing · exciting · quiet · it teaches me new words · the pictures are beautiful · I can read it again and again'],
+    ['描述用词', 'sitting / standing · holding a book · wearing a T-shirt · sunny · cloudy · in the background'],
   ];
   return `
-  <h4>Reading habits · 话题语料</h4>
+  <h4>话题语料</h4>
   ${groups.map(([h, v]) => `<div class="place-head">${h}</div><ul><li>${v}</li></ul>`).join('')}
-  <h4>Part 4 · Model answers 范文</h4>
+  <h4>Part 4 · 范文</h4>
   <ul>${P4_QUESTIONS.map(x => `<li><b>${x.q}</b><br>${x.model}</li>`).join('')}</ul>
   <div class="credit">本课全部文字与配图为课堂原创示例：Part 2/3 的图是代码绘制的 SVG 插画，不含任何出版物内容与照片。</div>`;
 }
 
 const ref = {
-  tabs: [{ id: 'frames', label: 'Sentence Frames 句型' },
-         { id: 'vocab', label: 'Word Bank 语料库' }],
+  tabs: [{ id: 'frames', label: '句型' },
+         { id: 'vocab', label: '语料库' }],
   body: { frames: REF_FRAMES_HTML, vocab: refVocabHTML() },
 };
 

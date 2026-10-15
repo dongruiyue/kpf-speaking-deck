@@ -12,26 +12,36 @@ function pairTaskFactory() {
   const el = n => document.getElementById(P.ids[n]);
   const PIC = k => `<img class="picimg" src="${TK.img(k)}" alt="">`;
 
+  /* 版式按 references/typography.md §八：① 标题（题目）+ 任务说明（成段正文，阅读级）
+     → ② 地方卡 + 两个槽 + 句架 → ③ 控件一行 → ④ 结果 + 说明 */
   function skeleton() {
     return `
-  <div class="big-word" style="font-size:clamp(24px,3.6vw,38px)">${P.title}</div>
-  <div class="scaffold">
-    <b>${P.taskEn}</b><br>
-    ${P.taskCn}
+  <div class="prac-set">
+    <div class="question">${P.title}</div>
+    <div class="scaffold">
+      <b>${P.taskEn}</b><br>
+      ${P.taskCn}
+    </div>
   </div>
-  <div class="flash-grid" id="${P.ids.grid}" style="max-width:820px"></div>
-  <div class="pair-slots">
-    <div class="pair-slot" id="${P.ids.slot0}">?</div>
-    <div class="pair-slot" id="${P.ids.slot1}">?</div>
+  <div class="prac-set">
+    <div class="flash-grid" id="${P.ids.grid}" style="max-width:820px"></div>
+    <div class="pair-slots">
+      <div class="pair-slot" id="${P.ids.slot0}">?</div>
+      <div class="pair-slot" id="${P.ids.slot1}">?</div>
+    </div>
+    <div class="reminder-chips">${P.chips.map(c => `<span>${c}</span>`).join('')}</div>
   </div>
-  <div class="reminder-chips">${P.chips.map(c => `<span>${c}</span>`).join('')}</div>
-  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center" class="teacher-only">
-    <button class="mega-btn" id="${P.ids.timer}">${TK.ICONS.timer} ${P.timerLabel}</button>
-    <button class="mega-btn mustard" id="${P.ids.done}">${P.doneLabel}</button>
-    <button class="ghost-btn" id="${P.ids.reset}">${P.resetLabel}</button>
+  <div class="prac-set">
+    <div class="btn-row teacher-only">
+      <button class="mega-btn" id="${P.ids.timer}">${TK.ICONS.timer} ${P.timerLabel}</button>
+      <button class="mega-btn mustard" id="${P.ids.done}">${P.doneLabel}</button>
+      <button class="ghost-btn" id="${P.ids.reset}">${P.resetLabel}</button>
+    </div>
   </div>
-  <div id="${P.ids.win}"></div>
-  <div class="rule-line">${P.rule}</div>`;
+  <div class="prac-set">
+    <div id="${P.ids.win}"></div>
+    <div class="rule-line">${P.rule}</div>
+  </div>`;
   }
 
   function buildGrid() {
@@ -91,7 +101,7 @@ function pairTaskFactory() {
     }
     const names = S.chosen.map(i => P.places[i].name);
     el('win').innerHTML =
-      `<div class="win-banner">Great decision! · 决定：${names[0]} + ${names[1]}</div>
+      `<div class="win-banner">Great decision!<span class="cn-line">决定：${names[0]} + ${names[1]}</span></div>
      <div class="big-sub">Everyone say: ${P.doneLine ? P.doneLine.replace('{a}', names[0]).replace('{b}', names[1] || names[0]) : `We'd like to go to the ${names[0]} and the ${names[1]} because ...`}</div>`;
     TK.celebrate();
     if (!quiet) TK.broadcast({ t: P.msg.done });

@@ -370,3 +370,121 @@ PRACT_INST[s.id] = inst;
 
 **回归**：九份产物 `verify` 全过（FCE 回归仍 12/12 视图 0.00%），浏览器实测 t1 / t2 两个
 `negotiate` 实例互不干扰（t1 标记后切到 t2，t2 干净；回 t1 状态还在）。
+
+## 第八轮（2026-10-15）：排版统一 —— 三个真 bug 与一条设计教训
+
+用户对版式的评价从「文字堆砌、可读性糟糕」一路到「地狱级排版」「按钮歪七扭八，中间字体又黑又粗」。
+按 `references/typography.md`（C.R.A.P. + Duarte 网格）重做后，记下三类必须避免的问题：
+
+### 1. 【真 bug】外壳丢了注入标记，课时级 CSS 静默失效
+
+排版改造时 `assets/shell.html` 里的 `/*==LESSON_CSS==*/` 被删掉，而 `build.py` 只检查
+「注入完有没有**残留**标记」，不检查「该有的标记**在不在**」→ `replace` 落空、**不报任何错**。
+后果：`lessons/ket-u7l3.css`、`lessons/pet-l4.css` 长期不生效，排查方向全被带偏。
+
+修法：`build.py` 注入前先校验 5 个外壳标记齐全，缺一个就报错退出。
+**教训：接口标记（注入点）必须有「存在性断言」，只有「残留断言」等于没有断言。**
+
+### 2. 【真 bug】`.sentence` 在不同模块里语义相反
+
+`draw-question` 用它当**题目**，`discussion` 用它当**范文答案**，`photo-pair-steps` 用它当**追问**。
+我按"它是题目"给它 display 字号 + 半粗 → 把 discussion 的范文做成了整屏最黑最粗的字（用户点名）。
+
+修法：`.question` 是唯一合法的「题目」类（display 级）；`.sentence` 一律按**阅读文本**处理
+（`--fs-lg` + `--fw-body`）；`draw-question` 的题目元素改用 `.question`。
+**教训：跨模块复用的类名必须只有一个语义；语义冲突时，宁可为新角色加类，不要复用旧类。**
+
+### 3. 【设计教训】"标签比内容大"是反层级，不是"课时自己的差异"
+
+`lessons/*.css` 里 `.big-word{font-size:clamp(...56px)}`（PET 到 72px）、
+`.sentence{color:var(--c-warn-ink); border:2px dashed var(--mustard)}` ——
+状态标签比题目还大、题目用琥珀色还套虚线框。我上一轮把这类规则按「取值不同 → 保留并 token 化」
+处理，结果把它们当合法差异留下了。
+
+**教训：token 化只能修"取值不一致"，修不了"层级方向错了"。取舍规则里必须区分
+「这节课自己的几何（可以保留）」与「层级/颜色语义（一律服从外壳）」。**
+
+### 4. 顺带：`build.py` 与 `--force-prefers-reduced-motion`
+
+截图验观感必须加 `--force-prefers-reduced-motion`，否则 `.screen.on` 的淡入被冻结在中间帧、
+整屏拍到半透明（第一轮就是这么误判的）。已固化在 `scripts/shot.sh` 里。
+
+## 第九轮（2026-10-15）：练习页版式契约 —— 「一屏五种对齐」的根因与三条硬规矩
+
+同一轮里用户第二次点名版式：「按钮歪七扭八，中间字体又黑又粗，按钮不对齐，左边一个右边一个」
+（截图点的是 KET U7L3 模拟考试页 与 PET L4 Part 4 练习页）。
+
+### 1. 【真 bug】舞台的对齐只改了学生屏，教师端还是居中
+
+§七 那一轮把 `body.audience .stage` 改成左对齐，**基础的 `.stage` 仍是 `text-align:center` +
+`align-items:center`**。于是同一屏里：有 `width:100%` 的子元素被拉满（看着在左）、没有宽度的
+子元素被收缩居中（看着在中间）—— 一屏四五套对齐，谁都没错，合起来就是「左边一个右边一个」。
+
+**教训：改「一套 UI 的排版」先确认改的是不是**所有**端；只改一端等于把不一致固化下来。**
+
+### 2. 落地：练习页版式契约（`typography.md` §八，所有 practice 模块照办）
+
+一条左轴（`.stage` 直接子元素 `width:100%` + 左对齐，水平居中一律禁止）、
+四组纵向顺序（内容 → 素材 → **一行**控件 → 计分与说明）、字号角色不许越级。
+实现手段是 `.prac-set`（组内 --sp-2）与 `.stage{gap:--sp-6}`（组间）；12 个模块的骨架逐个改过，
+`draw-question` / `flash-cards` / `mock-exam` 的三处「两行按钮」并成了一行。
+
+### 3. 【真 bug】课时级 CSS 仍能盖过外壳的角色表（`.name-scroll`）
+
+`lessons/ket-u7l3.css` / `pet-l4.css` 里 `.name-scroll{font-size:clamp(var(--fs-proj-q),5.5vw,…)}`
+在 1366 宽下是 **75px** —— 教师端「抽到的学生名」比题目（30px）还大，正是「中间字体又黑又粗」那一眼。
+上一轮删的是 A 清单（`.big-word/.big-sub/.sentence/.question/…`），`.name-scroll` 落在清单外。
+
+**修法**：外壳用高一级特异性（`.stage .name-scroll` / `.stage .scaffold`）把角色收回来 ——
+课时 CSS 自己那一节就写着「谁大谁小由外壳的角色表定，课时不许自己定」，所以这是收口而不是对抗。
+**教训：「层级类」要按角色表逐条对，别按「感觉像层级」挑。**
+
+### 4. 工具：`scripts/shot.sh` 扩了三件事
+
+- 环节可带视图后缀：`pet-l4 p4:prac`（不写 = 讲解侧；练习页必须显式 `:prac`）
+- 第 3 个参数多了 `present`（演讲者模式，`#present`）：整屏按缩放自动装下，
+  用来核对「这一页在课堂上到底装不装得进」——普通浏览模式下超过一屏的页面要滚，别误判成排版坏了
+- 第 6 个参数可以塞一段 JS（点 Tab / 抽题之后再截图）
+
+注入的动作**要等两帧再拍**（双 rAF + 读一次 `offsetHeight`）：虚拟时间会在
+「display 刚从 none 变 block、还没画出来」的那一帧抢拍，拍到整屏空白 —— 这次差点误报「页面白了」。
+
+## 第十轮（2026-10-15）：句架条与课时 CSS 的收口 —— 「重复」也是排版问题
+
+### 1. 【真 bug】底栏句架与页内句架是同一句话，一屏出现两次
+
+`#frameBar`（固定底栏）读 `LESSON.frames[环节]`；`negotiate` / `photo-relay` / `photo-pair-steps`
+把自己那几句画在页面上（`.chip` / `stepRow`）。两边**逐字相同**，于是
+`PET-L4 Part 2/3`、`PET-L6 Part 2`、`PET-U2L3 Task`、`FCE L5 Test 1/2`、`FCE P1–2 Part 2`
+六个环节都是「同一句句架出现两次」，外加底栏把页面最后约 55px 压在下面 ——
+教师端普通浏览模式**没有**给底栏留 padding（只有 `body.presenting` 留了 64px）。
+
+修法：这些课时 `LESSON_META.frameBar = {"suppress":[…环节 id…]}`（外壳早就支持，`ket-u8l3` 一直在用）。
+**不要**改用 `mode:"flow"` 了事 —— flow 只是把重复的条挪到页面下方，重复还在，而且句架不再常驻。
+先判「重不重复」，再决定要不要动位置。
+
+### 2. 【真 bug】两份课时 CSS 把外壳的字号角色表整片盖住
+
+`lessons/ket-u7l3.css` / `pet-l4.css` 是早期从「自带样式的整课」抽出来的，里面还有约 40 条
+`font-size:clamp(…,Nvw,…)`。课时 CSS 注入在外壳**之后**、同特异性时后写的赢，所以这两课的字号
+实际由课时定：`.mega-btn` 33px、`.tool-frames li` 38px、`.chip` 33px、`.scaffold` 40px ——
+其余 7 课（无课时 CSS）是外壳的 16/16/20/16px。「同一套课件字体大小凌乱」的根因就在这里。
+
+修法：把这两份 CSS 里 `font-size` 的 **vw clamp 全部删掉**（只留布局：padding / border / radius /
+min-height / gap），字号一律回外壳角色表；庆祝与计时那几条（`.champ-score` / `.timer-num` /
+`.win-banner` / `.bingo-cell .mark`）保留 vw —— 它们本来就是全屏展示。
+`.name-scroll{…5.5vw…}` 整行删（外壳有同选择器规则兜底）。
+按钮的 padding / min-height 也一并删：只删字号会得到「大空盒子里一行小字」，比原来更难看。
+
+**教训：课时 CSS 只配管版式、不许管字号 —— 这条它自己的文件头就写着。**
+
+### 3. 底栏原来是居中的
+
+`#frameBar{justify-content:center}` + `.fb-items{justify-content:center}`：页面对齐改完了，
+底栏还是「居中一套」。改成 `flex-start`，收在同一条左轴上（`typography.md` §8.5）。
+
+**方法教训**：`verify.py` 的 12 条判据里**没有**「重复渲染」和「对齐轴」这两类，
+所以「全绿」不等于「排版对」。这一轮是靠逐张 `shot.sh` 截图看出来的 —— 先拍、再看、别只信判据。
+
+**边界**：`lessons/` 在 `.gitignore` 里（只有 README 与两份原创样课入库），
+所以第 1、2 条的改动只落在**本地产物**上，不会随仓库公开分发。

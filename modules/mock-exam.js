@@ -14,39 +14,59 @@ function mockExamFactory() {
   const el = n => document.getElementById(P.ids[n]);
   const PIC = k => `<img class="picimg" src="${TK.img(k)}" alt="">`;
 
+  /* 版式按 references/typography.md §八：① 阶段 Tab + 内容 → ② 素材 / 互评表 → ③ 控件一行
+      → ④ 计分 + 说明。原来「突袭」与「互评表」分在两行、计分居中、说明在左，一屏四套对齐。 */
   function skeleton() {
     return `
   <div class="phase-tabs teacher-only">
     <button id="${P.ids.ph1Tab}" class="cur">${P.ph1Label}</button>
     <button id="${P.ids.ph2Tab}">${P.ph2Label}</button>
   </div>
-  <div id="${P.ids.phase1}" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:16px">
-    <div class="big-word" style="font-size:clamp(24px,3.6vw,38px)">${P.ph1Title}</div>
-    <div class="flash-grid" id="${P.ids.ph1Grid}" style="max-width:820px"></div>
-    <div class="reminder-chips">${P.ph1Chips.map(c => `<span>${c}</span>`).join('')}</div>
-    <div class="big-sub">${P.ph1Note}</div>
-    <button class="mega-btn" id="${P.ids.ph1Btn}">${TK.ICONS.timer} ${P.ph1Btn}</button>
+  <div id="${P.ids.phase1}" class="phase-col">
+    <div class="prac-set">
+      <div class="question">${P.ph1Title}</div>
+    </div>
+    <div class="prac-set">
+      <div class="flash-grid" id="${P.ids.ph1Grid}" style="max-width:820px"></div>
+      <div class="reminder-chips">${P.ph1Chips.map(c => `<span>${c}</span>`).join('')}</div>
+    </div>
+    <div class="prac-set">
+      <div class="btn-row teacher-only">
+        <button class="mega-btn" id="${P.ids.ph1Btn}">${TK.ICONS.timer} ${P.ph1Btn}</button>
+      </div>
+    </div>
+    <div class="prac-set">
+      <div class="big-sub">${P.ph1Note}</div>
+    </div>
   </div>
-  <div id="${P.ids.phase2}" style="width:100%;display:none;flex-direction:column;align-items:center;gap:16px">
-    <details class="settings teacher-only">
-      <summary>${P.namesLabel}</summary>
-      <div style="height:8px"></div>
-      <textarea class="names-box" id="${P.ids.names}" rows="2" placeholder="${P.namesPlaceholder}"></textarea>
-    </details>
-    <div class="name-scroll" id="${P.ids.raidName}">${P.raidReady}</div>
-    <div class="question" id="${P.ids.raidQ}">${P.raidHint}</div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-      <button class="mega-btn terra" id="${P.ids.raidBtn}">${P.raidLabel}</button>
-      <button class="ghost-btn teacher-only" id="${P.ids.checkBtn}">${P.checkLabel}</button>
+  <div id="${P.ids.phase2}" class="phase-col" style="display:none">
+    <div class="prac-set">
+      <div class="name-scroll" id="${P.ids.raidName}">${P.raidReady}</div>
+      <div class="question" id="${P.ids.raidQ}">${P.raidHint}</div>
     </div>
-    <div class="score-team teacher-only">
-      ${P.scoreButtons.map(b => `<button class="${b.team === 'A' ? 'a' : 'b'}" data-${P.attr}="${b.team}">${b.label}</button>`).join('')}
+    <div class="prac-set">
+      <div class="check-panel teacher-only" id="${P.ids.checkPanel}" style="display:none">
+        ${P.checklist.map(c => `<label><input type="checkbox">${c}</label>`).join('')}
+        <div class="rating" id="${P.ids.stars}"><span class="off">○○○○○</span></div>
+      </div>
     </div>
-    <div class="check-panel teacher-only" id="${P.ids.checkPanel}" style="display:none">
-      ${P.checklist.map(c => `<label><input type="checkbox">${c}</label>`).join('')}
-      <div class="stars" id="${P.ids.stars}">☆☆☆☆☆</div>
+    <div class="prac-set">
+      <div class="btn-row">
+        <button class="mega-btn terra" id="${P.ids.raidBtn}">${P.raidLabel}</button>
+        <button class="ghost-btn teacher-only" id="${P.ids.checkBtn}">${P.checkLabel}</button>
+      </div>
+      <details class="settings teacher-only">
+        <summary>${P.namesLabel}</summary>
+        <div style="height:var(--sp-2)"></div>
+        <textarea class="names-box" id="${P.ids.names}" rows="2" placeholder="${P.namesPlaceholder}"></textarea>
+      </details>
     </div>
-    <div class="rule-line">${P.rule}</div>
+    <div class="prac-set">
+      <div class="score-team teacher-only">
+        ${P.scoreButtons.map(b => `<button class="${b.team === 'A' ? 'a' : 'b'}" data-${P.attr}="${b.team}">${b.label}</button>`).join('')}
+      </div>
+      <div class="rule-line">${P.rule}</div>
+    </div>
   </div>`;
   }
 
@@ -139,7 +159,7 @@ function mockExamFactory() {
       const boxes = document.querySelectorAll(`#${P.ids.checkPanel} input`);
       boxes.forEach(b => b.onchange = () => {
         const n = [...boxes].filter(x => x.checked).length;
-        el('stars').textContent = '★'.repeat(n) + '☆'.repeat(5 - n);
+        el('stars').innerHTML = '<span>' + '✓'.repeat(n) + '</span><span class="off">' + '○'.repeat(5 - n) + '</span>';
         if (n === 5) TK.celebrate(); else TK.sfx.click();
       });
       TK.snapshotPart(P.snapKey, mod.snapshot);

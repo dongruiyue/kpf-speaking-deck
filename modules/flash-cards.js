@@ -13,21 +13,27 @@ function flashCardsFactory() {
   const PIC = k => `<img class="picimg" src="${TK.img(k)}" alt="">`;
 
   function skeleton() {
-    /* 盖住 / 翻开 / 计时 / 计分收成一条紧凑的教师操作带（观众屏整块隐藏） */
+    /* 版式按 references/typography.md §八：① / ② 卡面素材（含记忆倒计时）→ ③ 控件一行
+       （盖住 / 翻开 / 计时）→ ④ 计分 + 说明。原来那条「教师操作」带把计分也塞在同一条里，
+       拆开成 .btn-row + .score-team 两行（观众屏整块 teacher-only 隐藏）。 */
     return `
-  <div class="flash-grid" id="${P.ids.grid}"></div>
-  <div id="${P.ids.cd}" style="display:none"></div>
-  <div class="flash-ops teacher-only">
-    <span class="flash-ops-label">教师操作</span>
-    <button class="ghost-btn" id="${P.ids.cover}">${P.coverLabel}</button>
-    <button class="ghost-btn" id="${P.ids.reveal}">${P.revealLabel}</button>
-    <button class="ghost-btn" id="${P.ids.timer}">${TK.ICONS.timer} ${P.timerLabel}</button>
-    <span class="ops-sep"></span>
-    <span class="score-team">
-      ${P.scoreButtons.map(b => `<button class="${b.team === 'A' ? 'a' : 'b'}" data-${P.attr}="${b.team}">${b.label}</button>`).join('')}
-    </span>
+  <div class="prac-set">
+    <div id="${P.ids.cd}" style="display:none"></div>
+    <div class="flash-grid" id="${P.ids.grid}"></div>
   </div>
-  <div class="rule-line">${P.rule}</div>`;
+  <div class="prac-set">
+    <div class="btn-row teacher-only">
+      <button class="ghost-btn" id="${P.ids.cover}">${P.coverLabel}</button>
+      <button class="ghost-btn" id="${P.ids.reveal}">${P.revealLabel}</button>
+      <button class="ghost-btn" id="${P.ids.timer}">${TK.ICONS.timer} ${P.timerLabel}</button>
+    </div>
+  </div>
+  <div class="prac-set">
+    <div class="score-team teacher-only">
+      ${P.scoreButtons.map(b => `<button class="${b.team === 'A' ? 'a' : 'b'}" data-${P.attr}="${b.team}">${b.label}</button>`).join('')}
+    </div>
+    <div class="rule-line">${P.rule}</div>
+  </div>`;
   }
 
   /* 列数标记：课时写 practice.cols 覆盖；缺省时 8 张卡按 4 列 × 2 行（小屏 2 列）——
@@ -85,7 +91,7 @@ function flashCardsFactory() {
     btn.disabled = true;
     cd.style.display = 'block';
     let t = P.memorySec;
-    cd.innerHTML = `<div class="timer-num" style="font-size:clamp(56px,9vw,96px)">${t}</div>`
+    cd.innerHTML = `<div class="timer-num">${t}</div>`
       + `<div class="big-sub">${P.memoryText}</div>`;
     const numEl = cd.querySelector('.timer-num');
     clearInterval(cdTimer);

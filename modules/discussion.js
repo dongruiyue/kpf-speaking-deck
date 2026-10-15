@@ -10,20 +10,30 @@ function discussionFactory() {
   let P = null, S = null;
   const el = n => document.getElementById(P.ids[n]);
 
+  /* 版式按 references/typography.md §八：① 题目 → ② 范文（阅读级）→ ③ 控件一行 → ④ 计分 + 说明。
+     范文用 .sentence（--fs-lg/400）—— 它是正文，不许做成整屏最黑最粗的字。 */
   function skeleton() {
     return `
-  <div class="question" id="${P.ids.q}">${P.emptyText}</div>
-  <div class="sentence" id="${P.ids.model}" style="display:none"></div>
-  <div id="${P.ids.result}" class="big-sub"></div>
-  <div class="teacher-only" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-    <button class="mega-btn" id="${P.ids.draw}">${P.drawLabel}</button>
-    <button class="mega-btn mustard" id="${P.ids.show}">${P.showLabel}</button>
-    <button class="ghost-btn" id="${P.ids.timer}">${TK.ICONS.timer} ${P.timerLabel}</button>
+  <div class="prac-set">
+    <div class="question" id="${P.ids.q}">${P.emptyText}</div>
   </div>
-  <div class="score-team teacher-only">
-    ${P.scoreButtons.map(b => `<button class="${b.team === 'A' ? 'a' : 'b'}" data-${P.attr}="${b.team}">${b.label}</button>`).join('')}
+  <div class="prac-set">
+    <div class="sentence" id="${P.ids.model}" style="display:none"></div>
   </div>
-  <div class="rule-line">${P.rule}</div>`;
+  <div class="prac-set">
+    <div class="btn-row teacher-only">
+      <button class="mega-btn" id="${P.ids.draw}">${P.drawLabel}</button>
+      <button class="mega-btn" id="${P.ids.show}">${P.showLabel}</button>
+      <button class="ghost-btn" id="${P.ids.timer}">${TK.ICONS.timer} ${P.timerLabel}</button>
+    </div>
+  </div>
+  <div class="prac-set">
+    <div class="score-team teacher-only">
+      ${P.scoreButtons.map(b => `<button class="${b.team === 'A' ? 'a' : 'b'}" data-${P.attr}="${b.team}">${b.label}</button>`).join('')}
+    </div>
+    <div id="${P.ids.result}" class="big-sub"></div>
+    <div class="rule-line">${P.rule}</div>
+  </div>`;
   }
 
   function render() {

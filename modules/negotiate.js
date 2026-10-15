@@ -11,25 +11,35 @@ function negotiateFactory() {
   let P = null, S = null;
   const el = n => document.getElementById(P.ids[n]);
 
+  /* 版式按 references/typography.md §八：① 情境（成段正文，阅读级 .scaffold）→ ② 任务图 + 选项卡
+     → ③ 控件一行 → ④ 结果 + 说明。原来按钮在最上面、左中右三套对齐。 */
   function skeleton() {
     return `
-  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center" class="teacher-only">
-    <button class="mega-btn" id="${P.ids.timer}">${TK.ICONS.timer} ${P.timerLabel}</button>
-    <button class="mega-btn mustard" id="${P.ids.decide}">${P.decideLabel}</button>
-    <button class="ghost-btn" id="${P.ids.reset}">${P.resetLabel}</button>
-  </div>
-  <div class="media-split">
-    <img src="${TK.img(P.image)}" alt="" style="max-width:300px;flex:0 1 300px">
-    <div class="media-side">
-      <div class="scaffold" style="font-size:clamp(14px,1.9vw,20px);padding:12px 18px">
-        <b>${P.situationEn}</b><br>${P.situationCn}
-      </div>
-      <div class="reminder-chips" id="${P.ids.chips}"></div>
-      <div class="reminder-chips">${(P.chips || []).map(c => `<span>${c}</span>`).join('')}</div>
-      <div id="${P.ids.result}" class="big-sub"></div>
+  <div class="prac-set">
+    <div class="scaffold">
+      <b>${P.situationEn}</b><br>${P.situationCn}
     </div>
   </div>
-  <div class="rule-line">${P.rule}</div>`;
+  <div class="prac-set">
+    <div class="media-split">
+      <img src="${TK.img(P.image)}" alt="">
+      <div class="media-side">
+        <div class="reminder-chips" id="${P.ids.chips}"></div>
+        <div class="reminder-chips">${(P.chips || []).map(c => `<span>${c}</span>`).join('')}</div>
+      </div>
+    </div>
+  </div>
+  <div class="prac-set">
+    <div class="btn-row teacher-only">
+      <button class="mega-btn" id="${P.ids.timer}">${TK.ICONS.timer} ${P.timerLabel}</button>
+      <button class="mega-btn mustard" id="${P.ids.decide}">${P.decideLabel}</button>
+      <button class="ghost-btn" id="${P.ids.reset}">${P.resetLabel}</button>
+    </div>
+  </div>
+  <div class="prac-set">
+    <div id="${P.ids.result}" class="big-sub"></div>
+    <div class="rule-line">${P.rule}</div>
+  </div>`;
   }
 
   function render() {
@@ -37,7 +47,7 @@ function negotiateFactory() {
     el('chips').innerHTML = P.options.map((o, i) => {
       const st = S.state[i];
       const cls = st === 2 ? 'chip decided' : (st === 1 ? 'chip talked' : 'chip');
-      const mark = st === 2 ? '★ ' : (st === 1 ? '✓ ' : '');
+      const mark = st === 2 ? '✓ ' : '';
       return `<button class="${cls}" data-${P.attr}="${i}">${mark}${o}</button>`;
     }).join('');
     document.querySelectorAll(`[data-${P.attr}]`).forEach(b => b.onclick = () => step(+b.dataset[P.attr]));

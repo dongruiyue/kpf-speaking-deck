@@ -13,27 +13,41 @@ function photoPairStepsFactory() {
   const q = k => document.querySelectorAll('[' + ATTR(k) + ']');
   const el = n => document.getElementById(P.ids[n]);
 
-  /* ---------------- 静态骨架：只建一次 ---------------- */
+  /* ---------------- 静态骨架：只建一次 ----------------
+     版式按 references/typography.md §八：一条左轴；① 题目 + 轮到哪组 → ② 两张照片 + 三步支撑卡
+     + 追问（阅读级）→ ③ 控件一行 → ④ 计分 + 结果 + 说明。
+     唯一的例外是「真题选题条」：课时的空态文案写死「先在上面选一套真题」（lessons/*.js 不许改），
+     所以选题条留在内容上方 —— 同样只占一行、落在左轴上（§八 8.2 的例外）。 */
   function skeleton() {
     return `
-  <div class="task-row" id="${P.ids.tasks}"></div>
-  <div class="q-bar" id="${P.ids.q}"><span class="q-tag">${P.emptyTag}</span>${P.emptyText}</div>
-  <div class="photo-pair sm" id="${P.ids.photos}"></div>
-  <div class="stepcard" id="${P.ids.steps}">${P.steps.map((s, i) =>
-    TK.stepRow(i === 0 ? P.badge : '', P.nos[i], s.t, '', s.frames, ATTR(P.cardAttr), i)).join('')}</div>
-  <div class="turn-label" id="${P.ids.turn}"></div>
-  <div class="teacher-only" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-    <button class="mega-btn" id="${P.ids.long}">${TK.ICONS.timer} ${P.longLabel}</button>
-    <button class="mega-btn mustard" id="${P.ids.follow}">${TK.ICONS.timer} ${P.followLabel}</button>
-    <button class="ghost-btn" id="${P.ids.sw}">${P.switchLabel}</button>
-    <button class="ghost-btn" id="${P.ids.reset}">${P.resetLabel}</button>
+  <div class="prac-set">
+    <div class="task-row" id="${P.ids.tasks}"></div>
   </div>
-  <div class="sentence" id="${P.ids.followQ}" style="display:none"></div>
-  <div id="${P.ids.result}" class="big-sub"></div>
-  <div class="score-team teacher-only" id="${P.ids.scoreRow}" style="display:none">
-    ${P.scoreButtons.map(b => `<button class="${b.team === 'A' ? 'a' : 'b'}" ${ATTR(P.scoreAttr)}="${b.team}">${b.label}</button>`).join('')}
+  <div class="prac-set">
+    <div class="q-bar" id="${P.ids.q}"><span class="q-tag">${P.emptyTag}</span>${P.emptyText}</div>
+    <div class="turn-label" id="${P.ids.turn}"></div>
   </div>
-  <div class="rule-line">${P.rule}</div>`;
+  <div class="prac-set">
+    <div class="photo-pair sm" id="${P.ids.photos}"></div>
+    <div class="stepcard" id="${P.ids.steps}">${P.steps.map((s, i) =>
+      TK.stepRow(i === 0 ? P.badge : '', P.nos[i], s.t, '', s.frames, ATTR(P.cardAttr), i)).join('')}</div>
+    <div class="sentence" id="${P.ids.followQ}" style="display:none"></div>
+  </div>
+  <div class="prac-set">
+    <div class="btn-row teacher-only">
+      <button class="mega-btn" id="${P.ids.long}">${TK.ICONS.timer} ${P.longLabel}</button>
+      <button class="mega-btn mustard" id="${P.ids.follow}">${TK.ICONS.timer} ${P.followLabel}</button>
+      <button class="ghost-btn" id="${P.ids.sw}">${P.switchLabel}</button>
+      <button class="ghost-btn" id="${P.ids.reset}">${P.resetLabel}</button>
+    </div>
+  </div>
+  <div class="prac-set">
+    <div class="score-team teacher-only" id="${P.ids.scoreRow}" style="display:none">
+      ${P.scoreButtons.map(b => `<button class="${b.team === 'A' ? 'a' : 'b'}" ${ATTR(P.scoreAttr)}="${b.team}">${b.label}</button>`).join('')}
+    </div>
+    <div id="${P.ids.result}" class="big-sub"></div>
+    <div class="rule-line">${P.rule}</div>
+  </div>`;
   }
 
   /* ---------------- 纯渲染：幂等，不重置滚动 ---------------- */
@@ -50,7 +64,7 @@ function photoPairStepsFactory() {
       `<div class="ph"><img src="${TK.img(k)}" alt=""><span class="ph-tag">${P.photoTags[i]}</span></div>`).join('');
     const tl = el('turn');
     tl.textContent = `${P.turnPrefix}${S.turn}`;
-    tl.style.color = S.turn === 'A' ? 'var(--teal)' : 'var(--terra-ink)';
+    tl.style.color = S.turn === 'A' ? 'var(--c-team-a)' : 'var(--c-team-b)';
     q(P.cardAttr).forEach(b => {
       const i = +b.dataset[P.cardAttr];
       b.classList.toggle('on', S.checks[i]);

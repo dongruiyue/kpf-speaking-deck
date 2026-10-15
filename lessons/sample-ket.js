@@ -9,7 +9,7 @@
  * 冠军页由外壳自动生成；ledgerSteps 只登记计分环节（tools 是教学环节，不进台账）。
  */
 
-const LESSON_META = {"theme": "k", "title": "示例课 KET · After-School Activities 放学后的活动", "docTitle": "示例课 KET · 放学后的活动 · Speaking 课堂工具", "subtitle": "Sample lesson · 放学后的活动 · I like ... because it's fun", "channel": "sample-ket-v1", "keyPrefix": "sampleket", "folder": "sample-ket", "port": 8821, "launcher": "启动示例课-KET.command", "outFile": "示例课-KET-放学后的活动.html", "imgNote": "本课为纯文本原创示例，不含照片", "dashTitle": "示例课 KET · 放学后的活动 · 上课流程", "dashSub": "上课顺序：1 快闪热身 → 2 句型库 → 3 双人任务 → 4 模拟考试；时间够再玩 5 OX 棋。计分规则写在每个环节里，总分在课末汇总。按 P 进入演讲者模式。", "deckHint": "句型库用底部「← 上一页 / 下一页 →」翻，翻页会同步到投影；句架就挂在屏幕底部。", "pracHint": "这个环节的计分规则写在页面底部，练完就进下一环节。", "homeTip": "<b>主页：</b>先点「1 Warm-up 快闪」热身认活动，再 2 句型库翻页教 → 3 双人任务 → 4 模拟考试；时间够再玩 5 OX 棋。计分写在每个环节里，总分课末汇总。", "homeTalkEn": "Today we talk about after-school activities — what you like, and why.", "homeTalkCn": "今天聊放学后的活动：说喜好、给原因、一起定计划", "frameNote": {"mod": "本环节句架 · 卡壳时抬头看一眼", "general": "没话说时，抬头看这三句"}, "frameDefault": "flash", "ledgerSteps": ["flash", "pair", "examiner", "bingo"]};
+const LESSON_META = {"theme": "k", "title": "示例课 KET · After-School Activities 放学后的活动", "docTitle": "示例课 KET · 放学后的活动 · Speaking 课堂工具", "subtitle": "Sample lesson · 放学后的活动 · I like ... because it's fun", "channel": "sample-ket-v1", "keyPrefix": "sampleket", "folder": "sample-ket", "port": 8821, "launcher": "启动示例课-KET.command", "outFile": "示例课-KET-放学后的活动.html", "imgNote": "本课为纯文本原创示例，不含照片", "dashTitle": "示例课 KET · 放学后的活动 · 上课流程", "dashSub": "上课顺序：1. 热身快闪 → 2 句型库 → 3 双人任务 → 4 模拟考试，时间够再玩 5 OX 棋。计分规则写在每个环节里，总分在课末汇总。按 P 进入演讲者模式。", "deckHint": "句型库用底部「← 上一页 / 下一页 →」翻，翻页会同步到投影；句架就挂在屏幕底部。", "pracHint": "这个环节的计分规则写在页面底部，练完就进下一环节。", "homeTip": "<b>主页：</b>先点「1. 热身快闪」认活动，再按 2 句型库 → 3 双人任务 → 4 模拟考试走一遍，时间够再玩 5 OX 棋。计分写在每个环节里，总分课末汇总。", "homeTalkEn": "Today we talk about after-school activities — what you like, and why.", "homeTalkCn": "今天聊放学后的活动：说喜好、给原因、一起定计划", "frameNote": {"mod": "本环节句架 · 卡壳时抬头看一眼", "general": "没话说时，抬头看这三句"}, "frameDefault": "flash", "ledgerSteps": ["flash", "pair", "examiner", "bingo"]};
 
 const LESSON = (() => {
 
@@ -70,23 +70,23 @@ const RAID_Q = [
 
 /* 句型库翻页（原创；本课无听力素材，所以不放 audio 页） */
 const TOOL_PAGES = [
-  { title: '八个活动 · Say the names', pics: true,
+  { title: '八个活动 · 说出名字', pics: true,
     frames: ['play football · ride a bike · draw pictures · read books',
              'play chess · watch TV · do homework · listen to music'],
     hint: '<b>Point at a picture and say the English name.</b><br>指一张图，说出英文词组——刚才热身练过的。' },
-  { title: '考试怎么考 · Phase 1 一起讨论',
+  { title: '考试怎么考（Phase 1 一起讨论）',
     frames: ['和同伴聊 <b>8 张活动卡</b>', '大约 <b>2 分钟</b>', '最后一起选出 <b>两个活动</b>'],
     hint: '<b>Talk TOGETHER and decide two activities.</b><br>不是各说各的：要互相问、要回应，最后一起定。' },
-  { title: '考试怎么考 · Phase 2 考官再问',
+  { title: '考试怎么考（Phase 2 考官再问）',
     frames: ['同一个话题：放学后的活动', '考官再问你 <b>2 个问题</b>', '回答带上 <b>because</b> 说原因'],
     hint: '<b>Same topic: likes, dislikes and reasons.</b><br>还是聊喜好和原因——前面练的句架全部用得上。' },
-  { title: '工具 ① · 问 Asking',
+  { title: '工具 1 · 问',
     frames: ['Do you like <b>playing football</b>?', 'Do you prefer <b>reading</b> or <b>watching TV</b>?', '<b>Why?</b> / Why not?'],
     hint: '<b>Ask your partner — don\'t wait!</b><br>主动把问题抛给同伴，别干等别人问你。' },
-  { title: '工具 ② · 答 Opinions + Reasons',
+  { title: '工具 2 · 答',
     frames: ['I like ... <b>because it\'s fun / relaxing</b>.', 'I don\'t like ... <b>because it\'s boring / tiring</b>.', 'I think ... is <b>great / hard</b> because ...'],
     hint: '<b>Opinion first, then "because"!</b><br>先说喜好，紧跟 because——考官最想听的就是原因。' },
-  { title: '工具 ③ · 商量 Deciding together',
+  { title: '工具 3 · 商量',
     frames: ['<b>Why don\'t we</b> play chess?', '<b>I\'d rather</b> draw pictures because ...', '<b>Good idea!</b> / <b>I don\'t think so</b>, because ...'],
     hint: '<b>Suggest, answer, then decide together.</b><br>会商量才是高分——只报自己的喜好不够。' },
   { title: '升级 · 原因的另一种说法',
@@ -110,38 +110,38 @@ const PIC = k => `<img class="picimg" src="${(LESSON.img || {})[k] || ''}" alt="
 
 /* ================= 环节 ================= */
 const STEPS = [
-  { id: 'flash', n: 1, label: 'Warm-up 快闪', icon: 'cards', time: '3 分钟', kind: '热身·识词', tier: 'warm', tierText: '热身',
+  { id: 'flash', n: 1, label: '热身快闪', icon: 'cards', time: '3 分钟', kind: '热身·识词', tier: 'warm', tierText: '热身',
     d: '看卡记 30 秒，单词盖住后指图抢答八个活动。',
-    tip: '<b>游戏本质：</b>识别——看到图能调出英文词组。<br><b>计分：</b>抢答对一次点该组按钮 <b>+1</b>。<br><b>流程：</b>点「30s Memory」→ 学生默记 30 秒 → 单词自动盖住 → 指图抢答，点了按钮才算分。<br><b>提醒：</b>词组当整体记（play football 不拆成 play + football）；3 分钟封顶，别逐词带读。',
+    tip: '<b>游戏本质：</b>识别——看到图能调出英文词组。<br><b>计分：</b>抢答对一次点该组按钮 <b>+1</b>。<br><b>流程：</b>点「30 秒记忆」→ 学生默记 30 秒 → 单词自动盖住 → 指图抢答，点了按钮才算分。<br><b>提醒：</b>词组当整体记（play football 不拆成 play + football）；3 分钟封顶，别逐词带读。',
     talk: [{ en: `Look at the eight activities. You have 30 seconds — remember them all!`, cn: `先安静看图 30 秒，别出声跟读` },
            { en: `The words are hidden now. What's this? Say it in English!`, cn: `盖住单词后指图抢答` },
            { en: `Team B — correct! One point for you.`, cn: `哪组先答对就点哪组，+1 立刻给` },
            { en: `That's enough warming up. Off we go!`, cn: `热身够了就走，别恋战` }] },
-  { id: 'tools', n: 2, label: 'Sentence Bank 句型库', icon: 'chat', time: '8 分钟', kind: '教学·脚手架', tier: 'core', tierText: '核心',
+  { id: 'tools', n: 2, label: '句型库', icon: 'chat', time: '8 分钟', kind: '教学·脚手架', tier: 'core', tierText: '核心',
     d: '翻页教学：考试怎么考 → 问 / 答 / 商量三套句架 → 一句升级说法。',
-    tip: '<b>定位：</b>这是"教"的环节，不是游戏，不计分（所以不进台账）。<br><b>流程：</b>一页一页翻，每揭晓一组句架就点一两个学生当场造句；← → 方向键也能翻页，翻页会同步到投影。<br><b>提醒：</b>第 6 页「商量」是重点——考试要的是一起定下来，不是各说喜好；最后一页三条收个口。',
+    tip: '<b>定位：</b>这是「教」的环节，不是游戏，不计分（所以不进台账）。<br><b>流程：</b>一页一页翻，每揭晓一组句架就点一两个学生当场造句；← → 方向键也能翻页，翻页会同步到投影。<br><b>提醒：</b>第 6 页「商量」是重点——考试要的是一起定下来，不是各说喜好；最后一页三条收个口。',
     talk: [{ en: `How many activities can you see? Say their names.`, cn: `第一页让学生自己说出活动名` },
            { en: `Ask me! Do you like playing football?`, cn: `第 4 页先让学生拿你练手问一句` },
            { en: `Finish this: I like reading because it's ...`, cn: `每揭晓一句就点人补完` },
            { en: `How do we decide together? Why don't we ...? — Good idea!`, cn: `商量句式现场演一遍` }] },
-  { id: 'pair', n: 3, label: 'Pair Task 双人任务', icon: 'pair', time: '6 分钟', kind: '对话·做决定', tier: 'core', tierText: '核心',
+  { id: 'pair', n: 3, label: '双人任务', icon: 'pair', time: '6 分钟', kind: '对话·做决定', tier: 'core', tierText: '核心',
     d: '好朋友今天放学来你家，只能一起做两件事：商量出两个活动并说清理由。',
-    tip: '<b>游戏本质：</b>真实对话——有共同任务、有取舍压力，必须来回商量才能完成（这正是 Phase 1 的考试形式）。<br><b>计分：</b>两人完成任务、汇报出结论，<b>双方各 +2</b>。<br><b>流程：</b>点「2-min Talk」计时 → 巡视听两组 → 学生点活动卡放进两个位置（记录决定）→ 点「Speak Out!」加分。<br><b>提醒：</b>没商量、各说各的不算完成；引导用 Why don\'t we ...? / I\'d rather ... / Good idea!。',
+    tip: '<b>游戏本质：</b>真实对话——有共同任务、有取舍压力，必须来回商量才能完成（这正是 Phase 1 的考试形式）。<br><b>计分：</b>两人完成任务、汇报出结论，<b>双方各 +2</b>。<br><b>流程：</b>点「计时 2 分钟」→ 巡视听两组 → 学生点活动卡放进两个位置（记录决定）→ 点「汇报」加分。<br><b>提醒：</b>没商量、各说各的不算完成；引导用 Why don\'t we ...? / I\'d rather ... / Good idea!。',
     talk: [{ en: `Your best friend is coming to your home after school. You can do TWO activities together. Talk and decide!`, cn: `读任务卡，确认学生懂规则` },
            { en: `Two minutes — go! Use "Why don't we ...?" and "I'd rather ... because ..."`, cn: `计时 2 分钟，下去听两组` },
            { en: `Which two did you choose? Tell us, and give your reasons.`, cn: `汇报时让两人各说一句理由` },
-           { en: `Great decision — two points for both teams!`, cn: `点 Speak Out! 双方各 +2` }] },
-  { id: 'examiner', n: 4, label: 'Mock Test 模拟考试', icon: 'mic', time: '9 分钟', kind: '整合·考试流程', tier: 'core', tierText: '核心',
+           { en: `Great decision — two points for both teams!`, cn: `点「汇报」，双方各 +2` }] },
+  { id: 'examiner', n: 4, label: '模拟考试', icon: 'mic', time: '9 分钟', kind: '整合·考试流程', tier: 'core', tierText: '核心',
     d: 'Phase 1 同桌聊活动卡并做决定 → Phase 2 考官突袭提问 → 互评打星。',
-    tip: '<b>定位：</b>输出整合——完整走一遍考试流程；互评表代替打分反馈。<br><b>计分：</b>Phase 2 每答好一题，点该组按钮 <b>+1</b>。<br><b>流程：</b>Phase 1 同桌讨论（2 分钟计时）→ 切 Phase 2 → 输过名单后点「RAID」随机抽人抽题 → 互评打星。<br><b>提醒：</b>先让学生互评，你再讲评；名单存在本机，下节课还在。',
+    tip: '<b>定位：</b>输出整合——完整走一遍考试流程；互评表代替打分反馈。<br><b>计分：</b>Phase 2 每答好一题，点该组按钮 <b>+1</b>。<br><b>流程：</b>Phase 1 同桌讨论（计时 2 分钟）→ 切 Phase 2 → 输过名单后点「突袭」随机抽人抽题 → 互评打星。<br><b>提醒：</b>先让学生互评，你再讲评；名单存在本机，下节课还在。',
     talk: [{ en: `Phase 1: talk about ALL eight activities, then decide two together.`, cn: `Phase 1 前提醒八个活动都要聊到` },
            { en: `Keep it going — ask "What about you?"`, cn: `提醒学生把球打回去` },
            { en: `Phase 2: the examiner is coming! Listen and answer.`, cn: `Phase 2 前预告，制造紧张感` },
            { en: `Check your partner with the checklist. How many stars?`, cn: `先让学生互评，你再补充` },
            { en: `Well done — one point for that answer.`, cn: `答得好的点 +1` }] },
-  { id: 'bingo', n: 5, label: 'Tic-Tac Bingo OX 棋', icon: 'grid', time: '4 分钟', kind: '加料·对抗复习', tier: 'bonus', tierText: '加料',
+  { id: 'bingo', n: 5, label: 'OX 棋', icon: 'grid', time: '4 分钟', kind: '加料·对抗复习', tier: 'bonus', tierText: '加料',
     d: '3×3 格子，用 because 造句占格画 O/X，先连成一条线就赢（时间够再玩）。',
-    tip: '<b>游戏本质：</b>对抗复习——把整节课的句架在压力下再用一次。<br><b>计分：</b>占格自动 <b>+1</b>，连线额外 <b>+2</b>。<br><b>流程：</b>两组轮流选格，按格子上的 Like / Don\'t like 说完整句（I like / don\'t like ... because ...），说对了点格子。<br><b>提醒：</b>说错格子占不上、轮到对方；引导抢中间格。时间不够直接跳过。',
+    tip: '<b>游戏本质：</b>对抗复习——把整节课的句架在压力下再用一次。<br><b>计分：</b>占格自动 <b>+1</b>，连线额外 <b>+2</b>。<br><b>流程：</b>两组轮流选格，按格子上的 Like / Don\'t like 说完整句，说对了点格子。<br><b>提醒：</b>说错格子占不上、轮到对方；引导抢中间格。时间不够直接跳过。',
     talk: [{ en: `Say a full sentence to claim a square — with "because"! Only full sentences count.`, cn: `先示范占一格，强调带 because 的完整句才算` },
            { en: `Team A, your turn — pick a square.`, cn: `让学生自己选格，你只判分` },
            { en: `Three in a line — Team B wins! Two extra points.`, cn: `连线时提醒 +2` },
@@ -180,11 +180,11 @@ STEPS[0].practice = {
   places: ACTS,
   ids: { grid: 'flashGrid', cd: 'flashCd', cover: 'coverAll', reveal: 'revealAll', timer: 'flashTimer' },
   attr: 'flash',
-  coverLabel: 'Cover 盖住', revealLabel: 'Show 翻开', timerLabel: '30s Memory',
+  coverLabel: '盖住', revealLabel: '翻开', timerLabel: '30 秒记忆',
   memorySec: 30,
-  memoryText: 'Remember the eight activities! · 记住这八个活动',
+  memoryText: 'Remember the eight activities!<br>记住这八个活动',
   scoreButtons: [{ team: 'A', label: 'Team A 抢答 +1' }, { team: 'B', label: 'Team B 抢答 +1' }],
-  rule: '抢答对一次 +1 · One point per correct answer',
+  rule: '抢答对一次 +1',
 };
 
 /* ---- 2 句型库：自带页号的翻页教学（本课无录音，不挂 audioModule） ---- */
@@ -194,7 +194,7 @@ STEPS[1].practice = {
   ids: { tag: 'toolTag', pics: 'toolPics', frames: 'toolFrames', audioSlot: 'toolAudioSlot', hint: 'toolHint',
          prev: 'toolPrev', ind: 'toolInd', next: 'toolNext' },
   tagPrefix: '第 {n} 页 · {t}', prevLabel: '← 上一页', nextLabel: '下一页 →',
-  rule: '教学环节，不计分 · Teaching step — no score',
+  rule: '教学环节，不计分',
 };
 
 /* ---- 3 双人任务：商量出两个活动，汇报双方各 +2 ---- */
@@ -202,16 +202,16 @@ STEPS[2].practice = {
   type: 'pair-task', snapKey: 'pair',
   msg: { toggle: 'pairToggle', done: 'pairDone', reset: 'pairReset' },
   places: ACTS,
-  title: 'After-School Plan 放学后的计划',
+  title: 'After-School Plan<br>放学后的计划',
   taskEn: 'Your best friend is coming to your home after school. You can do TWO activities together. Talk and decide!',
   taskCn: '好朋友今天放学来你家玩，你们只能一起做两件事——商量出两个活动，并说清理由。',
   chips: ["Why don't we play football?", "I'd rather read books because it's relaxing.", "Good idea! / I don't think so, because ..."],
   ids: { grid: 'pairGrid', slot0: 'pairSlot0', slot1: 'pairSlot1', timer: 'pairTimer', done: 'pairDoneBtn', reset: 'pairReset', win: 'pairWin' },
-  timerLabel: '2-min Talk 开始商量', timerSec: 120,
-  doneLabel: 'Speak Out! 汇报 +2 双方', resetLabel: 'Reset 重来', doneScore: 2,
-  needTwo: '先选出两个活动再汇报 · Choose TWO activities first',
+  timerLabel: '计时 2 分钟', timerSec: 120,
+  doneLabel: '汇报（双方各 +2）', resetLabel: '重来', doneScore: 2,
+  needTwo: '先选出两个活动，再点「汇报」',
   doneLine: "We'd like to {a} and {b} because ...",
-  rule: '汇报出决定，双方各 +2 · Both teams +2 when they report',
+  rule: '汇报出决定，双方各 +2',
 };
 
 /* ---- 4 模拟考试：Phase 1/2 切换 + RAID 抽人 + 互评五星 ---- */
@@ -223,23 +223,23 @@ STEPS[3].practice = {
          ph1Btn: 'phase1Btn', names: 'names', raidName: 'raidName', raidQ: 'raidQ', raidBtn: 'raidBtn',
          checkBtn: 'checkBtn', checkPanel: 'checkPanel', stars: 'stars' },
   attr: 'exam',
-  ph1Label: 'Phase 1 · Pair Talk 同桌讨论', ph2Label: 'Phase 2 · Examiner Asks 考官问答',
+  ph1Label: '同桌讨论', ph2Label: '考官问答',
   ph1Title: 'Talk and decide together',
   ph1Chips: ['Do you like playing football?', "I like reading because it's relaxing.", "Why don't we draw pictures?"],
-  ph1Note: '聊完全部 8 个活动，再一起选出两个 · Cover ALL eight, then decide two',
-  ph1Btn: 'Start 2-min Talk 开始', ph1Sec: 120,
+  ph1Note: 'Cover ALL eight, then decide two<br>聊完全部 8 个活动，再一起选出两个',
+  ph1Btn: '开始 2 分钟讨论', ph1Sec: 120,
   namesLabel: '学生名单（只需输一次）', namesKey: 'names',
-  namesPlaceholder: '名字用逗号隔开，如：天天, 乐乐, 朵朵',
-  raidReady: 'Are you ready? 准备好了吗', raidHint: '点「RAID」随机抽一名学生和一道题 · Click RAID to pick a student and a question',
-  raidLabel: 'RAID 突袭', checkLabel: 'Checklist 互评表',
-  everyone: 'Everyone! 全班一起答',
-  checklist: ['Used <b>&nbsp;because&nbsp;</b> to give a reason · 用 because 说了原因',
-              'Asked <b>&nbsp;What about you?&nbsp;</b> · 把问题抛回给同伴',
-              'Talked about all 8 activities · 八个活动都聊到了',
-              'Chose two activities together · 一起定下了两个活动',
-              'Loud voice &amp; eye contact · 声音响亮、看着对方'],
+  namesPlaceholder: '名字用逗号隔开，如：天天、乐乐、朵朵',
+  raidReady: 'Are you ready?<br>准备好了吗', raidHint: '点「突袭」随机抽一名学生和一道题',
+  raidLabel: '突袭', checkLabel: '互评表',
+  everyone: '全班一起答',
+  checklist: ['用 <b>because</b> 说了原因',
+              '把问题抛回给同伴',
+              '八个活动都聊到了',
+              '一起定下了两个活动',
+              '声音响亮、看着对方'],
   scoreButtons: [{ team: 'A', label: 'Team A 答好 +1' }, { team: 'B', label: 'Team B 答好 +1' }],
-  rule: '答好一题 +1 · One point for each good answer',
+  rule: '答好一题 +1',
 };
 
 /* ---- 5 OX 棋：占格 +1、连线 +2 ---- */
@@ -248,17 +248,17 @@ STEPS[4].practice = {
   msg: { claim: 'bingoClaim', reset: 'bingoReset' },
   places: ACTS, cells: BINGO_CELLS, winLines: WIN_LINES,
   ids: { turn: 'bingoTurn', grid: 'bingoGrid', win: 'bingoWin', reset: 'bingoReset' },
-  turnA: 'Team A, your turn! (O) · 轮到 A 组', turnB: 'Team B, your turn! (X) · 轮到 B 组',
-  squareScore: 1, lineScore: 2, resetLabel: 'New Game 重新开局',
-  rule: '用 because 造句占格 +1，连线 +2 · A full sentence with "because" claims a square',
+  turnA: '轮到 Team A（画 O）', turnB: '轮到 Team B（画 X）',
+  squareScore: 1, lineScore: 2, resetLabel: '重新开局',
+  rule: '用 because 造句占格 +1，连线 +2',
 };
 
 /* ===== 句架条（五个环节同一套：没话说时抬头看这三句） / 参考抽屉 ===== */
 const FRAME_ITEMS = ['Do you like ... after school?', "I like ... because it's fun / relaxing.", 'What about you?'];
 const FRAMES = { flash: FRAME_ITEMS, tools: FRAME_ITEMS, pair: FRAME_ITEMS, examiner: FRAME_ITEMS, bingo: FRAME_ITEMS };
 const ref = {
-  tabs: [{ id: 'frames', label: 'Sentence Frames 句型' },
-         { id: 'vocab', label: 'Word Bank 语料库' }],
+  tabs: [{ id: 'frames', label: '句型' },
+         { id: 'vocab', label: '语料库' }],
   /* 语料库页要画活动图标，图片是组装后才进 LESSON.img 的 —— 用 getter 延迟到打开抽屉时再拼 */
   body: { frames: REF_FRAMES_HTML, get vocab() { return refVocabHTML(); } },
 };
