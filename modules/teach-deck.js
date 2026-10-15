@@ -17,7 +17,19 @@
   const NAME = 'teach-deck';
 
   /* ============ §三 block 词汇表 → DOM ============ */
-  const renderBlocks = bs => (bs || []).map(renderBlock).join('');
+  const renderBlocks = bs => (bs || []).map(renderBlockSafe).join('');
+
+  /* 铁律 6：一个块写坏了不能把整个外壳的启动拖死 —— 坏块降级成看得见的提示，其它块照常渲染。
+     （2026-10-15：cards 块漏了 items，整个课件打不开；课时数据字段漏写是常见失误） */
+  function renderBlockSafe(b) {
+    try {
+      return renderBlock(b);
+    } catch (e) {
+      return `<div class="dk-blk" style="border-left:3px solid var(--terra);color:var(--terra-ink)">`
+        + `⚠ 这一页有个「${(b && b.type) || '未知'}」块没渲染出来：${String((e && e.message) || e)}`
+        + `　—— 检查 lessons 数据里这个块的字段</div>`;
+    }
+  }
 
   function renderBlock(b) {
     switch (b.type) {
