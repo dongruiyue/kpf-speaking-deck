@@ -6,7 +6,7 @@
  * 契约三件套：render / actions / snapshot / init（+ mount 挂载钩子）
  * 铁律：本地动作执行一次 + 广播一次；收到广播只套用状态，不再本地计分。
  */
-(function () {
+function photoRelayFactory() {
   const NAME = 'photo-relay';
   let P = null, S = null;
   const el = n => document.getElementById(P.ids[n]);
@@ -89,5 +89,6 @@
     snapshot: () => ({ idx: S.idx, turn: S.turn }),
     reset(state) { S = state || { idx: 0, turn: 'A' }; return S; },
   };
-  TK.registerModule(NAME, mod);
-})();
+  return mod;
+}
+TK.registerModule('photo-relay', photoRelayFactory);

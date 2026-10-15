@@ -8,7 +8,7 @@
  * 铁律：本地动作执行一次并广播一次；收到广播只套用状态，绝不再本地计分。
  *      快照字段只在 mount 时注册 —— 没挂载的模块不会污染快照。
  */
-(function () {
+function drawQuestionFactory() {
   const NAME = 'draw-question';
   let P = null;        // 课时参数（step.practice）
   let S = null;        // 私有状态
@@ -251,5 +251,6 @@
     reset(state) { S = state; refill(); return S; },
   };
 
-  TK.registerModule(NAME, mod);
-})();
+  return mod;
+}
+TK.registerModule('draw-question', drawQuestionFactory);

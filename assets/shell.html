@@ -1357,14 +1357,20 @@ document.addEventListener('click', e => {
 });
 
 /* ================= 挂载环节的练习模块（模块自己按契约三件套注册过） ================= */
+/* 模块分两种注册形态：工厂（旧的一批状态型模块都改成了工厂）与单例对象（teach-deck 无状态）。
+   工厂形态下**每个环节取一个独立实例** —— 同一模块在一节课里出现两次也不会互相覆盖状态。
+   2026-10-15：negotiate 挂在两个环节时，第二次 mount 覆盖了第一次的 P/S，点击静默失效。 */
+const PRACT_INST = {};
 STEPS.forEach(s => {
   if (!s.practice) return;
   const def = MODS[s.practice.type];
   if (!def) { console.warn('[TK] 没找到模块：' + s.practice.type); return; }
   const stage = document.getElementById('stage-' + s.id);
-  const st = def.init ? def.init(s, s.practice) : {};
-  def.mount && def.mount(stage, s, s.practice);
-  def.render && def.render(st, stage);
+  const inst = (typeof def === 'function') ? def() : def;
+  PRACT_INST[s.id] = inst;
+  const st = inst.init ? inst.init(s, s.practice) : {};
+  inst.mount && inst.mount(stage, s, s.practice);
+  inst.render && inst.render(st, stage);
 });
 
 /* ================= 讲解 / 练习 视图切换 + 底部句架栏 ================= */

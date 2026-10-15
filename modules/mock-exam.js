@@ -8,7 +8,7 @@
  *
  * 契约三件套：render / actions / snapshot / init（+ mount 挂载钩子）
  */
-(function () {
+function mockExamFactory() {
   const NAME = 'mock-exam';
   let P = null, S = null;
   const el = n => document.getElementById(P.ids[n]);
@@ -152,5 +152,6 @@
     snapshot: () => ({ phase: S.phase, name: S.name, q: S.q }),
     reset(state) { S = state; return S; },
   };
-  TK.registerModule(NAME, mod);
-})();
+  return mod;
+}
+TK.registerModule('mock-exam', mockExamFactory);

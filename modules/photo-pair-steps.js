@@ -6,7 +6,7 @@
  * 契约三件套：render / actions / snapshot / init（+ mount 挂载钩子）
  * 铁律：本地动作执行一次并广播一次；收到广播只套用状态，绝不再本地计分。
  */
-(function () {
+function photoPairStepsFactory() {
   const NAME = 'photo-pair-steps';
   let P = null, S = null;
   const ATTR = k => (k ? 'data-' + k.replace(/([A-Z])/g, '-$1').toLowerCase() : 'data-none');   // p2Check → data-p2-check
@@ -143,5 +143,6 @@
     reset(state) { S = state; return S; },
   };
 
-  TK.registerModule(NAME, mod);
-})();
+  return mod;
+}
+TK.registerModule('photo-pair-steps', photoPairStepsFactory);

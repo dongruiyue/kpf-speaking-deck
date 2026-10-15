@@ -6,7 +6,7 @@
  *
  * 契约三件套：render / actions / snapshot / init（+ mount 挂载钩子）
  */
-(function () {
+function pairTaskFactory() {
   const NAME = 'pair-task';
   let P = null, S = null;
   const el = n => document.getElementById(P.ids[n]);
@@ -138,5 +138,6 @@
     snapshot: () => ({ chosen: S.chosen.slice(), done: S.done }),
     reset(state) { S = state; return S; },
   };
-  TK.registerModule(NAME, mod);
-})();
+  return mod;
+}
+TK.registerModule('pair-task', pairTaskFactory);

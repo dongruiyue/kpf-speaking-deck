@@ -6,7 +6,7 @@
  *
  * 契约三件套：render / actions / snapshot / init（+ mount 挂载钩子）
  */
-(function () {
+function negotiateFactory() {
   const NAME = 'negotiate';
   let P = null, S = null;
   const el = n => document.getElementById(P.ids[n]);
@@ -106,5 +106,6 @@
     snapshot: () => ({ state: S.state.slice(), done: S.done }),
     reset(state) { S = state; return S; },
   };
-  TK.registerModule(NAME, mod);
-})();
+  return mod;
+}
+TK.registerModule('negotiate', negotiateFactory);

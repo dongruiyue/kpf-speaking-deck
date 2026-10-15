@@ -336,3 +336,37 @@ PET/KET 迁移后改用「逐条验收 + 与迁移前的观感差异清单」来
    题目/材料/提示三级排版，浅绿只用于辅助区。范围限定在 `body.theme-k`（PF 主题与状态色语义不动）。
 7. **开课帮助**：弹层第一步**直接给可点的「打开学生屏」**（用户点击同步触发，不用去控制台找）；
    「完成引导」写状态（下次不再自动弹）、「本次跳过」不写 —— 两者语义分开；帮助入口随时可重开。
+
+## 第七轮（2026-10-15）：同一模块挂两次会静默失效 —— 从根上修
+
+**症状**：FCE L5 Part 3 要把 Test 1 / Test 2 都做成同一套三态讨论卡（`negotiate`），
+但第二个 `negotiate` 环节**点卡毫无反应、连报错都没有**（`window.onerror = 0`，12 条判据一条都抓不到）。
+
+**根因**：状态型模块把 `P` / `S` 存在**模块级变量**里（单实例）。外壳按环节挂载，
+第二次 `mount` 覆盖了第一次的 `P` / `S` → 先挂那个环节的点击处理读到 `b.dataset[P.attr]`
+时 `P` 已指向后一环节 → 索引 `undefined` → `step(NaN)` → `S.state[NaN] = NaN`，静默空操作。
+
+**修法（已落地）**：状态型模块统一改成**工厂**，外壳按环节实例化。
+
+```js
+// modules/x.js：原来是 (function () { … TK.registerModule(NAME, mod); })();
+function xFactory() { … ; return mod; }
+TK.registerModule('x', xFactory);
+
+// assets/shell.html 挂载循环：每个环节取一个独立实例
+const inst = (typeof def === 'function') ? def() : def;
+PRACT_INST[s.id] = inst;
+```
+
+- 11 个状态型模块全部改成工厂（teach-deck 无状态，仍是单例对象 —— 页号真相在外壳 `deckState`）。
+- **注册名要写成字面量**：`NAME` 在工厂内部，外面的注册语句看不见它（第一次改就是把
+  `TK.registerModule(NAME, …)` 留在外面 → `ReferenceError: NAME is not defined`，全盘白屏）。
+- **还有一处"借用模块"的写法要跟着改**：`tool-pager` 通过 `TK.modules['audio-player'].mount(…)`
+  内嵌听力播放器 —— 模块变工厂后这里拿到的是函数，报 `ap.mount is not a function`（KET-U7L3 当场挂掉）。
+  改成先实例化：`const ap = (typeof apDef === 'function') ? apDef() : apDef;`
+
+**教训**：模块之间**不要直接调用对方的 mount**（那是绕过外壳的私有耦合）；要借别的模块的能力，
+应该走外壳给的接口。这次先按"实例化一次"补齐，长期应把音频播放器抽成外壳级服务。
+
+**回归**：九份产物 `verify` 全过（FCE 回归仍 12/12 视图 0.00%），浏览器实测 t1 / t2 两个
+`negotiate` 实例互不干扰（t1 标记后切到 t2，t2 干净；回 t1 状态还在）。

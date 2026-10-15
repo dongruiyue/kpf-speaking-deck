@@ -6,7 +6,7 @@
  *
  * 契约三件套：render / actions / snapshot / init（+ mount 挂载钩子）
  */
-(function () {
+function flashCardsFactory() {
   const NAME = 'flash-cards';
   let P = null, S = null, cdTimer = null;
   const el = n => document.getElementById(P.ids[n]);
@@ -137,5 +137,6 @@
     snapshot: () => S.covered.slice(),
     reset(state) { S = state || { covered: P.places.map(() => false) }; return S; },
   };
-  TK.registerModule(NAME, mod);
-})();
+  return mod;
+}
+TK.registerModule('flash-cards', flashCardsFactory);

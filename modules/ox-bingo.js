@@ -5,7 +5,7 @@
  *
  * 契约三件套：render / actions / snapshot / init（+ mount 挂载钩子）
  */
-(function () {
+function oxBingoFactory() {
   const NAME = 'ox-bingo';
   let P = null, S = null;
   const el = n => document.getElementById(P.ids[n]);
@@ -114,5 +114,6 @@
     if (S.done) renderWin();
   }
 
-  TK.registerModule(NAME, mod);
-})();
+  return mod;
+}
+TK.registerModule('ox-bingo', oxBingoFactory);

@@ -13,7 +13,7 @@
  *
  * 契约三件套：render / actions / snapshot / init（+ mount 挂载钩子）
  */
-(function () {
+function audioPlayerFactory() {
   const NAME = 'audio-player';
   let P = null, S = null, auEl = null, slow = false;
   const el = n => document.getElementById(P.ids[n]);
@@ -93,5 +93,6 @@
     /* 给别的模块（句型库那种自带分页的）用的控制器 */
     ctl: { pause, show, playing: () => !!auEl && !auEl.paused, el: () => auEl },
   };
-  TK.registerModule(NAME, mod);
-})();
+  return mod;
+}
+TK.registerModule('audio-player', audioPlayerFactory);

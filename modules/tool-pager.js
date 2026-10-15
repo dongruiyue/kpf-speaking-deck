@@ -9,7 +9,7 @@
  *
  * 契约三件套：render / actions / snapshot / init（+ mount 挂载钩子）
  */
-(function () {
+function toolPagerFactory() {
   const NAME = 'tool-pager';
   let P = null, S = null, pics = null, audioCtl = null;
   const el = n => document.getElementById(P.ids[n]);
@@ -73,7 +73,9 @@
       h.insertAdjacentHTML('afterbegin', skeleton());
       buildPics();
       /* 听力播放器：挂进本页的 slot（观众屏不建，播放器模块自己会跳过） */
-      const ap = TK.modules[P.audioModule];
+      /* 模块是工厂（每个环节一个独立实例）：借音频播放器时先实例化一个 */
+      const apDef = TK.modules[P.audioModule];
+      const ap = (typeof apDef === 'function') ? apDef() : apDef;
       if (ap && !TK.isAudience) {
         ap.mount(el('audioSlot'), step, { ...P.audio });
         audioCtl = ap.ctl;
@@ -98,5 +100,6 @@
 
   function applySnap(n) { page(n || 0, true); }
 
-  TK.registerModule(NAME, mod);
-})();
+  return mod;
+}
+TK.registerModule('tool-pager', toolPagerFactory);
