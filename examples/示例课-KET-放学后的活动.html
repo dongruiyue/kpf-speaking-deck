@@ -2097,8 +2097,13 @@ function mockExamFactory() {
       ${P.places && P.places.length ? `<div class="flash-grid exam-grid" id="${P.ids.ph1Grid}"></div>` : ''}
       <div class="reminder-chips">${P.ph1Chips.map(c => `<span>${c}</span>`).join('')}</div>
     </div>
+    ${P.ph1RaidQuestions && P.ph1RaidQuestions.length ? `<div class="prac-set">
+      <div class="name-scroll" id="${P.ids.r1Name}">${P.r1Ready || ''}</div>
+      <div class="question" id="${P.ids.r1Q}">${P.r1Hint || ''}</div>
+    </div>` : ''}
     <div class="prac-set">
       <div class="btn-row teacher-only">
+        ${P.ph1RaidQuestions && P.ph1RaidQuestions.length ? `<button class="mega-btn terra" id="${P.ids.r1Btn}">${P.raidLabel}</button>` : ''}
         <button class="mega-btn" id="${P.ids.ph1Btn}">${TK.ICONS.timer} ${P.ph1Btn}</button>
       </div>
     </div>
@@ -2161,7 +2166,8 @@ function mockExamFactory() {
     el('phase2').style.display = S.phase === 2 ? 'flex' : 'none';
     el('ph1Tab').classList.toggle('cur', S.phase === 1);
     el('ph2Tab').classList.toggle('cur', S.phase === 2);
-    if (S.name !== null || S.q !== null) doRaid(S.name, S.q, true);
+    if (S.name !== null || S.q !== null) doRaid(2, S.name, S.q, true);
+    if (S.q1 !== undefined && S.q1 !== null) doRaid(1, S.n1, S.q1, true);
   }
 
   function phase(n, quiet) {
@@ -2171,26 +2177,34 @@ function mockExamFactory() {
     if (!quiet) TK.broadcast({ t: P.msg.phase, n });
   }
 
-  function doRaid(name, q, quiet) {
-    S.name = name; S.q = q;
-    el('raidName').textContent = name;
-    el('raidQ').textContent = q;
+  /* 抽人抽题的落点：which=1 是 Part 1 那边（r1Name/r1Q），which=2 是 Part 2 那边（raidName/raidQ）。
+     两边各有各的题库与显示位 —— 抽的是本 Part 的题，别混。 */
+  function doRaid(which, name, q, quiet) {
+    const one = which === 1;
+    const nEl = el(one ? 'r1Name' : 'raidName'), qEl = el(one ? 'r1Q' : 'raidQ');
+    if (one) { S.n1 = name; S.q1 = q; } else { S.name = name; S.q = q; }
+    if (nEl) nEl.textContent = name;
+    if (qEl) qEl.textContent = q;
     TK.sfx.draw();
-    if (!quiet) TK.broadcast({ t: P.msg.raid, name, q });
+    if (!quiet) TK.broadcast({ t: one ? P.msg.ph1Raid : P.msg.raid, name, q });
   }
 
-  /* RAID：滚动抽名 + 滴答声（纯本机动画，抽完才广播结果） */
-  function raid() {
+  /* RAID：滚动抽名 + 滴答声（纯本机动画，抽完才广播结果）。
+     两个页签各抽各的：Part 1 抽「Phase 2 长问题」，Part 2 抽照片与描述题。 */
+  function raid(which) {
     const names = el('names').value.split(/[,，、\s]+/).filter(Boolean);
     const poolN = names.length ? names : [P.everyone];
-    el('raidQ').textContent = '...';
+    const poolQ = which === 1 ? P.ph1RaidQuestions : P.raidQuestions;
+    const nEl = el(which === 1 ? 'r1Name' : 'raidName'), qEl = el(which === 1 ? 'r1Q' : 'raidQ');
+    if (!nEl || !qEl || !poolQ || !poolQ.length) return;
+    qEl.textContent = '...';
     let n = 0;
     const scroll = setInterval(() => {
-      el('raidName').textContent = TK.rnd(poolN);
+      nEl.textContent = TK.rnd(poolN);
       TK.beep(500 + n * 30, .05);
       if (++n > 12) {
         clearInterval(scroll);
-        doRaid(TK.rnd(poolN), TK.rnd(P.raidQuestions), false);
+        doRaid(which, TK.rnd(poolN), TK.rnd(poolQ), false);
       }
     }, 90);
   }
@@ -2198,24 +2212,26 @@ function mockExamFactory() {
   function applySnap(s) {
     if (!s) return;
     if (s.phase) phase(s.phase, true);
-    if (s.name !== undefined && (s.name !== null || s.q !== null)) doRaid(s.name, s.q, true);
+    if (s.name !== undefined && (s.name !== null || s.q !== null)) doRaid(2, s.name, s.q, true);
+    if (s.q1 !== undefined && s.q1 !== null) doRaid(1, s.n1, s.q1, true);
   }
 
   const mod = {
     init(step, practice) {
       P = practice; P.step = step.id;
-      S = { phase: 1, name: null, q: null };
+      S = { phase: 1, name: null, q: null, n1: null, q1: null };
       return S;
     },
     mount(h, step, practice) {
       P = practice; P.step = step.id;
-      S = S || { phase: 1, name: null, q: null };
+      S = S || { phase: 1, name: null, q: null, n1: null, q1: null };
       h.insertAdjacentHTML('afterbegin', skeleton());
       buildGrids();
       el('ph1Tab').onclick = () => phase(1, false);
       el('ph2Tab').onclick = () => phase(2, false);
       el('ph1Btn').onclick = () => TK.timer(P.ph1Sec, true);
-      el('raidBtn').onclick = raid;
+      if (el('r1Btn')) el('r1Btn').onclick = () => raid(1);
+      el('raidBtn').onclick = () => raid(2);
       el('checkBtn').onclick = () => {
         const p = el('checkPanel');
         p.style.display = p.style.display === 'none' ? 'block' : 'none';
@@ -2239,11 +2255,12 @@ function mockExamFactory() {
       TK.snapshotPart(P.snapKey, mod.snapshot);
       TK.applyPart(P.snapKey, applySnap);
       TK.on(P.msg.phase, m => phase(m.n, true));
-      TK.on(P.msg.raid, m => doRaid(m.name, m.q, true));
+      TK.on(P.msg.raid, m => doRaid(2, m.name, m.q, true));
+      if (P.msg.ph1Raid) TK.on(P.msg.ph1Raid, m => doRaid(1, m.name, m.q, true));
     },
     render,
     actions: {},
-    snapshot: () => ({ phase: S.phase, name: S.name, q: S.q }),
+    snapshot: () => ({ phase: S.phase, name: S.name, q: S.q, n1: S.n1, q1: S.q1 }),
     reset(state) { S = state; return S; },
   };
   return mod;

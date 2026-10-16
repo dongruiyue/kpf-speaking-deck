@@ -636,3 +636,31 @@ PET L6 的模拟考试（`mock-exam`）把**两张 Part 2 真题照片**塞进�
 错误、锁定、计分），只能靠「逐屏对照教学流程」看。
 
 规则写进 `typography.md` §十二：**一个页签 = 考试里的一个 Part，槽位装自己那份素材。**
+
+## 第十四轮（2026-10-16）：整卷环节的「突袭」抽错了题池
+
+用户第八条：「你看你现在抽查里面的不就是那几个问题吗，有抽查必要吗，抽查不应该抽 phase 2 吗？
+Talk about the place.」
+
+### 复盘
+
+PET L6 Part 2 页签的突袭池原来是
+`['Describe Photograph A/B …'] + P2_BACKUP + 三个追问` ——
+其中 `P2_BACKUP`（Talk about the person / **Talk about the place** / other things）本来就是
+**页面上的描述提示**，学生一看就知道；抽到它等于没抽。而这个 Part 真正随机的东西是「哪张照片」，
+Part 1 那边真正值得抽的是 **Phase 2 的八个长问题**。
+
+**修法**：突袭改成「一个页签一个题池、各有各的显示位」——
+- `ph1RaidQuestions`（Part 1 页签）：`P1_PHASE2_Q` + 两条追问；落点 `r1Name / r1Q`
+- `raidQuestions`（Part 2 页签）：照片描述题 + 细节追问；落点 `raidName / raidQ`
+- 模块里 `raid(which)` / `doRaid(which, …)` 都带 which；快照多存 `n1 / q1`；
+  广播用两条 msg（`raid` / `ph1Raid`），Part 1 的按钮只在配了题库时才渲染
+
+### 教训
+
+**「随机」的价值 = 池子比屏幕上能看到的选项大得多。**
+如果一个抽题池里装的是「页面上已经写着的提示」，那这个按钮就是装饰。
+配题池时先问一句：这一抽，学生事先知不知道答案？不知道才值得抽。
+
+（同一天更早的一条：把 photo prompt 混进 Part 1 的池子，是把「提示」当「题目」用了 ——
+提示属于页面脚手架，题目才进池子。）
