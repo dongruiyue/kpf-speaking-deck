@@ -914,6 +914,11 @@ body.audience .flash-grid.cols-4 .flash-card .name{font-size:clamp(var(--fs-base
 .flash-grid.exam-grid .flash-card .pic{flex:0 0 auto;height:clamp(64px,9vh,110px);min-height:0;}
 .flash-grid.exam-grid .flash-card .name{font-size:var(--fs-md);line-height:var(--lh-ui);height:auto;overflow:visible;}
 .flash-grid.exam-grid .flash-card .picimg{object-fit:contain;}
+/* Phase 2 的照片只是「看一眼」的参照物：教师端压矮，好让「突袭 / 互评表」还在折线以上 */
+.flash-grid.p2-grid{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));max-width:900px;}
+.flash-grid.p2-grid .flash-card{min-height:clamp(96px,13vh,140px);}
+.flash-grid.p2-grid .flash-card .pic{height:clamp(56px,7vh,90px);}
+.flash-grid.p2-grid .flash-card .name{font-size:var(--fs-base);}
 body.audience .flash-grid.exam-grid{grid-template-columns:repeat(auto-fit,minmax(360px,1fr));max-width:1240px;}
 body.audience .flash-grid.exam-grid .flash-card{min-height:clamp(150px,20vh,250px);}
 body.audience .flash-grid.exam-grid .flash-card .pic{height:clamp(70px,10vh,140px);}

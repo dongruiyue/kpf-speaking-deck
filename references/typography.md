@@ -345,3 +345,21 @@
 换成**整句**（「Tell me something about the games you play on your computer.」）就会挤成 5 列窄卡、
 文字溢出卡外。整句卡单独一档：`.flash-grid.exam-grid`（列宽 ≥300px、`aspect-ratio:auto`、卡高由内容定），
 并要求 `.picimg{object-fit:contain}`（否则图标被 `cover` 裁掉）。
+
+## 十二、整卷类环节（`mock-exam`）：一个页签一个 Part
+
+> 起因：2026-10-16 用户第七条 —— 「你这个板块顺序设计完全错误了吧，part2 和 part1 题目在一起，
+> part1 phase 2 又放在 part2 后面」。PET L6 的模拟考试把两张 **Part 2** 真题照片塞进了
+> `places`（模块 Phase 1 的槽），而 Phase 1 的 chips 放的是 **Part 1** 的问句 ——
+> 一屏里 Part 1 与 Part 2 混搭，且 Part 1 的长问题排在照片后面。
+
+**规矩：页签 = 考试里的一个 Part，槽位装自己那份素材。**
+
+- Phase 1（`places` / `ph1Chips` / `ph1Note`）= **Part 1 问答**：只放问句，**不放照片**。
+  问句按考试顺序排：基本信息在前，Phase 2 的长问题在后。
+  课时不想要图片格就写 `places: []`（模块会略过那一段，不留空块）。
+- Phase 2（`p2Places` / `raidQuestions` / 互评表）= **Part 2 图片描述**：照片挂在这里当参照物。
+  `raidQuestions` 只放本 Part 的题（Describe Photograph A/B + 细节追问），
+  别把别的 Part 的问句混进池子。
+- Phase 2 的照片是「看一眼」的参照物，用 `.p2-grid` 压矮（教师端 96–140px），
+  好让「突袭 / 互评表」留在折线以上。

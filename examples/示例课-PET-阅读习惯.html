@@ -914,6 +914,11 @@ body.audience .flash-grid.cols-4 .flash-card .name{font-size:clamp(var(--fs-base
 .flash-grid.exam-grid .flash-card .pic{flex:0 0 auto;height:clamp(64px,9vh,110px);min-height:0;}
 .flash-grid.exam-grid .flash-card .name{font-size:var(--fs-md);line-height:var(--lh-ui);height:auto;overflow:visible;}
 .flash-grid.exam-grid .flash-card .picimg{object-fit:contain;}
+/* Phase 2 的照片只是「看一眼」的参照物：教师端压矮，好让「突袭 / 互评表」还在折线以上 */
+.flash-grid.p2-grid{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));max-width:900px;}
+.flash-grid.p2-grid .flash-card{min-height:clamp(96px,13vh,140px);}
+.flash-grid.p2-grid .flash-card .pic{height:clamp(56px,7vh,90px);}
+.flash-grid.p2-grid .flash-card .name{font-size:var(--fs-base);}
 body.audience .flash-grid.exam-grid{grid-template-columns:repeat(auto-fit,minmax(360px,1fr));max-width:1240px;}
 body.audience .flash-grid.exam-grid .flash-card{min-height:clamp(150px,20vh,250px);}
 body.audience .flash-grid.exam-grid .flash-card .pic{height:clamp(70px,10vh,140px);}
@@ -1883,7 +1888,8 @@ function gapFillFactory() {
   /* parts = ['前半句', '答案', '后半句', …]：奇数位是空，空的下标 = (j-1)/2。
      拼接时**不加空格** —— 空格写在字符串里（'Shall we ' / ' with …'）。 */
   function rowHTML(it, i) {
-    const plain = P.oneShot ? ' plain' : '';
+    /* plainBlank：空画成朴素下划线（不给像输入框的方块、不给 ?）；oneShot 另说行为 */
+    const plain = P.plainBlank ? ' plain' : '';
     const body = it.parts.map((x, j) => j % 2
       ? `<button class="gf-blank${plain}" data-blank="${i}:${(j - 1) / 2}" data-on="0"></button>`
       : `<span>${x}</span>`).join('');
@@ -2088,7 +2094,7 @@ function mockExamFactory() {
       <div class="question">${P.ph1Title}</div>
     </div>
     <div class="prac-set">
-      <div class="flash-grid exam-grid" id="${P.ids.ph1Grid}"></div>
+      ${P.places && P.places.length ? `<div class="flash-grid exam-grid" id="${P.ids.ph1Grid}"></div>` : ''}
       <div class="reminder-chips">${P.ph1Chips.map(c => `<span>${c}</span>`).join('')}</div>
     </div>
     <div class="prac-set">
@@ -2105,6 +2111,9 @@ function mockExamFactory() {
       <div class="name-scroll" id="${P.ids.raidName}">${P.raidReady}</div>
       <div class="question" id="${P.ids.raidQ}">${P.raidHint}</div>
     </div>
+    ${P.p2Places && P.p2Places.length ? `<div class="prac-set">
+      <div class="flash-grid exam-grid p2-grid" id="${P.ids.p2Grid}"></div>
+    </div>` : ''}
     <div class="prac-set">
       <div class="check-panel teacher-only" id="${P.ids.checkPanel}" style="display:none">
         ${P.checklist.map(c => `<label><input type="checkbox">${c}</label>`).join('')}
@@ -2131,16 +2140,20 @@ function mockExamFactory() {
   </div>`;
   }
 
-  function buildPh1Grid() {
-    const grid = el('ph1Grid');
+  /* 图片卡：Phase 1 的格子与 Phase 2 的照片共用这一段。
+     Phase 1 没有照片（例如 PET L6 的 Part 1 只有问句）时不渲染 —— buildGrids 里按 list 判空。 */
+  function fillGrid(id, list) {
+    const grid = el(id);
+    if (!grid || !list || !list.length) return;
     grid.innerHTML = '';
-    P.places.forEach(p => {
+    list.forEach(p => {
       const d = document.createElement('div');
       d.className = 'flash-card static';
       d.innerHTML = `<span class="pic">${PIC(p.svg)}</span><div class="name">${p.name}</div>`;
       grid.appendChild(d);
     });
   }
+  function buildGrids() { fillGrid('ph1Grid', P.places); fillGrid('p2Grid', P.p2Places); }
 
   function render() {
     if (!S) return;
@@ -2198,7 +2211,7 @@ function mockExamFactory() {
       P = practice; P.step = step.id;
       S = S || { phase: 1, name: null, q: null };
       h.insertAdjacentHTML('afterbegin', skeleton());
-      buildPh1Grid();
+      buildGrids();
       el('ph1Tab').onclick = () => phase(1, false);
       el('ph2Tab').onclick = () => phase(2, false);
       el('ph1Btn').onclick = () => TK.timer(P.ph1Sec, true);

@@ -27,7 +27,7 @@ function mockExamFactory() {
       <div class="question">${P.ph1Title}</div>
     </div>
     <div class="prac-set">
-      <div class="flash-grid exam-grid" id="${P.ids.ph1Grid}"></div>
+      ${P.places && P.places.length ? `<div class="flash-grid exam-grid" id="${P.ids.ph1Grid}"></div>` : ''}
       <div class="reminder-chips">${P.ph1Chips.map(c => `<span>${c}</span>`).join('')}</div>
     </div>
     <div class="prac-set">
@@ -44,6 +44,9 @@ function mockExamFactory() {
       <div class="name-scroll" id="${P.ids.raidName}">${P.raidReady}</div>
       <div class="question" id="${P.ids.raidQ}">${P.raidHint}</div>
     </div>
+    ${P.p2Places && P.p2Places.length ? `<div class="prac-set">
+      <div class="flash-grid exam-grid p2-grid" id="${P.ids.p2Grid}"></div>
+    </div>` : ''}
     <div class="prac-set">
       <div class="check-panel teacher-only" id="${P.ids.checkPanel}" style="display:none">
         ${P.checklist.map(c => `<label><input type="checkbox">${c}</label>`).join('')}
@@ -70,16 +73,20 @@ function mockExamFactory() {
   </div>`;
   }
 
-  function buildPh1Grid() {
-    const grid = el('ph1Grid');
+  /* 图片卡：Phase 1 的格子与 Phase 2 的照片共用这一段。
+     Phase 1 没有照片（例如 PET L6 的 Part 1 只有问句）时不渲染 —— buildGrids 里按 list 判空。 */
+  function fillGrid(id, list) {
+    const grid = el(id);
+    if (!grid || !list || !list.length) return;
     grid.innerHTML = '';
-    P.places.forEach(p => {
+    list.forEach(p => {
       const d = document.createElement('div');
       d.className = 'flash-card static';
       d.innerHTML = `<span class="pic">${PIC(p.svg)}</span><div class="name">${p.name}</div>`;
       grid.appendChild(d);
     });
   }
+  function buildGrids() { fillGrid('ph1Grid', P.places); fillGrid('p2Grid', P.p2Places); }
 
   function render() {
     if (!S) return;
@@ -137,7 +144,7 @@ function mockExamFactory() {
       P = practice; P.step = step.id;
       S = S || { phase: 1, name: null, q: null };
       h.insertAdjacentHTML('afterbegin', skeleton());
-      buildPh1Grid();
+      buildGrids();
       el('ph1Tab').onclick = () => phase(1, false);
       el('ph2Tab').onclick = () => phase(2, false);
       el('ph1Btn').onclick = () => TK.timer(P.ph1Sec, true);

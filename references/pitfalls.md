@@ -602,3 +602,37 @@ U8L3 Ex.1 现在 = `plainBlank` + 逐个揭晓：点空揭晓那一个，也能�
 
 `.picimg{object-fit:cover}` 是给照片用的；**图标（SVG）用 cover 会被裁掉边缘**。
 整句卡/词卡里的图标一律 `contain`。
+
+## 第十三轮（2026-10-16）：整卷环节的页签装错了 Part —— 槽位不是随便塞的
+
+用户第七条：「你这个板块顺序设计完全错误了吧，part2 和 part1 题目在一起，part1 phase 2 又放在 part2 后面」。
+
+### 复盘
+
+PET L6 的模拟考试（`mock-exam`）把**两张 Part 2 真题照片**塞进了 `places`（模块 Phase 1 的图片槽），
+而 Phase 1 的 `ph1Chips` 放的是 **Part 1** 的问句。结果一屏里：
+
+1. Part 2 的照片 与 Part 1 的问句 **混在一起**（用户说的「part2 和 part1 题目在一起」）
+2. Part 1 的 Phase 2 长问题（Tell us about your home / What do you use the internet for）
+   按 DOM 顺序排在**照片之后**（用户说的「part1 phase 2 又放在 part2 后面」）
+
+### 修法
+
+- 模块：Phase 1 的图片格改成**可选**（`places: []` 就不渲染那一段，不留空块）；
+  新增 **Phase 2 的图片槽** `p2Places`（照片挂在「图片描述」那一边当参照物）。
+  `fillGrid(id, list)` 两个槽共用一段代码。
+- 课时（PET L6）：
+  - `places: []` —— Part 1 只放问句（基本信息在前、长问题在后）
+  - `p2Places: P2_PHOTOS` —— 照片回到 Part 2
+  - `raidQuestions` 去掉 `P1_PHASE2_Q`，只留本 Part 的题（Describe A/B + 细节追问）
+  - 页签改名 `Part 1 · 同桌互问` / `Part 2 · 图片描述`
+- Phase 2 的照片用 `.p2-grid` 压矮（96–140px），否则「突袭 / 互评表」被顶到折线以下。
+
+### 教训
+
+**复用模块之前，先把「模块渲染的槽位顺序」和「教学流程的顺序」并排写出来对一遍。**
+槽位是按某个课的教学流程设计的（`mock-exam` 的 Phase 1 原本是「PET U2L3 讨论任务」的图片槽），
+把另一个 Part 的素材塞进去，顺序与分组就同时错了 —— 这类错误判据查不出来（`verify.py` 只查高度、
+错误、锁定、计分），只能靠「逐屏对照教学流程」看。
+
+规则写进 `typography.md` §十二：**一个页签 = 考试里的一个 Part，槽位装自己那份素材。**
