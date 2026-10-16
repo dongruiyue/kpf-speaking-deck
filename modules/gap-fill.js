@@ -20,7 +20,8 @@ function gapFillFactory() {
   /* parts = ['前半句', '答案', '后半句', …]：奇数位是空，空的下标 = (j-1)/2。
      拼接时**不加空格** —— 空格写在字符串里（'Shall we ' / ' with …'）。 */
   function rowHTML(it, i) {
-    const plain = P.oneShot ? ' plain' : '';
+    /* plainBlank：空画成朴素下划线（不给像输入框的方块、不给 ?）；oneShot 另说行为 */
+    const plain = P.plainBlank ? ' plain' : '';
     const body = it.parts.map((x, j) => j % 2
       ? `<button class="gf-blank${plain}" data-blank="${i}:${(j - 1) / 2}" data-on="0"></button>`
       : `<span>${x}</span>`).join('');
