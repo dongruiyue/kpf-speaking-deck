@@ -741,6 +741,22 @@ details.settings summary{cursor:pointer;color:var(--c-ink-2);font-size:var(--fs-
 .check-panel{width:100%;max-width:720px;text-align:left;background:var(--c-bg);border:1px solid var(--c-line);border-radius:18px;padding:var(--sp-4);}
 .check-panel label{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) var(--sp-3);border-radius:12px;font-size:var(--fs-base);font-weight:var(--fw-body);line-height:var(--lh-ui);cursor:pointer;margin-bottom:var(--sp-2);background:var(--c-surface);border:1px solid var(--c-line);}
 .check-panel input{width:26px;height:26px;accent-color:var(--c-accent);flex-shrink:0;}
+/* ---- 挖空核对（gap-fill）----
+   一个空一枚按钮：点一下只揭晓这一个。答案只在揭晓时才写进 DOM（见 modules/gap-fill.js）。 */
+.gf-list{display:flex;flex-direction:column;gap:var(--sp-2);width:100%;align-items:flex-start;}
+.gf-head{width:100%;font-size:var(--fs-md);font-weight:var(--fw-semibold);color:var(--c-accent);line-height:var(--lh-display);margin-top:var(--sp-2);}
+.gf-head:first-child{margin-top:0;}
+.gf-bank-k{font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--c-ink-2);}
+.gf-row{display:flex;align-items:baseline;gap:var(--sp-3);width:100%;}
+.gf-n{flex-shrink:0;font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--c-ink-2);font-variant-numeric:tabular-nums;}
+.gf-line{flex:1 1 auto;font-size:var(--fs-lg);font-weight:var(--fw-medium);line-height:var(--lh-display);color:var(--c-ink);max-width:70ch;}
+.gf-blank{display:inline-block;min-width:4.6em;padding:0 var(--sp-2);margin:0 3px;border:none;border-bottom:2px solid var(--c-accent);background:var(--c-bg);border-radius:6px 6px 0 0;font:inherit;font-weight:var(--fw-semibold);color:var(--c-accent);line-height:1.4;cursor:pointer;}
+.gf-blank[data-on="0"]::after{content:'?';color:var(--c-ink-3);font-weight:var(--fw-body);}
+.gf-blank[data-on="1"]{background:var(--c-surface-soft);}
+.gf-cat{flex-shrink:0;font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--c-ink-3);}
+.gf-cat[data-on="1"]{color:var(--c-accent);}
+body.audience .gf-line{font-size:clamp(var(--fs-proj-body),1.6vw,var(--fs-xl));}
+body.audience .gf-blank{min-width:5.2em;}
 /* 互评：勾满五条 = 满分（勾选态统一用 ✓，不再混用 ★ ☆） */
 .rating{font-size:var(--fs-lg);color:var(--c-accent);letter-spacing:6px;text-align:center;font-weight:var(--fw-semibold);}
 .rating .off{color:var(--c-ink-3);}
