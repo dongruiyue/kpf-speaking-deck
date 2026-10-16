@@ -481,6 +481,19 @@ body.audience .turn-label{font-size:clamp(var(--fs-md),1.6vw,var(--fs-lg));}
 .deck-tips-list li{font-size:var(--fs-base);font-weight:var(--fw-body);line-height:var(--lh-body);max-width:70ch;}
 .deck-tips-list li b{color:var(--c-accent);font-weight:var(--fw-semibold);}
 .deck-tips-list li .tip-cn{display:block;font-size:var(--fs-sm);color:var(--c-ink-2);font-weight:var(--fw-body);margin-top:3px;}
+/* 讲义里的「分点正文」（成句的说明文字）：一条一行的项目符号列表。
+   起因：Part 3 形式说明是 8 句长句，原来按 .dk-i（25px 满宽）连排 = 一整屏文字墙，
+   学生读不出结构。分点后与 .deck-tips-list 同一档字号。
+   行高取 --lh-ui（1.5）而非常规正文的 --lh-body（1.7）：讲义页有「自然高 ≤1100px」的硬判据
+   （verify.py 第 5 条），列表本来就靠分隔与缩进分块，1.5 更省高度也够读。 */
+.lesson-deck .dk-ul{list-style:disc;margin-left:clamp(18px,1.4vw,24px);display:flex;flex-direction:column;gap:4px;}
+.lesson-deck .dk-ul li{font-size:var(--fs-base);font-weight:var(--fw-body);line-height:var(--lh-ui);color:var(--c-ink);max-width:92ch;}
+.lesson-deck .dk-ul li::marker{color:var(--c-accent);}
+.lesson-deck .dk-ul li b{color:var(--c-accent);font-weight:var(--fw-semibold);}
+/* 讲义里的「对话原稿」：说话人挂起缩进（悬挂缩进），一句一轮，别再连排成一段。 */
+.lesson-deck .dk-dlg{list-style:none;display:flex;flex-direction:column;gap:3px;margin:6px 0 2px;}
+.lesson-deck .dk-dlg li{font-size:var(--fs-base);font-weight:var(--fw-body);line-height:var(--lh-ui);color:var(--c-ink);padding-left:6em;text-indent:-6em;max-width:92ch;}
+.lesson-deck .dk-dlg li b{color:var(--c-accent);font-weight:var(--fw-semibold);}
 .lesson-deck .deck-quote{background:var(--c-surface-soft);border-radius:14px;padding:var(--sp-3) var(--sp-4);}
 .lesson-deck .deck-anno{background:var(--c-surface);border:1px solid var(--c-line);border-radius:13px;padding:var(--sp-2) var(--sp-3);margin-top:6px;}
 .lesson-deck .deck-anno .dk-ae{font-size:var(--fs-base);font-weight:var(--fw-medium);color:var(--c-ink);line-height:var(--lh-body);max-width:70ch;}
@@ -506,6 +519,8 @@ body.audience .deck-keytips .dk-te{font-size:clamp(var(--fs-proj-body),1.6vw,var
 body.audience .deck-keytips .dk-tc{font-size:clamp(var(--fs-base),1.3vw,var(--fs-lg));}
 body.audience .deck-time span{font-size:clamp(var(--fs-base),1.3vw,var(--fs-lg));}
 body.audience .deck-tips-list li{font-size:clamp(var(--fs-proj-body),1.6vw,var(--fs-xl));}
+body.audience .lesson-deck .dk-ul li{font-size:clamp(var(--fs-proj-body),1.6vw,var(--fs-xl));}
+body.audience .lesson-deck .dk-dlg li{font-size:clamp(var(--fs-proj-body),1.6vw,var(--fs-xl));}
 body.audience .deck-tips-list li .tip-cn{font-size:clamp(var(--fs-base),1.3vw,var(--fs-lg));}
 body.audience .lesson-deck .deck-anno .dk-ae{font-size:clamp(var(--fs-proj-body),1.6vw,var(--fs-xl));}
 body.audience .lesson-deck .deck-anno .dk-ai{font-size:clamp(var(--fs-base),1.3vw,var(--fs-lg));}
