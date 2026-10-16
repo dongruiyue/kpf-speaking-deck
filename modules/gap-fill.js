@@ -20,8 +20,9 @@ function gapFillFactory() {
   /* parts = ['前半句', '答案', '后半句', …]：奇数位是空，空的下标 = (j-1)/2。
      拼接时**不加空格** —— 空格写在字符串里（'Shall we ' / ' with …'）。 */
   function rowHTML(it, i) {
+    const plain = P.oneShot ? ' plain' : '';
     const body = it.parts.map((x, j) => j % 2
-      ? `<button class="gf-blank" data-blank="${i}:${(j - 1) / 2}" data-on="0"></button>`
+      ? `<button class="gf-blank${plain}" data-blank="${i}:${(j - 1) / 2}" data-on="0"></button>`
       : `<span>${x}</span>`).join('');
     return (it.head ? `<div class="gf-head">${it.head}</div>` : '')
       + `<div class="gf-row"><span class="gf-n">${i + 1}.</span><span class="gf-line">${body}</span>`
@@ -46,7 +47,8 @@ function gapFillFactory() {
     box.querySelectorAll('[data-blank]').forEach(b => {
       const [i, k] = b.dataset.blank.split(':').map(Number);
       if (S.on[i][k]) { b.textContent = P.items[i].parts[k * 2 + 1]; b.dataset.on = '1'; }
-      if (!TK.isAudience) b.onclick = () => reveal(i, k, false);
+      /* oneShot（不给可填的框、全班答完一次性揭晓）：空不可点，只留「全部揭晓」 */
+      if (!TK.isAudience && !P.oneShot) b.onclick = () => reveal(i, k, false);
     });
     box.querySelectorAll('[data-cat]').forEach(c => {
       const i = +c.dataset.cat;
@@ -54,12 +56,16 @@ function gapFillFactory() {
     });
     const nx = el('next');
     if (nx) {
+      nx.style.display = P.oneShot ? 'none' : '';
       const left = nextBlank();
       nx.disabled = !left;
       nx.textContent = left ? P.nextLabel + `（还剩 ${totalBlanks() - shownBlanks()} 空）` : P.doneLabel;
     }
     const all = el('all');
-    if (all) all.disabled = !nextBlank();
+    if (all) {
+      all.disabled = !nextBlank();
+      all.textContent = P.oneShot ? (P.oneShotLabel || P.allLabel) : P.allLabel;
+    }
     const cats = el('cats');
     if (cats) {
       const hasCat = P.items.some(it => it.cat);

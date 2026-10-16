@@ -313,3 +313,29 @@
 - `head`：分组小标题（`.gf-head`，accent 色）；`cat`：归类标签，**单独一层**揭晓（先填对词，再归类）。
 - **词库**（可选 `bank`）用 `.reminder-chips` 渲染，**不许做成按钮** —— 它不是可点的选项。
 - 「揭晓下一空」按显示顺序走，按钮上带 `（还剩 N 空）`，老师知道进度。
+- **`oneShot: true`：不给可填的框，全班答完一次性揭晓**（KET U8L3 Ex.1 就是这么用的）。
+  空渲染成朴素下划线（`.gf-blank.plain`，没有 `?`、不可点），控件只留「全部揭晓」+「重来」，
+  `next` 隐藏。判据：这一步的教学动作是「先全班口头答完，再看答案」，逐个揭晓会把节奏打散。
+
+## 十一、投影端补档（教师端紧凑档必须在观众屏再补一次）
+
+> 起因：2026-10-16 用户第六条 —— 「热身快闪图片和下方文字太小，演示屏上看不见」
+> 「模考图片文字排版太挤，显示不完整」。
+
+**规则：任何为了「教师端一屏放下」而做的小尺寸档，都要在 `body.audience` 里再补一次放大档。**
+
+- 反例（这一轮踩的）：`.flash-grid.cols-4 .flash-card .name{font-size:var(--fs-sm)}` + `.pic{height:clamp(46px,7.4vh,80px)}`
+  是给教师端排 8 张卡用的紧凑档；投影端照抄 = **标签 14px、图标 73px**（实测），
+  311px 宽的卡里 14px 字，坐在后排根本看不见。
+- 补档要**更高的特异性**：`.flash-grid.cols-4 .flash-card .name` 是 (0,4,0)，
+  `body.audience .flash-card .name` (0,2,1) **压不住它** ——
+  必须写 `body.audience .flash-grid.cols-4 .flash-card .name` (0,4,1)，并且放在样式表末尾。
+- `overflow:hidden` + 固定高度是「紧凑档」的常见写法，投影档要显式改回 `height:auto;overflow:visible`，
+  否则放大后就开始裁字。
+
+### 卡片网格：整句问句不许用 `minmax(140px)`
+
+`.flash-grid` 默认 `repeat(auto-fit,minmax(140px,1fr))` 适合**词**（computer / homework）；
+换成**整句**（「Tell me something about the games you play on your computer.」）就会挤成 5 列窄卡、
+文字溢出卡外。整句卡单独一档：`.flash-grid.exam-grid`（列宽 ≥300px、`aspect-ratio:auto`、卡高由内容定），
+并要求 `.picimg{object-fit:contain}`（否则图标被 `cover` 裁掉）。

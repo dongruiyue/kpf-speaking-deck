@@ -898,6 +898,32 @@ body.audience .bingo-cell .nm{font-size:clamp(var(--fs-base),1.3vw,var(--fs-lg))
 body.audience .bingo-cell .pol{font-size:clamp(var(--fs-sm),1.1vw,var(--fs-base));}
 body.audience .win-banner{font-size:clamp(var(--fs-lg),2.4vw,var(--fs-2xl));}
 
+/* ---- 投影端补档 1：4 列紧凑快闪卡（热身快闪）----
+   `.flash-grid.cols-4` 那一档（14px 标签 / 73px 图标 / 固定高度 + overflow:hidden）是给
+   教师端一屏排 8 张用的；投影端照抄就「看不见」（2026-10-16 用户反馈：热身快闪图片和文字太小）。
+   这里用更高特异性在观众屏推翻它：图标放大、标签放大、卡高由内容定、不裁字。 */
+body.audience .flash-grid.cols-4 .flash-card{height:auto;min-height:clamp(180px,28vh,340px);gap:var(--sp-2);}
+body.audience .flash-grid.cols-4 .flash-card .pic{height:clamp(90px,16vh,240px);}
+body.audience .flash-grid.cols-4 .flash-card .name{font-size:clamp(var(--fs-base),1.7vw,var(--fs-xl));height:auto;overflow:visible;font-weight:var(--fw-semibold);}
+
+/* ---- 投影端补档 2：模拟考试 Phase 1 的「照片 + 考官问句」卡 ----
+   问句是整句（最长 60 字符），默认 `minmax(140px,1fr)` 会挤成 5 列窄卡、文字溢出卡外。
+   这一档：列宽 ≥300px、卡高由内容定。 */
+.flash-grid.exam-grid{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));max-width:1100px;}
+.flash-grid.exam-grid .flash-card{aspect-ratio:auto;min-height:clamp(140px,19vh,220px);padding:var(--sp-3);gap:var(--sp-2);}
+.flash-grid.exam-grid .flash-card .pic{flex:0 0 auto;height:clamp(64px,9vh,110px);min-height:0;}
+.flash-grid.exam-grid .flash-card .name{font-size:var(--fs-md);line-height:var(--lh-ui);height:auto;overflow:visible;}
+.flash-grid.exam-grid .flash-card .picimg{object-fit:contain;}
+body.audience .flash-grid.exam-grid{grid-template-columns:repeat(auto-fit,minmax(360px,1fr));max-width:1240px;}
+body.audience .flash-grid.exam-grid .flash-card{min-height:clamp(150px,20vh,250px);}
+body.audience .flash-grid.exam-grid .flash-card .pic{height:clamp(70px,10vh,140px);}
+body.audience .flash-grid.exam-grid .flash-card .name{font-size:clamp(var(--fs-md),1.9vw,var(--fs-xl));}
+
+/* ---- 挖空：oneShot 模式（不给可填的框，全班答完一次性揭晓）---- */
+.gf-blank.plain{background:transparent;cursor:default;color:var(--c-ink-3);}
+.gf-blank.plain::after{content:none;}
+.gf-blank.plain[data-on="1"]{background:var(--c-surface-soft);color:var(--c-accent);}
+
 /*==LESSON_CSS==*/
 </style>
 </head>

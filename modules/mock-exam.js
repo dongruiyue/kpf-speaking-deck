@@ -27,7 +27,7 @@ function mockExamFactory() {
       <div class="question">${P.ph1Title}</div>
     </div>
     <div class="prac-set">
-      <div class="flash-grid" id="${P.ids.ph1Grid}" style="max-width:820px"></div>
+      <div class="flash-grid exam-grid" id="${P.ids.ph1Grid}"></div>
       <div class="reminder-chips">${P.ph1Chips.map(c => `<span>${c}</span>`).join('')}</div>
     </div>
     <div class="prac-set">

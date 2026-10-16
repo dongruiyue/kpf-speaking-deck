@@ -556,3 +556,43 @@ if (ap && !TK.isAudience) { ap.mount(el('audioSlot'), step, { ...P.audio }); aud
 `FCE intro` 的 `d` + `tip`、`PET noticing` 的 `d` + `tip`。
 
 **教训：动讲义分页 / 视图结构时，`grep` 一遍「第 N 页」和「讲义」两个词，逐条核对。**
+
+## 第十二轮（2026-10-16）：投影端补档 —— 教师端紧凑档照抄到投影就是「看不见」
+
+用户第六条（KET U8L3）：「热身快闪图片和下方文字太小，演示屏上看不见」
+「模考图片文字排版太挤，显示不完整」「填空干脆不给填空，答完一次性揭晓」。
+
+### 1. 【真 bug】教师端的紧凑档没有投影档
+
+`.flash-grid.cols-4`（4 列 8 张卡的紧凑档）写死了 `.name{font-size:var(--fs-sm)}`、
+`.pic{height:clamp(46px,7.4vh,80px)}`、卡高 `clamp(104px,15.5vh,158px)` + `overflow:hidden`。
+这套值在教师端是对的（一屏排下 8 张），**投影端照抄**实测就是：311px 宽的卡里 **14px 标签 + 73px 图标**。
+
+**修法**：在样式表末尾加 `body.audience .flash-grid.cols-4 …` 的补档，并且**特异性要高一级** ——
+`.flash-grid.cols-4 .flash-card .name` 是 (0,4,0)，外壳观众屏那条 `body.audience .flash-card .name` (0,2,1)
+**压不住**它（这就是为什么「观众屏字号表」里明明有 `.flash-card .name` 却没生效）。
+投影档还要把 `height:auto;overflow:visible` 写回来，否则放大后开始裁字。
+规则写进 `typography.md` §十一。
+
+### 2. 【真 bug】整句问句用 `minmax(140px)` 的卡片网格 = 挤成窄卡、文字溢出卡外
+
+模拟考试 Phase 1 的 8 张「照片 + 考官问句」卡复用了 `.flash-grid`（默认 `minmax(140px,1fr)`）。
+词（computer）没问题，整句（「Tell me something about the games you play on your computer.」）
+就被挤成 5 列 ~150px 窄卡，加上 `aspect-ratio:1.05` 的固定高度 —— 文字直接溢出卡外。
+
+**修法**：整句卡单独一档 `.flash-grid.exam-grid`（列宽 ≥300px、`aspect-ratio:auto`、卡高由内容定、
+`.picimg{object-fit:contain}`）。
+
+### 3. 挖空新增 `oneShot`：不给可填的框，全班答完一次性揭晓
+
+U8L3 的 Ex.1 是「听录音补全考官问题」，课堂动作是**先全班口头答完、再看答案**；
+逐个揭晓会把节奏打散，所以加了 `oneShot: true`：空渲染成朴素下划线（`.gf-blank.plain`，没有 `?`、不可点），
+控件只留「全部揭晓」+「重来」。同一条规则也把 Ex.1 的挖空从讲义搬进练习 —— 录音本来就在练习里。
+
+**注意**：`oneShot` 和「揭晓下一空」是两种节奏，别互相顶掉 —— 前者用于「全班齐答」，
+后者用于「一句一句核对」（PET U2L3 noticing、FCE L5 intro 就是后者）。
+
+### 4. 埋着的坑：`object-fit`
+
+`.picimg{object-fit:cover}` 是给照片用的；**图标（SVG）用 cover 会被裁掉边缘**。
+整句卡/词卡里的图标一律 `contain`。
